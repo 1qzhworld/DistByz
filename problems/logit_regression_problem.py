@@ -1,11 +1,11 @@
 import numpy as np
-from typing import Any, Literal
+from typing import Any, Literal, Dict
 from problems.abstract_problem import AbstractProblem
 
-
-class LogitRegression(AbstractProblem):
-    def __init__(self, agent_id: int, problem_type: Literal['LogitRegression'],
-                 dimension: int, constrain: Any = None) -> None:
+ProblemType = Literal['LeastSquareProblem', 'LogitRegressionProblem']
+class LogitRegressionProblem(AbstractProblem):
+    def __init__(self, agent_id: int, problem_type: ProblemType,
+                 dimension: int, prob_info: Dict[str, Any], constrain: Any = None) -> None:
         super().__init__(agent_id, problem_type, dimension, constrain)
         self.params = None
 

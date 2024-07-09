@@ -1,0 +1,6 @@
+net_size: 4
+gene_plan: 'ER_graph'
+net_settings:
+  conn_req: True
+  directed_req: False
+  ER_p: 0.5

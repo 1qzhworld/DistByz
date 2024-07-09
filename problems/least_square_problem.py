@@ -10,10 +10,10 @@ class LeastSquareProblem(AbstractProblem):
     """Least square problem with quadratic objective loss.
     objective loss: 0.5*x^T A x + b^T x + c
     """
-    def __init__(self, agent_id: int, problem_type: Literal['LeastSquare'], dimension: int,
-                 abc_info: Dict[str, Any], constrain: Any = None) -> None:
+    def __init__(self, agent_id: int, problem_type: Literal['LeastSquareProblem'], dimension: int,
+                 prob_info: Dict[str, Any], constrain: Any = None) -> None:
         super().__init__(agent_id, problem_type, dimension, constrain)
-        self.A, self.b, self.c = self.generate_abc(abc_info)
+        self.A, self.b, self.c = self.generate_abc(prob_info)
         self.sol = self.closed_form_sol()
 
     def generate_abc(self, abc_conditions: Dict[str, Any]) -> Tuple[np.ndarray, np.ndarray, float]:

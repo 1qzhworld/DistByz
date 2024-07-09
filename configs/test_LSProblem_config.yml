@@ -1,0 +1,8 @@
+problem_type: 'LeastSquareProblem'
+dimension: 5
+prob_info:
+  A:
+    HessLowerBd: 1.0
+    HessUpperBd: 10.0
+  b: [-5, 5]
+  c: 0.0

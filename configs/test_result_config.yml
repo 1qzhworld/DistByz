@@ -1,0 +1,7 @@
+result_settings:
+  record: False
+  save: False
+  func_eval: True
+  dist_lc_opt: True
+  load: False
+  logging_path: 'logging/test_log.log'

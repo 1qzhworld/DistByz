@@ -3,7 +3,7 @@ from typing import Any, Literal
 
 
 class AbstractProblem:
-    def __init__(self, agent_id: int, problem_type: Literal['LeastSquare', 'LogitRegression'],
+    def __init__(self, agent_id: int, problem_type: Literal['LeastSquareProblem', 'LogitRegressionProblem'],
                  dimension: int, constrain: Any = None) -> None:
         self.agent_id = agent_id
         self.problem_type = problem_type
