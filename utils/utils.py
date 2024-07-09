@@ -2,6 +2,8 @@
 
 import argparse
 import yaml
+import time
+from contextlib import contextmanager
 
 
 def parse_args():
@@ -33,6 +35,18 @@ def parse_args():
     _merge_configs(args, [network_config, problem_config, algorithm_config, result_config])
 
     return args
+
+
+@contextmanager
+def timer():
+    """
+    with timer():
+        code to test.
+    """
+    start_time = time.time()
+    yield
+    end_time = time.time()
+    print(f"Elapsed time: {end_time - start_time:.6f} seconds")
 
 
 def _load_yaml(file_path):

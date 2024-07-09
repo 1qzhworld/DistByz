@@ -3,6 +3,7 @@
 import ray
 import numpy as np
 from typing import Dict, List, Literal
+from time import sleep
 
 from algorithms.abstract_algorithm import AbstractAlgorithm
 from networks.network import Network
@@ -18,6 +19,9 @@ class DGDAlgorithm(AbstractAlgorithm):
         super().__init__(agent_id, agent_type, network, prob, comm, alg_settings, result_setting)
 
     def run(self, verbose: bool = False):
+        # initialization of the algorithms
+        self.broadcast()
+        sleep(5)
         while self.iter < self.end_iter:
             # setup stepsize for self.iter
             self.lr = self.stepsize(self.iter) if callable(self.stepsize) else self.stepsize
@@ -39,6 +43,7 @@ class DGDAlgorithm(AbstractAlgorithm):
                 self.func_eval[self.iter - 1] = self.loss.eval(self.agent_param)
             if self.res_dist_to_opt:
                 self.dist2opt[self.iter - 1] = np.linalg.norm(self.agent_param - self.lc_opt)
+        return self.agent_param
 
     def iter_run(self):
         self.aggregation()
@@ -60,5 +65,5 @@ class DGDAlgorithm(AbstractAlgorithm):
             # TODO: generate different attack types.
             msgs = {out_nbr_id: {"param": np.random.rand(self.agent_param.shape), "iter": self.iter}
                     for out_nbr_id in self.out_nbr_ids}
-        self.comm.set_outbox(msgs)
+        self.comm.set_outbox.remote(msgs)  # work, \checkmark
         self.comm.send_to_nbrs.remote(self.out_nbr_ids)

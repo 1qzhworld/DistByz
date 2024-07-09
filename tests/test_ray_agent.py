@@ -6,7 +6,7 @@ import pytest
 from problems.least_square_problem import LeastSquareProblem
 from networks.network import Network
 from functions.quadratic_function import QuadraticFunction
-from agents.ray_agent import RayAgent
+from agents.ray_agent_old import RayAgent
 
 @pytest.fixture
 def network():

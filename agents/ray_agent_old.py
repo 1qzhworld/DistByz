@@ -1,4 +1,4 @@
-# agents/ray_agent.py
+# agents/ray_agent_old.py
 
 import ray
 import numpy as np
@@ -17,10 +17,8 @@ ProblemType = Literal['LeastSquareProblem', 'LogitRegressionProblem']
 ImplementedAlgorithm = Literal['DGDAlgorithm', 'BBAlgorithm']
 
 
-@ray.remote
 class RayAgent:
-    def __init__(self, agent_id: int, agent_type: AgentType,
-                 network: Network,
+    def __init__(self, agent_id: int, agent_type: AgentType, network: Network,
                  problem_type: ProblemType, dimension: int, prob_info: Dict[str, Any],
                  alg_name: ImplementedAlgorithm, alg_settings: Dict[str, Any], result_settings: Dict[str, Any],
                  param: np.ndarray = None):
@@ -53,7 +51,22 @@ class RayAgent:
         # return self.comm  # for test
 
     def run(self):
-        self.alg.run()
+        self.param = self.alg.run()
+
+    def broadcast(self):
+        return self.alg.broadcast()
+
+    def get_comm(self):
+        return self.comm
+
+    def get_prob(self):
+        return self.prob
+
+    def get_alg(self):
+        return self.alg
+
+    def get_param(self):
+        return self.param
 
     @staticmethod
     def _check_agent_type(agent_type: AgentType):
