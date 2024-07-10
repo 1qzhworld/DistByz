@@ -1,4 +1,5 @@
-net_size: 40
+net_size: 4
+reg_size: 3
 gene_plan: 'ER_graph'
 net_settings:
   conn_req: True
