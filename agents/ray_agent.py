@@ -42,8 +42,7 @@ class RayAgent:
         self.outbox = {out_nbr_id: {"param": None, "iter": 0} for out_nbr_id in self.out_nbr_ids}
 
         self.param: np.ndarray = param if param else np.zeros(prob_settings['dimension'])
-        self.prob = self._setup_problem(agent_id, prob_settings)
-
+        self._setup_problem(agent_id, prob_settings)
 
     def agent_setup(self) -> None:
         """This should be the first function called after __init__."""
@@ -89,6 +88,10 @@ class RayAgent:
         self.send_to_nbrs(used_out_nbr_ids=self.out_nbr_ids)
 
     def aggregation(self) -> None:
+        tmp_param = np.sum([self.loc_wt[in_nbr_id] * self.inbox[in_nbr_id]['param'] for in_nbr_id in self.in_nbr_ids])
+        self.param = self.loc_wt[self.agent_id] * self.param + tmp_param
+
+    def bb_aggregation(self) -> None:
         tmp_param = np.sum([self.loc_wt[in_nbr_id] * self.inbox[in_nbr_id]['param'] for in_nbr_id in self.in_nbr_ids])
         self.param = self.loc_wt[self.agent_id] * self.param + tmp_param
 
