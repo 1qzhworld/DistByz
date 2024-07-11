@@ -1,8 +1,10 @@
 # agents/ray_agent.py
+import warnings
 
 import ray
 import numpy as np
-from typing import Any, List, Dict, Literal, Tuple
+import math
+from typing import Any, List, Dict, Literal, Tuple, Set
 
 from networks.network import Network
 from problems.abstract_problem import AbstractProblem
@@ -27,11 +29,11 @@ class RayAgent:
     RayAgent(...).options(name=f"{agent_id}").remote().
     after create the instances, agent_setup() should be firstly executed.
     """
-    def __init__(self, agent_id: int, agent_type: AgentType, _network: Network,
-                 prob_settings: Dict[str, Any], param: np.ndarray = None) -> None:
+    def __init__(self, agent_id: int, _network: Network,
+                 prob_settings: Dict[str, Any], param: np.ndarray = None, blk_size: int = None) -> None:
         self.agent_id = agent_id
-        self.agent_type = self._check_agent_type(agent_type)
-
+        self.agent_type = self._check_agent_type(_network.agent_types[agent_id])
+        self.byz_size = _network.byz_size
         self.in_nbr_ids = _network.get_in_neighbors(agent_id)
         self.out_nbr_ids = _network.get_out_neighbors(agent_id)
         self.loc_wt = generate_weights(_network)[:, agent_id]
@@ -44,12 +46,91 @@ class RayAgent:
         self.param: np.ndarray = param if param else np.zeros(prob_settings['dimension'])
         self._setup_problem(agent_id, prob_settings)
 
+        if blk_size:
+            self.blk_num, self.blk_size, self.blk_idxes = self.setup_blk(blk_size)
+
     def agent_setup(self) -> None:
         """This should be the first function called after __init__."""
         self._set_cached_handles()
         msgs = {out_nbr_id: {'param': self.param} for out_nbr_id in self.out_nbr_ids} if self.agent_type == 'Reg'\
             else {out_nbr_id: {'param': np.random.randn(*self.prob.dimension)} for out_nbr_id in self.out_nbr_ids}
         self._set_outbox(msgs)
+        print(f"Agent {self.agent_id} is setup.")
+
+    def setup_blk(self, blk_size: int) -> Tuple[int, int, Dict[int, List[int]]]:
+        """
+        blk_size: size of block (the last block may be smaller)
+        blk_num: blk_size*blk_num >= blk_dim
+        return blk_num, blk_size, blk_idxes
+        """
+        if 2*blk_size*self.byz_size+1 > len(self.in_nbr_ids):  # check r-robust condition.
+            warnings.warn(f"The block size {blk_size} is too large for {self.byz_size} byzantine agents.")
+        if blk_size is None:
+            return 1, self.prob.dimension, {1: [i for i in range(self.prob.dimension)]}
+        else:
+            return self._divide_blks(blk_size)
+
+    def _divide_blks(self, blk_size: int) -> Tuple[int, int, Dict[int, List[int]]]:
+        indices = np.arange(self.prob.dimension)
+        np.random.shuffle(indices)
+        blk_num = math.ceil(self.prob.dimension / blk_size)
+        blk_idxes = {}
+        for i in range(blk_num):
+            if i == blk_num - 1:  # for the last block (maybe smaller than other blocks)
+                blk_idx = indices[i * blk_size:]
+            else:  # For other blocks, take blk_dim indices
+                blk_idx = indices[i * blk_size:(i + 1) * blk_size]
+            blk_idxes[i] = blk_idx.tolist()  # Convert to list for easier use
+        return blk_num, blk_size, blk_idxes
+
+    def local_filter_scalar(self, dim: int) -> List[int]:
+        """
+        Filter out the largest and smallest extreme values based on a specified dimension.
+        self._network.byz_size: int
+        return the agent_ids that are in the middle.
+        """
+        # Retrieve the parameters from the inbox and include the current agent's parameters.
+        params = self.inbox2params()
+        # Sort the agents based on the specified dimension in their parameters.
+        sorted_agents = sorted(params.items(), key=lambda item: item[1][dim])
+        sorted_ids = [agent_id for agent_id, _ in sorted_agents]
+
+        byz_size = self.byz_size
+        loc_index = sorted_ids.index(self.agent_id)
+        # # Select the IDs to remove the highest and lowest values, taking into account the byz_size.
+        # rm_high_ids = sorted_ids[max(loc_index + 1, len(sorted_ids) - byz_size):]
+        # rm_low_ids = sorted_ids[:min(loc_index, byz_size)]
+        # # Get all agent IDs and remove the identified high and low extremes.
+        # sel_ids = [agent_id for agent_id in sorted_ids
+        #            if (agent_id not in rm_high_ids) and (agent_id not in rm_low_ids)]
+        sel_ids = sorted_ids[min(loc_index, byz_size):max(loc_index + 1, len(sorted_ids) - byz_size)]
+        return sel_ids
+
+    def local_filter_block(self, block: List[int]) -> List[int]:
+        if not block:  # If block is empty, return an empty list
+            return []
+        sel_ids: Set[int] = set(self.local_filter_scalar(block[0]))  # Initialize the set with the selected IDs.
+        for dim in block[1:]:  # Intersect with selected IDs from each subsequent dimension
+            sel_ids &= set(self.local_filter_scalar(dim))
+        return list(sel_ids)
+
+    def inbox2params(self):
+        """ Convert the parameters in inbox (self included)."""
+        params = {agent_id: msg['param'] for agent_id, msg in self.get_inbox().items()}
+        params[self.agent_id] = self.param
+        return params
+
+    def blk_agg(self, block: List[int]) -> np.ndarray:
+        """
+        block aggregation,
+        return the full vector with blockwise aggregation through blockwise weights.
+        """
+        for blk_idx in self.blk_idxes:
+            blk_agg = 1  # todo
+        full_agg = np.zeros(self.prob.dimension)  # TODO
+        for agent_id in block:
+            full_agg += self.loc_wt * self.get_inbox()[agent_id]['param']
+        return full_agg
 
     def _set_cached_handles(self) -> None:
         """Function is called in agent_setup(). The cached handles are used for send messages."""
@@ -67,6 +148,7 @@ class RayAgent:
         futures = [self.cached_out_nbr_handles[out_nbr_id].recv_from_nbr.remote(sender_id=self.agent_id, msg=msg)
                    for out_nbr_id, msg in self.outbox.items()]
         _, remaining_futures = ray.wait(futures, num_returns=len(futures), timeout=timeout)
+        # TODO: for asynchronize the wait can be removed.
         if remaining_futures:
             raise TimeoutError("Timed out waiting for all neighbors to respond.")
 
@@ -74,6 +156,7 @@ class RayAgent:
         """lr should be provided, should be part of algorithm."""
         self.param = self.param - lr * self.loss.gd(self.param)
         # self.param = self.param - lr * neg_dir
+        # print(f"\rAgent {self.agent_id} has {self.param}\r")
 
     def broadcast(self) -> None:
         if self.agent_type == 'Reg':
@@ -88,10 +171,14 @@ class RayAgent:
         self.send_to_nbrs(used_out_nbr_ids=self.out_nbr_ids)
 
     def aggregation(self) -> None:
-        tmp_param = np.sum([self.loc_wt[in_nbr_id] * self.inbox[in_nbr_id]['param'] for in_nbr_id in self.in_nbr_ids])
+        tmp_param = np.sum([self.loc_wt[in_nbr_id] * self.inbox[in_nbr_id]['param']
+                            for in_nbr_id in self.in_nbr_ids], axis=0)
+        # print(f"Local weight is: {self.loc_wt}")
+        # print(f"The tmp para is {tmp_param}")
         self.param = self.loc_wt[self.agent_id] * self.param + tmp_param
 
     def bb_aggregation(self) -> None:
+        # TODO
         tmp_param = np.sum([self.loc_wt[in_nbr_id] * self.inbox[in_nbr_id]['param'] for in_nbr_id in self.in_nbr_ids])
         self.param = self.loc_wt[self.agent_id] * self.param + tmp_param
 

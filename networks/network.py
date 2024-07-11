@@ -13,15 +13,17 @@ class Network:
     """
     The _network generation is designed with different strategies.
     """
-    def __init__(self, net_size: int,
-                 gene_plan: GenePlan,
-                 net_settings: Dict[str, Union[int, str, nx.Graph, nx.DiGraph]]) -> None:
+    def __init__(self, net_size: int, gene_plan: GenePlan,
+                 net_settings: Dict[str, Union[int, str, nx.Graph, nx.DiGraph]], byz_size: int = None) -> None:
         self.net_size = net_size
+        self.byz_size = byz_size if byz_size else 0
+
         self.gene_plan = gene_plan
         self.net_settings = net_settings
         self.net_conn_req = net_settings['conn_req']
         self.directed_req = net_settings['directed_req']
         self.network = self._generate_connected_network() if self.net_conn_req else self._generate_network()
+        self.agent_types = self.gene_agent_types()
 
     def _generate_connected_network(self) -> Union[nx.Graph, nx.DiGraph]:
         allow_generate_iteration: int = self.net_settings.get('allow_gene_iter', 1000)
@@ -102,6 +104,18 @@ class Network:
                 isinstance(self.net_settings['load_fixed'], nx.DiGraph)):
             raise ValueError("The parameter 'load_fixed' must be a networkx Graph instance.")
         return self.net_settings['load_fixed']
+
+    def gene_agent_types(self) -> Dict[int, str]:
+        """
+        return {agent_id: 'Byz' or 'Reg'}
+        """
+        reg_size = self.net_size - self.byz_size
+        if reg_size > self.net_size:
+            raise ValueError("reg_size cannot be greater than net_size")
+        values = ['Reg'] * reg_size + ['Byz'] * self.byz_size
+        random.shuffle(values)
+        result_dict = {i: values[i] for i in range(self.net_size)}
+        return result_dict
 
     def get_in_neighbors(self, agent_id: int) -> list[int]:  # self(agent_id) is not in return.
         if not self.network.has_node(agent_id):

@@ -1,0 +1,4 @@
+alg_settings:
+  end_iter: 20
+  stepsize: 0.00001
+  alg_name: 'BBAlgorithm'

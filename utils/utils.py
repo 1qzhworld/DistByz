@@ -80,15 +80,6 @@ def ray_context():
         ray.shutdown()
 
 
-def gene_byz(net_size: int, reg_size: int) -> Dict[int, str]:
-    if reg_size > net_size:
-        raise ValueError("reg_size cannot be greater than net_size")
-    values = ['Reg'] * reg_size + ['Byz'] * (net_size - reg_size)
-    random.shuffle(values)
-    result_dict = {i: values[i] for i in range(net_size)}
-    return result_dict
-
-
 def check_subset(sublist: List[Any], super_list: List[Any]):
     if not set(sublist).issubset(set(super_list)):
         raise RuntimeError("Send or receive to/from invalid neighbors.")
