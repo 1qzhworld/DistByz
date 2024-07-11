@@ -1,4 +1,4 @@
-net_size: 2
+net_size: 10
 byz_size: 0
 gene_plan: 'ER_graph'
 net_settings:

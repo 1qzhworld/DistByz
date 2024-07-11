@@ -2,6 +2,7 @@
 
 import os
 import logging
+from tqdm import tqdm
 
 import numpy as np
 import ray
@@ -53,7 +54,9 @@ class DGDAlgorithm:
     def global_centralized_sol(self) -> np.ndarray:
         """Compute the global centralized solution."""
         prob_futures = [agent.get_prob.remote() for agent in self.agents.values()]
-        ready_probs, _ = self.wait_for_all_futures(prob_futures, 10, "get_prob")
+        ready_probs, _ = self.wait_for_all_futures(
+            prob_futures, self.timeout_base*self.network.net_size, "get_prob"
+        )
         probs = [ray.get(ready_prob) for ready_prob in ready_probs]
         probA_list = [prob.A for prob in probs]
         print(f"A for agents are: {probA_list}")
@@ -84,60 +87,66 @@ class DGDAlgorithm:
         logging.info('Successfully setup all agents.')
         print('Successfully setup all agents.')
 
+        with tqdm(total=self.end_iter, desc="Training Progress", unit="iter") as pbar:
+            while self.cur_iter < self.end_iter:
+                # print(f'----Current iteration: {self.cur_iter}.----')
+                # broadcase (and receive) to change inbox and outbox informations.
+                # if self.verbose:
+                #     print("-------INFORMATION BEFORE BROADCAST.-------")
+                #     for agent_id, agent in self.agents.items():
+                #         print(f"Agent {agent_id}'s inbox is {ray.get(agent.get_inbox.remote())}.")
+                #         print(f"Agent {agent_id}'s outbox is {ray.get(agent.get_outbox.remote())}.")
+                #         print(f"Agent {agent_id}'s param is {ray.get(agent.get_param.remote())} before broadcast.")
+                bc_futures = [agent_handle.broadcast.remote() for agent_handle in self.agents.values()]
+                self.wait_for_all_futures(bc_futures, setup_timeout, "broadcast")
+                # if self.verbose:
+                #     print("-------INFORMATION AFTER BROADCAST.-------")
+                #     for agent_id, agent in self.agents.items():
+                #         print(f"Agent {agent_id}'s inbox is {ray.get(agent.get_inbox.remote())}.")
+                #         print(f"Agent {agent_id}'s outbox is {ray.get(agent.get_outbox.remote())}.")
+                #         print(f"Agent {agent_id}'s param is {ray.get(agent.get_param.remote())} after broadcast.")
 
+                # aggregation step
+                # if self.verbose:
+                #     print("-------INFORMATION BEFORE AGGREGATION.-------")
+                #     print(generate_weights(self.network))
+                #     agent = self.agents[0]
+                #     print(f"Agent {0}'s inbox is {ray.get(agent.get_inbox.remote())}.")
+                #     print(f"Agent {0}'s outbox is {ray.get(agent.get_outbox.remote())}.")
+                agg_futures = [agent_handle.aggregation.remote() for agent_handle in self.agents.values()]
+                self.wait_for_all_futures(agg_futures, setup_timeout, "aggregation")
+                # if self.verbose:
+                #     print("-------INFORMATION AFTER AGGREGATION.-------")
+                #     for agent_id, agent in self.agents.items():
+                #         print(f"Agent {agent_id}'s inbox is {ray.get(agent.get_inbox.remote())}.")
+                #         print(f"Agent {agent_id}'s outbox is {ray.get(agent.get_outbox.remote())}.")
+                #         print(f"Agent {agent_id}'s param is {ray.get(agent.get_param.remote())} after aggregation.")
 
-        while self.cur_iter < self.end_iter:
-            print(f'----Current iteration: {self.cur_iter}.----')
+                if isinstance(self.stepsize, float):
+                    lr = self.stepsize
+                elif self.stepsize == 'diminishing_stepsize':
+                    lr = self.diminishing_stepsize(self.cur_iter)
+                else:
+                    raise ValueError('Stepsize in algorithm setting is incorrect.')
+                # gradient descent update
+                upd_futures = [agent_handle.grad_desc.remote(lr) for agent_handle in self.agents.values()]
+                self.wait_for_all_futures(upd_futures, setup_timeout, "update")
+                # if self.verbose:
+                #     for agent_id, agent in self.agents.items():
+                #         print(f"Agent {agent_id}'s inbox is {ray.get(agent.get_inbox.remote())}.")
+                #         print(f"Agent {agent_id}'s outbox is {ray.get(agent.get_outbox.remote())}.")
+                #         print(f"Agent {agent_id}'s param is {ray.get(agent.get_param.remote())} after grad desc.")
+                if self.verbose:
+                    if self.cur_iter % 50 == 0:
+                        print(f"Agent 0's outbox is {ray.get(self.agents[0].get_outbox.remote())}.")
+                        print(f"Agent 0's paramt is {ray.get(self.agents[0].get_param.remote())}.")
 
-            # broadcase (and receive) to change inbox and outbox informations.
-            # if self.verbose:
-            #     print("-------INFORMATION BEFORE BROADCAST.-------")
-            #     for agent_id, agent in self.agents.items():
-            #         print(f"Agent {agent_id}'s inbox is {ray.get(agent.get_inbox.remote())}.")
-            #         print(f"Agent {agent_id}'s outbox is {ray.get(agent.get_outbox.remote())}.")
-            #         print(f"Agent {agent_id}'s param is {ray.get(agent.get_param.remote())} before broadcast.")
-            bc_futures = [agent_handle.broadcast.remote() for agent_handle in self.agents.values()]
-            self.wait_for_all_futures(bc_futures, setup_timeout, "broadcast")
-            # if self.verbose:
-            #     print("-------INFORMATION AFTER BROADCAST.-------")
-            #     for agent_id, agent in self.agents.items():
-            #         print(f"Agent {agent_id}'s inbox is {ray.get(agent.get_inbox.remote())}.")
-            #         print(f"Agent {agent_id}'s outbox is {ray.get(agent.get_outbox.remote())}.")
-            #         print(f"Agent {agent_id}'s param is {ray.get(agent.get_param.remote())} after broadcast.")
-
-            # aggregation step
-            # if self.verbose:
-            #     print("-------INFORMATION BEFORE AGGREGATION.-------")
-            #     print(generate_weights(self.network))
-            #     agent = self.agents[0]
-            #     print(f"Agent {0}'s inbox is {ray.get(agent.get_inbox.remote())}.")
-            #     print(f"Agent {0}'s outbox is {ray.get(agent.get_outbox.remote())}.")
-            agg_futures = [agent_handle.aggregation.remote() for agent_handle in self.agents.values()]
-            self.wait_for_all_futures(agg_futures, setup_timeout, "aggregation")
-            # if self.verbose:
-            #     print("-------INFORMATION AFTER AGGREGATION.-------")
-            #     for agent_id, agent in self.agents.items():
-            #         print(f"Agent {agent_id}'s inbox is {ray.get(agent.get_inbox.remote())}.")
-            #         print(f"Agent {agent_id}'s outbox is {ray.get(agent.get_outbox.remote())}.")
-            #         print(f"Agent {agent_id}'s param is {ray.get(agent.get_param.remote())} after aggregation.")
-            if isinstance(self.stepsize, float):
-                lr = self.stepsize
-            elif self.stepsize == 'diminishing_stepsize':
-                lr = self.diminishing_stepsize(self.cur_iter)
-            else:
-                raise ValueError('Stepsize in algorithm setting is incorrect.')
-            # gradient descent update
-            upd_futures = [agent_handle.grad_desc.remote(lr) for agent_handle in self.agents.values()]
-            self.wait_for_all_futures(upd_futures, setup_timeout, "update")
-            # if self.verbose:
-            #     for agent_id, agent in self.agents.items():
-            #         print(f"Agent {agent_id}'s inbox is {ray.get(agent.get_inbox.remote())}.")
-            #         print(f"Agent {agent_id}'s outbox is {ray.get(agent.get_outbox.remote())}.")
-            #         print(f"Agent {agent_id}'s param is {ray.get(agent.get_param.remote())} after grad desc.")
-            if self.verbose:
-                print(f"Agent 0's outbox is {ray.get(self.agents[0].get_outbox.remote())}.")
-                print(f"Agent 0's paramt is {ray.get(self.agents[0].get_param.remote())}.")
-            self.cur_iter += 1
+                pbar.set_postfix({
+                    'Iteration': self.cur_iter,
+                    'Learning Rate': f"{lr:.6f}"
+                })
+                pbar.update(1)
+                self.cur_iter += 1
 
         logging.info('Shutdown ray.')
         ray.shutdown()

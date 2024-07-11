@@ -1,6 +1,6 @@
 prob_info:
   problem_type: 'LeastSquareProblem'
-  dimension: 2
+  dimension: 5
   A:
     HessLowerBd: 1.0
     HessUpperBd: 10.0
