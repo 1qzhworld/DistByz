@@ -1,6 +1,5 @@
 # algorithms/abstract_algorithm.py
 
-import os
 import logging
 from tqdm import tqdm
 from abc import ABC, abstractmethod
@@ -37,6 +36,7 @@ class AbstractAlgorithm(ABC):
     def setup_agents(self):
         """Setup Ray agents based on the provided network and arguments."""
         for agent_id in range(self.network.net_size):
+            # noinspection PyUnresolvedReferences
             agent = RayAgent.options(name=f'{agent_id}').remote(
                 agent_id=agent_id,
                 _network=self.network,
@@ -83,7 +83,9 @@ class AbstractAlgorithm(ABC):
 
         with tqdm(total=self.end_iter, desc="Training Progress", unit="iter") as pbar:
             while self.cur_iter < self.end_iter:
+                # iter_run is an abstract method, should be provided in the detailed algorithms.
                 self.iter_run()
+
                 self.print_runtime_info()
                 pbar.set_postfix({
                     'Iteration': self.cur_iter,
@@ -104,26 +106,23 @@ class AbstractAlgorithm(ABC):
                 print(f"Agent 0's outbox is {ray.get(self.agents[0].get_outbox.remote())}.")
                 print(f"Agent 0's paramt is {ray.get(self.agents[0].get_param.remote())}.")
 
-    @staticmethod
-    def generate_weights(network: Network, weights_plan: str = 'metropolis-Hastings') -> np.ndarray:
+    def generate_weights(self, weights_plan: str = 'metropolis-Hastings') -> np.ndarray:
         if weights_plan == 'metropolis-Hastings':
-            return AbstractAlgorithm._get_metropolis_hastings_weights(network)
+            return AbstractAlgorithm._generate_metropolis_hastings_weights(self.network)
         else:
             raise NotImplementedError(f'Weights plan {weights_plan} is not implemented.')
 
-    @staticmethod
-    def _get_metropolis_hastings_weights(network: Network) -> np.ndarray:
+    def _generate_metropolis_hastings_weights(self) -> np.ndarray:
         """
             weight w_{ij} for x_{i}^{t+1} = \\sum_{j \\in N(i)} w_{ij} x_{j}^{t}.
-            :param network: networkx object, directed or Undirected graph.
-            :return:
+            :return: the weight above
         """
-        net_size = network.net_size
-        out_degrees = np.array([len(network.get_out_neighbors(agent_id)) for agent_id in range(net_size)])
+        net_size = self.network.net_size
+        out_degrees = np.array([len(self.network.get_out_neighbors(agent_id)) for agent_id in range(net_size)])
         weights = np.zeros((net_size, net_size))
 
         for agent_id in range(net_size):
-            in_nbrs = network.get_in_neighbors(agent_id)
+            in_nbrs = self.network.get_in_neighbors(agent_id)
             for in_nbr in in_nbrs:  # loc_wt for in-neighbors (but set the weight by out-degree)
                 weights[agent_id, in_nbr] = 1 / (np.maximum(out_degrees[agent_id], out_degrees[in_nbr]) + 1)
         for agent_id in range(net_size):
@@ -139,6 +138,7 @@ class AbstractAlgorithm(ABC):
         else:
             raise ValueError('Stepsize in algorithm setting is incorrect.')
         return lr
+
     @staticmethod
     def wait_for_all_futures(futures, timeout, action_name):
         """Wait for the provided futures to complete or timeout."""
@@ -153,10 +153,8 @@ class AbstractAlgorithm(ABC):
         """Compute the diminishing stepsize."""
         return 1 / (cur_iter + 1)
 
-def main():
-    args = parse_args()
-    dgd_algorithm = AbstractAlgorithm(args)
-    dgd_algorithm.run()
 
 if __name__ == "__main__":
-    main()
+    dgd_args = parse_args()
+    dgd_algorithm = AbstractAlgorithm(dgd_args)
+    dgd_algorithm.run()
