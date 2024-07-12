@@ -40,7 +40,7 @@ class AbstractAlgorithm(ABC):
             agent = RayAgent.options(name=f'{agent_id}').remote(
                 agent_id=agent_id,
                 _network=self.network,
-                loc_wt=AbstractAlgorithm.generate_weights(self.network),
+                loc_wt=self.generate_weights(),
                 prob_settings=self.args.prob_info
             )
             self.agents[agent_id] = agent
@@ -77,7 +77,6 @@ class AbstractAlgorithm(ABC):
         tmp_timeout = self.timeout_base * self.network.net_size  # timeout for synchronize comm, setup and others.
         setup_timeout = tmp_timeout if tmp_timeout > 20 else 20  # experimental value
         self.setup_communicators(setup_timeout=setup_timeout)
-
         # logging.info('Successfully setup all agents and their communicators.')
         print('Successfully setup all agents and their communicators.')
 
@@ -108,7 +107,7 @@ class AbstractAlgorithm(ABC):
 
     def generate_weights(self, weights_plan: str = 'metropolis-Hastings') -> np.ndarray:
         if weights_plan == 'metropolis-Hastings':
-            return AbstractAlgorithm._generate_metropolis_hastings_weights(self.network)
+            return self._generate_metropolis_hastings_weights()
         else:
             raise NotImplementedError(f'Weights plan {weights_plan} is not implemented.')
 

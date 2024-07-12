@@ -60,7 +60,7 @@ class RayAgent:
         msgs = {out_nbr_id: {'param': self.param} for out_nbr_id in self.out_nbr_ids} if self.agent_type == 'Reg'\
             else {out_nbr_id: {'param': np.random.randn(*self.prob.dimension)} for out_nbr_id in self.out_nbr_ids}
         self._set_outbox(msgs)
-        print(f"Agent {self.agent_id} is setup.")
+        print(f"Agent {self.agent_id} is setup and outbox is set.")
 
     def setup_blk(self, blk_size: int) -> Tuple[int, int, Dict[int, List[int]]]:
         """
@@ -137,15 +137,17 @@ class RayAgent:
             full_agg += self.loc_wt * self.get_inbox()[agent_id]['param']
         return full_agg
 
+    def blks_byz_aggregation(self, ) -> np.ndarray:
+        """
+        block aggregation,
+        return the full vector with blockwise aggregation through blockwise weights.
+        """
+        raise NotImplementedError
+
     def _set_cached_handles(self) -> None:
         """Function is called in agent_setup(). The cached handles are used for send messages."""
         self.cached_in_nbr_handles = {in_nbr: ray.get_actor(f"{in_nbr}") for in_nbr in self.in_nbr_ids}
         self.cached_out_nbr_handles = {out_nbr: ray.get_actor(f"{out_nbr}") for out_nbr in self.out_nbr_ids}
-
-    def recv_from_nbr(self, sender_id: int, msg: Any) -> Tuple[int, Dict[int, Any]]:
-        """Passive receive, used in send_to_nbrs. Save received information to inbox."""
-        self.inbox[sender_id] = msg
-        return sender_id, msg
 
     def send_to_nbrs(self, used_out_nbr_ids: List[int], timeout=1.0) -> None:
         """Only send from outbox. Therefore, no message parameter is provided."""
@@ -163,6 +165,11 @@ class RayAgent:
         # self.param = self.param - lr * neg_dir
         # print(f"\rAgent {self.agent_id} has {self.param}\r")
 
+    def recv_from_nbr(self, sender_id: int, msg: Any) -> Tuple[int, Dict[int, Any]]:
+        """Passive receive, used in send_to_nbrs. Save received information to inbox."""
+        self.inbox[sender_id] = msg
+        return sender_id, msg
+
     def broadcast(self) -> None:
         if self.agent_type == 'Reg':
             msgs = {out_nbr_id: {"param": self.param} for out_nbr_id in self.out_nbr_ids}
@@ -178,13 +185,6 @@ class RayAgent:
     def aggregation(self) -> None:
         tmp_param = np.sum([self.loc_wt[in_nbr_id] * self.inbox[in_nbr_id]['param']
                             for in_nbr_id in self.in_nbr_ids], axis=0)
-        # print(f"Local weight is: {self.loc_wt}")
-        # print(f"The tmp para is {tmp_param}")
-        self.param = self.loc_wt[self.agent_id] * self.param + tmp_param
-
-    def bb_aggregation(self) -> None:
-        # TODO
-        tmp_param = np.sum([self.loc_wt[in_nbr_id] * self.inbox[in_nbr_id]['param'] for in_nbr_id in self.in_nbr_ids])
         self.param = self.loc_wt[self.agent_id] * self.param + tmp_param
 
     @staticmethod
