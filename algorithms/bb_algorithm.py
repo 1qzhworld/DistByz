@@ -9,7 +9,6 @@ from algorithms.abstract_algorithm import AbstractAlgorithm
 class BBAlgorithm(AbstractAlgorithm):
     def __init__(self, args):
         super(BBAlgorithm, self).__init__(args)
-        self.blk_size = args.prob_info['blk_size']
 
     def setup_agents(self):
         # setup with block-wise weight matrices.
@@ -18,32 +17,11 @@ class BBAlgorithm(AbstractAlgorithm):
             agent = RayAgent.options(name=f'{agent_id}').remote(
                 agent_id=agent_id,
                 _network=self.network,
-                prob_settings=self.args.prob_info
-            )
+                prob_settings=self.args.prob_info,
+                blk_size=self.args.alg_settings['blk_size'],
+                wt_plan=self.args.alg_settings["wt_plan"]
+            )  # TODO: DO I need additional settings?
             self.agents[agent_id] = agent
-
-    # def run(self):
-    #     print("Running BBAlgorithm... Starting ray.")
-    #     ray.init(ignore_reinit_error=True)
-    #     print("Setup agents.")
-    #     self.setup_agents()
-    #     print(f"Global solution for LSP is: {self.centralized_solver()}.")
-    #     setup_timeout = max(20, self.timeout_base * self.network.net_size)
-    #     self.setup_communicators(setup_timeout=setup_timeout)
-    #     print('Successfully setup communicators.')
-    #
-    #     with tqdm(total=self.end_iter, desc="BB Algorithm", unit="iter") as pbar:
-    #         while self.cur_iter < self.end_iter:
-    #             self.iter_run()
-    #
-    #             self.print_runtime_info()
-    #             pbar.set_postfix({
-    #                 'Iteration': self.cur_iter,
-    #                 'Learning Rate': f"{self.lr:.6f}"
-    #             })
-    #             pbar.update(1)
-    #             self.cur_iter += 1
-    #     ray.shutdown()
 
     def iter_run(self):
         setup_timeout = self.timeout_base * self.network.net_size

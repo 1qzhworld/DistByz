@@ -1,7 +1,7 @@
-net_size: 10
-byz_size: 0
-gene_plan: 'ER_graph'
 net_settings:
+  net_size: 5
+  byz_size: 1
+  gene_plan: 'ER_graph'
   conn_req: True
   directed_req: False
   ER_p: 1.

@@ -17,7 +17,7 @@ from utils.utils import parse_args
 class AbstractAlgorithm(ABC):
     def __init__(self, args):
         self.args = args
-        self.network = Network(net_size=args.net_size, gene_plan=args.gene_plan, net_settings=args.net_settings)
+        self.network = Network(net_settings=args.net_settings)
         print(self.network.agent_types)
 
         self.alg_name = "DGDAlgorithm"

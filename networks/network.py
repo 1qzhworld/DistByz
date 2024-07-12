@@ -13,13 +13,13 @@ class Network:
     """
     The _network generation is designed with different strategies.
     """
-    def __init__(self, net_size: int, gene_plan: GenePlan,
-                 net_settings: Dict[str, Union[int, str, nx.Graph, nx.DiGraph]], byz_size: int = None) -> None:
-        self.net_size = net_size
-        self.byz_size = byz_size if byz_size else 0
-
-        self.gene_plan = gene_plan
+    def __init__(self, net_settings: Dict[str, Union[int, str, nx.Graph, nx.DiGraph]]) -> None:
         self.net_settings = net_settings
+
+        self.net_size = net_settings['net_size']
+        self.byz_size = net_settings['byz_size']
+        self.gene_plan = net_settings['gene_plan']
+
         self.net_conn_req = net_settings['conn_req']
         self.directed_req = net_settings['directed_req']
         self.network = self._generate_connected_network() if self.net_conn_req else self._generate_network()
