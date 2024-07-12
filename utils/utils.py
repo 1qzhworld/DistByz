@@ -5,11 +5,8 @@ import os
 import ray
 import yaml
 import time
-import random
-import numpy as np
 from contextlib import contextmanager
-from typing import Dict, Literal, List, Any
-from networks.network import Network
+from typing import List, Any
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.abspath(os.path.join(script_dir, '..'))
@@ -34,12 +31,37 @@ def parse_args():
         help="Path to the result configuration file (default: configs/test_result_config.yml)."
     )
 
+    parser.add_argument(
+        "-o", "--one", type=str, default=f"{project_root}/configs/test_all_in_one.yml",
+        help="Path to the unified configuration file (default: None)."
+    )
+
     args = parser.parse_args()
 
-    network_config = _load_yaml(args.net)
-    problem_config = _load_yaml(args.prob)
-    algorithm_config = _load_yaml(args.alg)
-    result_config = _load_yaml(args.rst)
+    # Initialize configurations
+    network_config = {}
+    problem_config = {}
+    algorithm_config = {}
+    result_config = {}
+    # Load unified configuration if provided (higher priority than split configs.)
+    if args.one:
+        # print(f"here we are in {args.one}")
+        unified_config = _load_yaml(args.one)
+        network_config = unified_config.get('network', {})
+        # print(f"Our network config: {network_config}")
+        problem_config = unified_config.get('problem', {})
+        algorithm_config = unified_config.get('algorithm', {})
+        result_config = unified_config.get('result', {})
+
+    # Override with specific configuration files if all in one is not provided
+    if not args.net:
+        network_config.update(_load_yaml(args.net))
+    if not args.prob:
+        problem_config.update(_load_yaml(args.prob))
+    if not args.alg:
+        algorithm_config.update(_load_yaml(args.alg))
+    if not args.rst:
+        result_config.update(_load_yaml(args.rst))
 
     _merge_configs(args, [network_config, problem_config, algorithm_config, result_config])
 
@@ -84,3 +106,8 @@ def ray_context():
 def check_subset(sublist: List[Any], super_list: List[Any]):
     if not set(sublist).issubset(set(super_list)):
         raise RuntimeError("Send or receive to/from invalid neighbors.")
+
+
+if __name__ == "__main__":
+    args = parse_args()
+    print(args.net_settings)
