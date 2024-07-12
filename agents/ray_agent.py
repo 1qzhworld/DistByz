@@ -11,7 +11,7 @@ from problems.abstract_problem import AbstractProblem
 from problems.least_square_problem import LeastSquareProblem
 from problems.logit_regression_problem import LogitRegressionProblem
 from functions.quadratic_function import QuadraticFunction
-from utils.utils import check_subset, generate_weights
+from utils.utils import check_subset
 
 AgentType = Literal['Reg', 'Byz']
 # ProblemType = Literal['LeastSquareProblem', 'LogitRegressionProblem']
@@ -29,14 +29,19 @@ class RayAgent:
     RayAgent(...).options(name=f"{agent_id}").remote().
     after create the instances, agent_setup() should be firstly executed.
     """
-    def __init__(self, agent_id: int, _network: Network,
-                 prob_settings: Dict[str, Any], param: np.ndarray = None, blk_size: int = None) -> None:
+    def __init__(
+            self, agent_id: int, _network: Network, loc_wt: Dict[int, np.ndarray], prob_settings: Dict[str, Any],
+            param: np.ndarray = None, blk_size: int = None
+    ) -> None:
         self.agent_id = agent_id
         self.agent_type = self._check_agent_type(_network.agent_types[agent_id])
         self.byz_size = _network.byz_size
         self.in_nbr_ids = _network.get_in_neighbors(agent_id)
         self.out_nbr_ids = _network.get_out_neighbors(agent_id)
-        self.loc_wt = generate_weights(_network)[:, agent_id]
+        self.loc_wt = loc_wt[:, agent_id]
+        # TODO: the weight should be calculated by agent itself.
+        #  It is unreasonable to use additional information in the network.
+
         self.cached_in_nbr_handles = {}
         self.cached_out_nbr_handles = {}
 

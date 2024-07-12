@@ -14,6 +14,7 @@ from networks.network import Network
 script_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.abspath(os.path.join(script_dir, '..'))
 
+
 def parse_args():
     parser = argparse.ArgumentParser(description="Run RayAgent optimization, setup for network, problem and algorithm")
     parser.add_argument(
@@ -83,30 +84,3 @@ def ray_context():
 def check_subset(sublist: List[Any], super_list: List[Any]):
     if not set(sublist).issubset(set(super_list)):
         raise RuntimeError("Send or receive to/from invalid neighbors.")
-
-
-def generate_weights(network: Network, weights_plan: str = 'metropolis-Hastings') -> np.ndarray:
-    if weights_plan == 'metropolis-Hastings':
-        return get_metropolis_hastings_weights(network)
-    else:
-        raise NotImplementedError(f'Weights plan {weights_plan} is not implemented.')
-
-
-def get_metropolis_hastings_weights(network: Network) -> np.ndarray:
-        """
-        weight w_{ij} for x_{i}^{t+1} = \\sum_{j \\in N(i)} w_{ij} x_{j}^{t}.
-        :param network: networkx object, directed or Undirected graph.
-        :return:
-        """
-        net_size = network.net_size
-        out_degrees = np.array([len(network.get_out_neighbors(agent_id)) for agent_id in range(net_size)])
-        weights = np.zeros((net_size, net_size))
-
-        for agent_id in range(net_size):
-            in_nbrs = network.get_in_neighbors(agent_id)
-            for in_nbr in in_nbrs:  # loc_wt for in-neighbors (but set the weight by out-degree)
-                weights[agent_id, in_nbr] = 1 / (np.maximum(out_degrees[agent_id], out_degrees[in_nbr]) + 1)
-        for agent_id in range(net_size):
-            weights[agent_id, agent_id] = 1 - np.sum(weights[:, agent_id])
-
-        return weights

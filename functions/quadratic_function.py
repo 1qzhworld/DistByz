@@ -4,7 +4,7 @@ import numpy as np
 
 
 class QuadraticFunction:
-    def __init__(self, a: np.ndarray, b: np.ndarray, c: np.ndarray, x_init: np.ndarray):
+    def __init__(self, a: np.ndarray, b: np.ndarray, c: np.ndarray = 0.0, x_init: np.ndarray = None):
         """
         x^T @ a @ x + b @ x + c
         :param a: square matrix
@@ -15,7 +15,7 @@ class QuadraticFunction:
         self.a = a
         self.b = b
         self.c = c
-        self.x_init = x_init
+        self.x_init = np.zeros(a.shape[0]) if x_init is None else x_init
 
     def eval(self, x: np.ndarray) -> np.ndarray:
         """

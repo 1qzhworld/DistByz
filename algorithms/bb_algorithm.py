@@ -12,7 +12,7 @@ from utils.utils import parse_args, generate_weights
 # os.environ["RAY_DEDUP_LOGS"] = "0"  # 禁用Ray的日志去重
 
 
-class DGDAlgorithm:
+class BBAlgorithm:
     def __init__(self, args):
         self.args = args
         self.network = Network(net_size=args.net_size, gene_plan=args.gene_plan, net_settings=args.net_settings)
@@ -26,6 +26,16 @@ class DGDAlgorithm:
         self.cur_iter = 0
         self.timeout_base = args.alg_settings['timeout_base']
         self.agents = {}
+
+        # additional initialization for the weight setting requirements.
+        self.L_smooth = self.args.prob_info['A']['HessUpperBd']
+        self.mu_strongly = self.args.prob_info['A']['HessLowerBd']
+        self.gamma = (1+(1/(1-self.mu_strongly/self.L_smooth)))/2
+
+        # Byzantine and regular information
+        self.byz_size = self.network.byz_size
+        self.reg_size = self.network.net_size - self.byz_size
+        self.net_size = self.network.net_size
 
     def setup_agents(self):
         """Setup Ray agents based on the provided network and arguments."""
@@ -76,6 +86,7 @@ class DGDAlgorithm:
         logging.info('Start to setup agents.')
         print('Setup agents.')
         self.setup_agents()
+
         print(f"Global solution: {self.global_centralized_sol()}.")
         tmp_timeout = self.timeout_base * self.network.net_size  # timeout for synchronize comm, setup and others.
         setup_timeout = tmp_timeout if tmp_timeout > 20 else 20  # experimental value
@@ -85,41 +96,14 @@ class DGDAlgorithm:
         print('Successfully setup all agents.')
 
 
-
         while self.cur_iter < self.end_iter:
-            print(f'----Current iteration: {self.cur_iter}.----')
-
-            # broadcase (and receive) to change inbox and outbox informations.
-            # if self.verbose:
-            #     print("-------INFORMATION BEFORE BROADCAST.-------")
-            #     for agent_id, agent in self.agents.items():
-            #         print(f"Agent {agent_id}'s inbox is {ray.get(agent.get_inbox.remote())}.")
-            #         print(f"Agent {agent_id}'s outbox is {ray.get(agent.get_outbox.remote())}.")
-            #         print(f"Agent {agent_id}'s param is {ray.get(agent.get_param.remote())} before broadcast.")
+            # print(f'----Current iteration: {self.cur_iter}.----')
             bc_futures = [agent_handle.broadcast.remote() for agent_handle in self.agents.values()]
             self.wait_for_all_futures(bc_futures, setup_timeout, "broadcast")
-            # if self.verbose:
-            #     print("-------INFORMATION AFTER BROADCAST.-------")
-            #     for agent_id, agent in self.agents.items():
-            #         print(f"Agent {agent_id}'s inbox is {ray.get(agent.get_inbox.remote())}.")
-            #         print(f"Agent {agent_id}'s outbox is {ray.get(agent.get_outbox.remote())}.")
-            #         print(f"Agent {agent_id}'s param is {ray.get(agent.get_param.remote())} after broadcast.")
 
-            # aggregation step
-            # if self.verbose:
-            #     print("-------INFORMATION BEFORE AGGREGATION.-------")
-            #     print(generate_weights(self.network))
-            #     agent = self.agents[0]
-            #     print(f"Agent {0}'s inbox is {ray.get(agent.get_inbox.remote())}.")
-            #     print(f"Agent {0}'s outbox is {ray.get(agent.get_outbox.remote())}.")
+            # aggregation
             agg_futures = [agent_handle.aggregation.remote() for agent_handle in self.agents.values()]
             self.wait_for_all_futures(agg_futures, setup_timeout, "aggregation")
-            # if self.verbose:
-            #     print("-------INFORMATION AFTER AGGREGATION.-------")
-            #     for agent_id, agent in self.agents.items():
-            #         print(f"Agent {agent_id}'s inbox is {ray.get(agent.get_inbox.remote())}.")
-            #         print(f"Agent {agent_id}'s outbox is {ray.get(agent.get_outbox.remote())}.")
-            #         print(f"Agent {agent_id}'s param is {ray.get(agent.get_param.remote())} after aggregation.")
 
             if isinstance(self.stepsize, float):
                 lr = self.stepsize
@@ -127,14 +111,11 @@ class DGDAlgorithm:
                 lr = self.diminishing_stepsize(self.cur_iter)
             else:
                 raise ValueError('Stepsize in algorithm setting is incorrect.')
+
             # gradient descent update
             upd_futures = [agent_handle.grad_desc.remote(lr) for agent_handle in self.agents.values()]
             self.wait_for_all_futures(upd_futures, setup_timeout, "update")
-            # if self.verbose:
-            #     for agent_id, agent in self.agents.items():
-            #         print(f"Agent {agent_id}'s inbox is {ray.get(agent.get_inbox.remote())}.")
-            #         print(f"Agent {agent_id}'s outbox is {ray.get(agent.get_outbox.remote())}.")
-            #         print(f"Agent {agent_id}'s param is {ray.get(agent.get_param.remote())} after grad desc.")
+
             if self.verbose:
                 if self.cur_iter % 50 == 0:
                     print(f"Agent 0's outbox is {ray.get(self.agents[0].get_outbox.remote())}.")
@@ -144,10 +125,12 @@ class DGDAlgorithm:
         logging.info('Shutdown ray.')
         ray.shutdown()
 
+
 def main():
     args = parse_args()
-    dgd_algorithm = DGDAlgorithm(args)
+    dgd_algorithm = BBAlgorithm(args)
     dgd_algorithm.run()
+
 
 if __name__ == "__main__":
     main()
