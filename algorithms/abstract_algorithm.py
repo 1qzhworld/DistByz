@@ -40,7 +40,6 @@ class AbstractAlgorithm(ABC):
             agent = RayAgent.options(name=f'{agent_id}').remote(
                 agent_id=agent_id,
                 _network=self.network,
-                loc_wt=self.generate_weights(),
                 prob_settings=self.args.prob_info
             )
             self.agents[agent_id] = agent
@@ -104,30 +103,6 @@ class AbstractAlgorithm(ABC):
             if self.cur_iter % 50 == 0:
                 print(f"Agent 0's outbox is {ray.get(self.agents[0].get_outbox.remote())}.")
                 print(f"Agent 0's paramt is {ray.get(self.agents[0].get_param.remote())}.")
-
-    def generate_weights(self, weights_plan: str = 'metropolis-Hastings') -> np.ndarray:
-        if weights_plan == 'metropolis-Hastings':
-            return self._generate_metropolis_hastings_weights()
-        else:
-            raise NotImplementedError(f'Weights plan {weights_plan} is not implemented.')
-
-    def _generate_metropolis_hastings_weights(self) -> np.ndarray:
-        """
-            weight w_{ij} for x_{i}^{t+1} = \\sum_{j \\in N(i)} w_{ij} x_{j}^{t}.
-            :return: the weight above
-        """
-        net_size = self.network.net_size
-        out_degrees = np.array([len(self.network.get_out_neighbors(agent_id)) for agent_id in range(net_size)])
-        weights = np.zeros((net_size, net_size))
-
-        for agent_id in range(net_size):
-            in_nbrs = self.network.get_in_neighbors(agent_id)
-            for in_nbr in in_nbrs:  # loc_wt for in-neighbors (but set the weight by out-degree)
-                weights[agent_id, in_nbr] = 1 / (np.maximum(out_degrees[agent_id], out_degrees[in_nbr]) + 1)
-        for agent_id in range(net_size):
-            weights[agent_id, agent_id] = 1 - np.sum(weights[:, agent_id])
-
-        return weights
 
     def gene_stepsize(self):
         if isinstance(self.stepsize, float):

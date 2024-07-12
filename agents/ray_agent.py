@@ -30,15 +30,17 @@ class RayAgent:
     after create the instances, agent_setup() should be firstly executed.
     """
     def __init__(
-            self, agent_id: int, _network: Network, loc_wt: Dict[int, np.ndarray], prob_settings: Dict[str, Any],
+            self, agent_id: int, _network: Network, prob_settings: Dict[str, Any],
             param: np.ndarray = None, blk_size: int = None
     ) -> None:
         self.agent_id = agent_id
         self.agent_type = self._check_agent_type(_network.agent_types[agent_id])
+
+        self._network = _network
         self.byz_size = _network.byz_size
         self.in_nbr_ids = _network.get_in_neighbors(agent_id)
         self.out_nbr_ids = _network.get_out_neighbors(agent_id)
-        self.loc_wt = loc_wt[:, agent_id]
+        self.loc_wt = self.generate_weights()[:, agent_id]
         # TODO: the weight should be calculated by agent itself.
         #  It is unreasonable to use additional information in the network.
 
@@ -50,6 +52,8 @@ class RayAgent:
 
         self.param: np.ndarray = param if param else np.zeros(prob_settings['dimension'])
         self._setup_problem(agent_id, prob_settings)
+        self.M = prob_settings['A']['HessUpperBd']
+        self.m = prob_settings['A']['HessLowerBd']
 
         if blk_size:
             self.blk_num, self.blk_size, self.blk_idxes = self.setup_blk(blk_size)
@@ -186,6 +190,36 @@ class RayAgent:
         tmp_param = np.sum([self.loc_wt[in_nbr_id] * self.inbox[in_nbr_id]['param']
                             for in_nbr_id in self.in_nbr_ids], axis=0)
         self.param = self.loc_wt[self.agent_id] * self.param + tmp_param
+
+    def generate_weights(self, weights_plan: str = 'metropolis-Hastings') -> np.ndarray:  # changed default weights_plan for BBAlg
+        # TODO: The generation plan is unreasonable using the network information,
+        #  improvement on the algorithm can be a direction for research.
+        if weights_plan == 'metropolis-Hastings':
+            return self._generate_metropolis_hastings_weights()
+        if weights_plan == 'block_byz':
+            return self._generate_block_byz_weights()
+        else:
+            raise ValueError(f"Unknown weights plan: {weights_plan}")
+
+    def _generate_metropolis_hastings_weights(self) -> np.ndarray:
+        """
+            weight w_{ij} for x_{i}^{t+1} = \\sum_{j \\in N(i)} w_{ij} x_{j}^{t}.
+            :return: the weight above
+        """
+        net_size = self._network.net_size
+        out_degrees = np.array([len(self._network.get_out_neighbors(agent_id)) for agent_id in range(net_size)])
+        weights = np.zeros((net_size, net_size))
+
+        for agent_id in range(net_size):
+            in_nbrs = self._network.get_in_neighbors(agent_id)
+            for in_nbr in in_nbrs:  # loc_wt for in-neighbors (but set the weight by out-degree)
+                weights[agent_id, in_nbr] = 1 / (np.maximum(out_degrees[agent_id], out_degrees[in_nbr]) + 1)
+        for agent_id in range(net_size):
+            weights[agent_id, agent_id] = 1 - np.sum(weights[:, agent_id])
+        return weights
+
+    def _generate_block_byz_weights(self):
+        raise NotImplementedError
 
     @staticmethod
     def _check_agent_type(agent_type: AgentType) -> str:
