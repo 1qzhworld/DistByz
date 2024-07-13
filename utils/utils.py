@@ -33,8 +33,12 @@ def parse_args():
         help="Path to the result configuration file (default: configs/test_result_config.yml)."
     )
 
+    # parser.add_argument(
+    #     "-o", "--one", type=str, default=f"{project_root}/configs/test_all_in_one_bb.yml",
+    #     help="Path to the unified configuration file (default: None)."
+    # )
     parser.add_argument(
-        "-o", "--one", type=str, default=f"{project_root}/configs/test_all_in_one_bb.yml",
+        "-o", "--one", type=str, default=f"{project_root}/configs/test_all_in_one_dgd.yml",
         help="Path to the unified configuration file (default: None)."
     )
     # parser.add_argument(
