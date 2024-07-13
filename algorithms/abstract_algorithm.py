@@ -20,7 +20,6 @@ class AbstractAlgorithm(ABC):
         self.network = Network(net_settings=args.net_settings)
         print(self.network.agent_types)
 
-        self.alg_name = "DGDAlgorithm"
         if args.alg_settings['alg_name'] != self.alg_name:
             raise ValueError(f"Setting for {args.alg_settings['alg_name']}, but here is DGDAlgorithm.")
         self.end_iter = args.alg_settings['end_iter']
@@ -40,7 +39,9 @@ class AbstractAlgorithm(ABC):
             agent = RayAgent.options(name=f'{agent_id}').remote(
                 agent_id=agent_id,
                 _network=self.network,
-                prob_settings=self.args.prob_info
+                prob_settings=self.args.prob_info,
+                alg_settings=self.args.alg_settings,
+                rst_settings=self.args.result_settings
             )
             self.agents[agent_id] = agent
 

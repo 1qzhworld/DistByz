@@ -7,6 +7,7 @@ from algorithms.abstract_algorithm import AbstractAlgorithm
 
 class DGDAlgorithm(AbstractAlgorithm):
     def __init__(self, args):
+        self.alg_name = "DGDAlgorithm"
         super(DGDAlgorithm, self).__init__(args)
 
     def iter_run(self):

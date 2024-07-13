@@ -2,11 +2,13 @@
 
 import argparse
 import os
+
+import numpy as np
 import ray
 import yaml
 import time
 from contextlib import contextmanager
-from typing import List, Any
+from typing import List, Any, Dict
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.abspath(os.path.join(script_dir, '..'))
@@ -32,9 +34,13 @@ def parse_args():
     )
 
     parser.add_argument(
-        "-o", "--one", type=str, default=f"{project_root}/configs/test_all_in_one.yml",
+        "-o", "--one", type=str, default=f"{project_root}/configs/test_all_in_one_bb.yml",
         help="Path to the unified configuration file (default: None)."
     )
+    # parser.add_argument(
+    #     "-o", "--one", type=str, default=None,
+    #     help="Path to the unified configuration file (default: None)."
+    # )
 
     args = parser.parse_args()
 
@@ -106,6 +112,28 @@ def ray_context():
 def check_subset(sublist: List[Any], super_list: List[Any]):
     if not set(sublist).issubset(set(super_list)):
         raise RuntimeError("Send or receive to/from invalid neighbors.")
+
+
+# def extract_dimensions(
+#         inbox_params: Dict[int, np.ndarray], sel_ids: List[int], blk_index: List[int]
+# ) -> Dict[int, np.ndarray]:
+#     """
+#     Removed: this is not necessary to extract dimensions for calculating the block weighted average.
+#     Args:
+#         inbox_params: parameters from inbox
+#     Extract the selected agents (from sel_ids) parameters' specialized dimension (blk_index)
+#     from the global parameters."""
+#     sel_params = {}
+#     check_subset(sel_ids, list(inbox_params.keys()))
+#     for sel_id in sel_ids:
+#         sel_params[sel_id] = inbox_params[sel_id]
+#     sel_block_params = {}
+#     for sel_id in sel_ids:
+#         sel_block_params[sel_id] = sel_params[sel_id][blk_index[sel_id]]
+#     # return sel_block_params
+#     return {sel_id: inbox_params[sel_id][blk_idx] for sel_id, blk_idx in blk_index.items() if sel_id in sel_ids}
+
+
 
 
 if __name__ == "__main__":

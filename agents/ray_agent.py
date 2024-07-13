@@ -31,6 +31,7 @@ class RayAgent:
     """
     def __init__(
             self, agent_id: int, _network: Network, prob_settings: Dict[str, Any],
+            alg_settings: Dict[str, Any], rst_settings: Dict[str, Any],
             param: np.ndarray = None, blk_size: int = None, wt_plan: str = "metropolis-Hastings"
     ) -> None:
         self.agent_id = agent_id
@@ -40,7 +41,6 @@ class RayAgent:
         self.byz_size = _network.byz_size
         self.in_nbr_ids = _network.get_in_neighbors(agent_id)
         self.out_nbr_ids = _network.get_out_neighbors(agent_id)
-        self.loc_wts = self.generate_weights(weights_plan=wt_plan)[:, agent_id]  # a placeholder, may change when used.
 
         self.cached_in_nbr_handles = {}
         self.cached_out_nbr_handles = {}
@@ -48,12 +48,20 @@ class RayAgent:
         self.inbox = {in_nbr_id: {"param": None, "iter": 0} for in_nbr_id in self.in_nbr_ids}
         self.outbox = {out_nbr_id: {"param": None, "iter": 0} for out_nbr_id in self.out_nbr_ids}
 
-        self.param: np.ndarray = param if param else np.zeros(prob_settings['dimension'])
+        self.param: np.ndarray = param if isinstance(param, np.ndarray) else np.zeros(prob_settings['dimension'])
         self._setup_problem(agent_id, prob_settings)
         self.M = prob_settings['A']['HessUpperBd']
         self.m = prob_settings['A']['HessLowerBd']
 
-        self.blk_num, self.blk_size, self.blk_idxes = self.setup_blk(blk_size)
+        self.alg_settings = alg_settings
+
+        self.rst_settings = rst_settings
+
+        self.blk_num, self.blk_size, self.blk_indexes = self.setup_blk(blk_size)
+        if alg_settings['alg_name'] == 'BBAlgorithm':
+            self.loc_blk_wts = {blk_num_id: np.zeros(self._network.net_size) for blk_num_id in range(self.blk_num)}
+        elif alg_settings['alg_name'] == 'DGDAlgorithm':
+            self.loc_wts = self.generate_weights(weights_plan=wt_plan)[:, agent_id]  # different from block weights.
 
     def agent_setup(self) -> None:
         """This should be the first function called after __init__."""
@@ -61,7 +69,6 @@ class RayAgent:
         msgs = {out_nbr_id: {'param': self.param} for out_nbr_id in self.out_nbr_ids} if self.agent_type == 'Reg'\
             else {out_nbr_id: {'param': np.random.randn(*self.prob.dimension)} for out_nbr_id in self.out_nbr_ids}
         self._set_outbox(msgs)
-        print(f"Agent {self.agent_id} is setup and outbox is set.")
 
     def setup_blk(self, blk_size: int) -> Tuple[int, int, Dict[int, List[int]]]:
         """
@@ -69,6 +76,7 @@ class RayAgent:
         blk_num: blk_size*blk_num >= blk_dim
         return blk_num, blk_size, blk_idxes
         """
+        print(f"block size is: {blk_size}.")
         blk_size = blk_size if isinstance(blk_size, int) else self.prob.dimension
         if 2 * blk_size * self.byz_size + 1 > len(self.in_nbr_ids):  # check r-robust condition.
             warnings.warn(f"The block size {blk_size} is too large for {self.byz_size} byzantine agents.")
@@ -97,10 +105,12 @@ class RayAgent:
         id_params: Dict[int, np.ndarray] = self.inbox2params()
         # Sort the agents based on the specified dimension in their parameters.
         sorted_agents = sorted(id_params.items(), key=lambda item: item[1][dim])
+        print(sorted_agents)
         sorted_ids = [agent_id for agent_id, _ in sorted_agents]
 
         byz_size = self.byz_size
         loc_index = sorted_ids.index(self.agent_id)
+        # print(loc_index)
         # # Select the IDs to remove the highest and lowest values, taking into account the byz_size.
         # rm_high_ids = sorted_ids[max(loc_index + 1, len(sorted_ids) - byz_size):]
         # rm_low_ids = sorted_ids[:min(loc_index, byz_size)]
@@ -108,9 +118,10 @@ class RayAgent:
         # sel_ids = [agent_id for agent_id in sorted_ids
         #            if (agent_id not in rm_high_ids) and (agent_id not in rm_low_ids)]
         sel_ids = sorted_ids[min(loc_index, byz_size):max(loc_index + 1, len(sorted_ids) - byz_size)]
-        return sel_ids
+        return sel_ids  # id of selected agents among dimension dim
 
     def local_filter_block(self, block: List[int]) -> List[int]:
+        """return: id of selected agents among the block (dimensions), intersection of dimension results."""
         if not block:  # If block is empty, return an empty list
             return []
         sel_ids: Set[int] = set(self.local_filter_scalar(block[0]))  # Initialize the set with the selected IDs.
@@ -118,30 +129,11 @@ class RayAgent:
             sel_ids &= set(self.local_filter_scalar(dim))
         return list(sel_ids)
 
-    def inbox2params(self) -> Dict[int, np.ndarray]:
+    def load_loc_params(self) -> Dict[int, np.ndarray]:
         """ Convert the parameters in inbox (self included)."""
         id_params = {agent_id: msg['param'] for agent_id, msg in self.get_inbox().items()}
         id_params[self.agent_id] = self.param
         return id_params
-
-    def blk_agg(self, block: List[int]) -> np.ndarray:
-        """
-        block aggregation,
-        return the full vector with blockwise aggregation through blockwise weights.
-        """
-        for blk_idx in self.blk_idxes:
-            blk_agg = 1  # TODO
-        full_agg = np.zeros(self.prob.dimension)  # TODO
-        for agent_id in block:
-            full_agg += self.loc_wts * self.get_inbox()[agent_id]['param']
-        return full_agg
-
-    def blks_byz_aggregation(self, ) -> np.ndarray:
-        """
-        block aggregation,
-        return the full vector with blockwise aggregation through blockwise weights.
-        """
-        raise NotImplementedError
 
     def _set_cached_handles(self) -> None:
         """Function is called in agent_setup(). The cached handles are used for send messages."""
@@ -191,8 +183,6 @@ class RayAgent:
         #  improvement on the algorithm can be a direction for research.
         if weights_plan == 'metropolis-Hastings':
             return self._generate_metropolis_hastings_weights()
-        if weights_plan == 'block_byz':
-            return self._generate_block_byz_weights()
         else:
             raise ValueError(f"Unknown weights plan: {weights_plan}")
 
@@ -213,14 +203,68 @@ class RayAgent:
             weights[agent_id, agent_id] = 1 - np.sum(weights[:, agent_id])
         return weights
 
-    def _generate_block_byz_weights(self):
+    def generate_block_weights(self, weights_plan: str = 'block_byz') -> Dict[int, np.ndarray]:
+        if weights_plan == 'block_byz':
+            return self._generate_block_byz_weights()
+        else:
+            raise ValueError(f"Unknown __block__ weights plan: {weights_plan}.")
+
+    def _generate_block_byz_weights(self) -> Dict[int, np.ndarray]:
         block_wts = {}
-        for blk, blk_idx in self.blk_idxes.items():
-            block_wts[blk] = self._generate_block_byz_weight()
+        for blk_num_id, blk_index in self.blk_indexes.items():  # blk_id (in range(blk_num)) which block, blk_i
+            sel_ids = self.local_filter_block(blk_index)
+            check_subset(sel_ids, self._network.get_in_neighbors(self.agent_id))
+            block_wts[blk_num_id] = self._generate_block_byz_weight(sel_ids)  # just a row vector, not matrix.
+        return block_wts
 
+    def _generate_block_byz_weight(self, sel_ids: List[int]) -> np.ndarray:
+        net_size = self._network.net_size
+        wx = 1/net_size  # lower bound of weight for x variable.
+        # The weight can be changed to other values such as 1/(self._network.get_out_neighbors(self.agent_id)).
+        reg_size = net_size - self.byz_size
+        gamma = 0.5*(1+1/(1-self.m/(self.M+self.m)))  # self.M+self.m should be self.M, but use the sum for safe.
+        wd = np.max((reg_size-1-gamma)/(reg_size-2), wx)  # diagonal of weight should be positive.
+        check_subset([self.agent_id], sel_ids)
 
-    def _generate_block_byz_weight(self):
-        raise NotImplementedError  # TODO: for one block
+        w_others = (1-wd) / (len(sel_ids)-1)  # sum of weights without agent_id itself.
+        loc_wt_row = np.zeros(net_size)
+        loc_wt_row[sel_ids] = w_others
+        loc_wt_row[self.agent_id] = wd  # replace the `diagonal` one with its value.
+        return loc_wt_row
+
+    # def one_blk_agg(self, blk_num_id: int, blk_index: List[int]) -> Dict[Tuple[int], np.ndarray]:
+    #     """
+    #     Args:
+    #         blk_num_id: the blk_num_id-th block (in range(self.blk_num))
+    #         blk_index: the index of the corresponding blk_num_id (self.blk_indexes[blk_num_id]).
+    #     Returns:
+    #         One block aggregation with blockwise weight matrix and blockwise aggregation.
+    #         return the aggregated vector (not full vector) whose length is the block dimension.
+    #         Its key in tuple is the indexes (block_index) of the vector in the full vector.
+    #     """
+    #     id_params = self.loc_params()
+    #     id_param_blk_idex = {agent_id: id_params[agent_id] for agent_id in blk_index}
+    #         self.loc_wts[blk_id]
+    #         # TODO add vector dimensions.
+    #         blk_agg = 1  # TODO
+    #     full_agg = np.zeros(self.prob.dimension)  # TODO
+    #     for agent_id in blk_indexes:
+    #         full_agg += self.loc_wts * self.get_inbox()[agent_id]['param']
+    #     return full_agg
+
+    def block_byz_aggregation(self) -> np.ndarray:
+        """
+        block aggregation,
+        return the full vector with blockwise aggregation through blockwise weights.
+        """
+        tmp_param = np.zeros(self.prob.dimension)
+        loc_params = self.load_loc_params()  # self included.
+        for dim in range(self.prob.dimension):
+            for blk_num_id in range(self.blk_num):
+                for agent_j in self.blk_indexes[blk_num_id]:
+                    tmp_param[dim] += self.loc_blk_wts[blk_num_id][self.agent_id, agent_j]*loc_params[agent_j][dim]
+        return tmp_param
+
 
     @staticmethod
     def _check_agent_type(agent_type: AgentType) -> str:
@@ -259,5 +303,8 @@ class RayAgent:
     def get_byz_size(self):
         return self.byz_size
 
-    def get_blk_related(self) -> Tuple[int, int, Dict[int, List[int]]]:
-        return self.blk_num, self.blk_size, self.blk_idxes
+    def get_blk_info(self) -> Tuple[int, int, Dict[int, List[int]]]:
+        return self.blk_num, self.blk_size, self.blk_indexes
+
+    def get_loc_blk_wts(self):
+        return self.loc_blk_wts

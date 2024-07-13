@@ -4,10 +4,11 @@ import ray
 from tqdm import tqdm
 from utils.utils import parse_args
 from algorithms.abstract_algorithm import AbstractAlgorithm
-
+from agents.ray_agent import RayAgent
 
 class BBAlgorithm(AbstractAlgorithm):
     def __init__(self, args):
+        self.alg_name = "BBAlgorithm"
         super(BBAlgorithm, self).__init__(args)
 
     def setup_agents(self):
@@ -18,6 +19,7 @@ class BBAlgorithm(AbstractAlgorithm):
                 agent_id=agent_id,
                 _network=self.network,
                 prob_settings=self.args.prob_info,
+                param=np.random.rand(self.args.prob_info['dimension']),  # TODO: Delete this for aggregation test.
                 blk_size=self.args.alg_settings['blk_size'],
                 wt_plan=self.args.alg_settings["wt_plan"]
             )  # TODO: DO I need additional settings?
@@ -28,7 +30,7 @@ class BBAlgorithm(AbstractAlgorithm):
         bc_futures = [agent_handle.broadcast.remote() for agent_handle in self.agents.values()]
         self.wait_for_all_futures(bc_futures, setup_timeout, "broadcast")
 
-        agg_futures = [agent_handle.blks_byz_aggregation.remote() for agent_handle in self.agents.values()]
+        agg_futures = [agent_handle.block_byz_aggregation.remote() for agent_handle in self.agents.values()]
         self.wait_for_all_futures(agg_futures, setup_timeout, "blockwise byzantine aggregation")
 
         self.lr = self.gene_stepsize()

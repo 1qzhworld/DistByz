@@ -4,3 +4,4 @@ alg_settings:
   stepsize: diminishing_stepsize  # constant or diminishing: 0.001/iteration
   alg_name: 'DGDAlgorithm'
   verbose: true  # false for mute.
+  blk_size: 2  # block size for DGD indeed this is only used for debug the codes.

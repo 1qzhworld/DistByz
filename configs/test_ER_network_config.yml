@@ -1,5 +1,5 @@
 net_settings:
-  net_size: 5
+  net_size: 6
   byz_size: 1
   gene_plan: 'ER_graph'
   conn_req: True
