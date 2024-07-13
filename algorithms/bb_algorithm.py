@@ -6,6 +6,7 @@ from utils.utils import parse_args
 from algorithms.abstract_algorithm import AbstractAlgorithm
 from agents.ray_agent import RayAgent
 
+
 class BBAlgorithm(AbstractAlgorithm):
     def __init__(self, args):
         self.alg_name = "BBAlgorithm"
@@ -19,10 +20,12 @@ class BBAlgorithm(AbstractAlgorithm):
                 agent_id=agent_id,
                 _network=self.network,
                 prob_settings=self.args.prob_info,
+                alg_settings=self.args.alg_settings,
+                rst_settings=self.args.result_settings,
                 param=np.random.rand(self.args.prob_info['dimension']),  # TODO: Delete this for aggregation test.
                 blk_size=self.args.alg_settings['blk_size'],
                 wt_plan=self.args.alg_settings["wt_plan"]
-            )  # TODO: DO I need additional settings?
+            )
             self.agents[agent_id] = agent
 
     def iter_run(self):
