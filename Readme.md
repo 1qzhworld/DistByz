@@ -16,3 +16,9 @@ __copied from v0__
 
 
 
+## 2024-07-13
+### One future direction:
+Make the block selection for agents different.
+Currrently they are transmite through the algorithm, but not initialized in each agent. 
+
+currently the blk_size and related blk_indexes are calculate in the algorithm instead of the agent. Because in the previous setting it implies that each agent can have its own block split methods and the blocks can be different in the agents. Therefore, is different from the algorithm in the analysis. We have changed this to make the algorithm more robust by ensure the blocks are same for all agents.
