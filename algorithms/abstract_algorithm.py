@@ -49,7 +49,8 @@ class AbstractAlgorithm(ABC):
 
     def centralized_solver(self) -> np.ndarray:
         """Compute the global centralized solution."""
-        prob_futures = [agent.get_prob.remote() for agent in self.agents.values()]
+        prob_futures = [agent.get_prob.remote() for agent in self.agents.values()
+                        if ray.get(agent.get_type.remote()) == 'Reg']
         setup_timeout = self.timeout_base*self.network.net_size
         ready_probs, _ = self.wait_for_all_futures(prob_futures, setup_timeout, "get_prob")
 
@@ -71,7 +72,7 @@ class AbstractAlgorithm(ABC):
         # logging.info('Start to setup agents.')
         print('Setup agents.')
         self.setup_agents()
-        print(f"Global solution: {self.centralized_solver()}.")
+        print(f"Generate the closed form global solution before update: {self.centralized_solver()}.")
         tmp_timeout = self.timeout_base * self.network.net_size  # timeout for synchronize comm, setup and others.
         setup_timeout = tmp_timeout if tmp_timeout > 20 else 20  # experimental value
         self.setup_communicators(setup_timeout=setup_timeout)
