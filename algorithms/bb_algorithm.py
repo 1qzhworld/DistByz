@@ -52,10 +52,9 @@ class BBAlgorithm(AbstractAlgorithm):
         #         print(ray.get(agent.get_loc_blk_wts.remote()))
         self.wait_for_all_futures(agg_futures, setup_timeout, "blockwise byzantine aggregation")
 
-        self.lr = self.gene_stepsize()
-
         # gradient descent update
-        upd_futures = [agent_handle.grad_desc.remote(self.lr) for agent_handle in self.agents.values()]
+        self.lr = self.gene_stepsize()
+        upd_futures = [agent_handle.grad_desc.remote(self.lr, self.cur_iter) for agent_handle in self.agents.values()]
         self.wait_for_all_futures(upd_futures, setup_timeout, "update")
 
     def setup_blk_info(self) -> Dict[int, List[int]]:

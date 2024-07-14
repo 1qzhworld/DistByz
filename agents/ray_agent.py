@@ -62,6 +62,9 @@ class RayAgent:
         elif alg_settings['alg_name'] == 'DGDAlgorithm':
             self.loc_wts = self.generate_weights(weights_plan=wt_plan)[:, agent_id]  # different from block weights.
 
+        self.end_iter = self.alg_settings['end_iter']
+        self.hist_param = np.zeros((self.end_iter, prob_settings['dimension']))
+
     def agent_setup(self) -> None:
         """This should be the first function called after __init__."""
         self._set_cached_handles()
@@ -122,11 +125,10 @@ class RayAgent:
         if remaining_futures:
             raise TimeoutError("Timed out waiting for all neighbors to respond.")
 
-    def grad_desc(self, lr: float) -> None:
+    def grad_desc(self, lr: float, cur_iter: int) -> None:
         """lr should be provided, should be part of algorithm."""
         self.param = self.param - lr * self.loss.gd(self.param)
-        # self.param = self.param - lr * neg_dir
-        # print(f"\rAgent {self.agent_id} has {self.param}\r")
+        self.hist_param[cur_iter] = self.param  # used for save and plot.
 
     def recv_from_nbr(self, sender_id: int, msg: Any) -> Tuple[int, Dict[int, Any]]:
         """Passive receive, used in send_to_nbrs. Save received information to inbox."""
@@ -262,6 +264,12 @@ class RayAgent:
     def _set_outbox(self, msgs: Dict[int, Any]) -> None:
         self.outbox = msgs
 
+    def load_checkpoint(self):
+        raise NotImplementedError
+
+    def save_checkpoint(self):
+        raise NotImplementedError
+
     def get_prob(self) -> AbstractProblem:
         return self.prob
 
@@ -285,3 +293,6 @@ class RayAgent:
 
     def get_loc_blk_wts(self):
         return self.loc_blk_wts
+
+    def get_hist_param(self):
+        return self.hist_param

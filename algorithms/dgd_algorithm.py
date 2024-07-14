@@ -33,7 +33,7 @@ class DGDAlgorithm(AbstractAlgorithm):
         self.lr = self.gene_stepsize()
 
         # gradient descent update
-        upd_futures = [agent_handle.grad_desc.remote(self.lr) for agent_handle in self.agents.values()]
+        upd_futures = [agent_handle.grad_desc.remote(self.lr, self.cur_iter) for agent_handle in self.agents.values()]
         self.wait_for_all_futures(upd_futures, setup_timeout, "update")
 
 

@@ -133,9 +133,9 @@ def check_subset(sublist: List[Any], super_list: List[Any]):
 #     # return sel_block_params
 #     return {sel_id: inbox_params[sel_id][blk_idx] for sel_id, blk_idx in blk_index.items() if sel_id in sel_ids}
 
-
-
-
 if __name__ == "__main__":
     args = parse_args()
+    args_dict = vars(args)
+    for k, v in args_dict.items():
+        print(f"\rThe key: {k} has value {v}.\r")
     print(args.net_settings)

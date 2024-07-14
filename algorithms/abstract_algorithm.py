@@ -5,6 +5,7 @@ from tqdm import tqdm
 from abc import ABC, abstractmethod
 import numpy as np
 import ray
+from typing import Dict
 
 from functions.quadratic_function import QuadraticFunction
 from networks.network import Network
@@ -24,11 +25,12 @@ class AbstractAlgorithm(ABC):
         self.stepsize = args.alg_settings['stepsize']
         self.cur_iter = 0
         self.lr = self.gene_stepsize()
-
-        self.verbose = args.alg_settings['verbose']
         self.timeout_base = args.alg_settings['timeout_base']
 
         self.agents = {}
+
+        self.verbose = args.alg_settings['verbose']
+        self.rst_settings = args.result_settings
 
     def setup_agents(self):
         """Setup Ray agents based on the provided network and arguments."""
@@ -92,6 +94,11 @@ class AbstractAlgorithm(ABC):
                 pbar.update(1)
                 self.cur_iter += 1
         logging.info('Shutdown ray.')
+
+        # save the history parameters among agents
+        if self.rst_settings['save_hist']:
+            self.save_all_hist()
+
         ray.shutdown()
 
     @abstractmethod
@@ -127,8 +134,18 @@ class AbstractAlgorithm(ABC):
         """Compute the diminishing stepsize."""
         return 1 / (cur_iter + 1)
 
+    def get_all_hist(self) -> Dict[int, np.ndarray]:
+        """Save the history parameters among agents."""
+        all_hist_params = {}
+        for agent_id in range(self.network.net_size):
+            all_hist_params[agent_id] = ray.get(self.agents[agent_id].get_hist_param.remote())
+        return all_hist_params
+
+    def save_all_hist(self):
+        all_hist_params = self.get_all_hist()
+
 
 if __name__ == "__main__":
-    dgd_args = parse_args()
-    dgd_algorithm = AbstractAlgorithm(dgd_args)
+    abs_args = parse_args()
+    dgd_algorithm = AbstractAlgorithm(abs_args)
     dgd_algorithm.run()
