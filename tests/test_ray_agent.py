@@ -59,7 +59,7 @@ def test_ray_agent():
     #     print("???")
 
     # Aggregate parameters from neighbors
-    aggregation_futures = [agent.aggregation.remote() for agent in agents]
+    aggregation_futures = [agent.full_aggregation.remote() for agent in agents]
     ray.get(aggregation_futures)
 
     # Fetch parameters for verification

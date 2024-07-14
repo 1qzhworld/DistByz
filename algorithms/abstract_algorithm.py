@@ -5,7 +5,9 @@ from tqdm import tqdm
 from abc import ABC, abstractmethod
 import numpy as np
 import ray
-from typing import Dict
+import math
+import warnings
+from typing import Dict, List
 
 from functions.quadratic_function import QuadraticFunction
 from networks.network import Network
@@ -143,6 +145,43 @@ class AbstractAlgorithm(ABC):
 
     def save_all_hist(self):
         all_hist_params = self.get_all_hist()
+
+
+class BlockInfoMixin:
+    def __init__(self, args, network):
+        self.args = args
+        self.blk_size = args.alg_settings['blk_size']
+
+        self.byz_size = network.byz_size
+        self.min_in_degrees = np.min([len(network.get_in_neighbors(agent_id))
+                                      for agent_id in range(network.net_size)])
+
+        self.blk_indexes = self.setup_blk_info()
+
+    def setup_blk_info(self) -> Dict[int, List[int]]:
+        """
+        blk_size: size of block (the last block may be smaller)
+        blk_num: blk_size*blk_num >= blk_dim
+        return blk_num, blk_size, blk_idxes
+        """
+        print(f"block size is: {self.blk_size}.")
+        blk_size = self.blk_size if isinstance(self.blk_size, int) else self.args.prob_info['dimension']
+        if 2 * blk_size * self.byz_size + 1 > self.min_in_degrees:  # check r-robust condition.
+            warnings.warn(f"The block size {blk_size} is too large for {self.byz_size} byzantine agents.")
+        return self._divide_blks(blk_size)
+
+    def _divide_blks(self, blk_size: int) -> Dict[int, List[int]]:
+        indices = np.arange(self.args.prob_info['dimension'])
+        np.random.shuffle(indices)
+        blk_num = math.ceil(self.args.prob_info['dimension'] / blk_size)
+        blk_idxes = {}
+        for i in range(blk_num):
+            if i == blk_num - 1:  # for the last block (maybe smaller than other blocks)
+                blk_idx = indices[i * blk_size:]
+            else:  # For other blocks, take blk_dim indices
+                blk_idx = indices[i * blk_size:(i + 1) * blk_size]
+            blk_idxes[i] = blk_idx.tolist()  # Convert to list for easier use
+        return blk_idxes
 
 
 if __name__ == "__main__":

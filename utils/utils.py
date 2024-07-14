@@ -14,7 +14,7 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.abspath(os.path.join(script_dir, '..'))
 
 
-def parse_args():
+def parse_args(set_one=None):
     parser = argparse.ArgumentParser(description="Run RayAgent optimization, setup for network, problem and algorithm")
     parser.add_argument(
         "-n", "--net", type=str, default=f"{project_root}/configs/test_ER_network_config.yml",
@@ -34,7 +34,7 @@ def parse_args():
     )
 
     parser.add_argument(
-        "-o", "--one", type=str, default=f"{project_root}/configs/test_all_in_one_bb.yml",
+        "-o", "--one", type=str, default=set_one or f"{project_root}/configs/test_all_in_one_bb.yml",
         help="Path to the unified configuration file (default: None)."
     )
     # parser.add_argument(

@@ -125,11 +125,6 @@ class RayAgent:
         if remaining_futures:
             raise TimeoutError("Timed out waiting for all neighbors to respond.")
 
-    def grad_desc(self, lr: float, cur_iter: int) -> None:
-        """lr should be provided, should be part of algorithm."""
-        self.param = self.param - lr * self.loss.gd(self.param)
-        self.hist_param[cur_iter] = self.param  # used for save and plot.
-
     def recv_from_nbr(self, sender_id: int, msg: Any) -> Tuple[int, Dict[int, Any]]:
         """Passive receive, used in send_to_nbrs. Save received information to inbox."""
         self.inbox[sender_id] = msg
@@ -145,10 +140,48 @@ class RayAgent:
         self._set_outbox(msgs)
         self.send_to_nbrs(used_out_nbr_ids=self.out_nbr_ids)
 
-    def aggregation(self) -> None:
+    def full_aggregation(self) -> np.ndarray:
         tmp_param = np.sum([self.loc_wts[in_nbr_id] * self.inbox[in_nbr_id]['param']
                             for in_nbr_id in self.in_nbr_ids], axis=0)
-        self.param = self.loc_wts[self.agent_id] * self.param + tmp_param
+        return self.loc_wts[self.agent_id] * self.param + tmp_param
+
+    def block_byz_aggregation(self) -> np.ndarray:
+        """
+        block aggregation,
+        return the full vector with blockwise aggregation through blockwise weights.
+        """
+        # step 0: generate the weights (related to blocks and iterations)
+        self.loc_blk_wts = self.generate_block_weights(weights_plan='block_byz')  # default plan.
+        tmp_param = np.zeros(self.prob.dimension)
+        loc_params = self.load_loc_params()  # self included.
+        for dim in range(self.prob.dimension):
+            for blk_num_id in range(self.blk_num):
+                for agent_j in self.blk_indexes[blk_num_id]:
+                    tmp_param[dim] += self.loc_blk_wts[blk_num_id][agent_j]*loc_params[agent_j][dim]
+        return tmp_param
+
+    def atc_grad_desc(self, lr: float, cur_iter: int, agg_plan: str = "full_aggregation") -> None:
+        """lr should be provided, should be part of algorithm."""
+        # aggregation
+        if agg_plan == 'full_aggregation':
+            self.param = self.full_aggregation()
+        elif agg_plan == 'block_byz_aggregation':
+            self.param = self.block_byz_aggregation()
+        else:
+            raise ValueError(f"Unknown aggregation plan: {agg_plan}")
+        # gradient update
+        self.param = self.param - lr * self.loss.gd(self.param)
+        # save to hist_param for save and plot
+        self.hist_param[cur_iter] = self.param  # used for save and plot.
+
+    def cta_grad_desc(self, lr: float, cur_iter: int, agg_plan: str = "full_aggregation") -> None:
+        """lr should be provided, should be part of algorithm."""
+        if agg_plan == 'full_aggregation':
+            self.param = self.full_aggregation() - lr * self.loss.gd(self.param)
+        elif agg_plan == "block_byz_aggregation":
+            self.param = self.block_byz_aggregation() - lr * self.loss.gd(self.param)
+        # save to hist_param for save and plot
+        self.hist_param[cur_iter] = self.param
 
     def generate_weights(self, weights_plan: str = 'metropolis-Hastings') -> np.ndarray:
         # bb algorithm use another ways to generate weights for each block.
@@ -218,32 +251,6 @@ class RayAgent:
         # print(f"\rStep 0.1.2.2: _generate_one_block_byz_weight: "
         #       f"check the {loc_wt_row}'s sum is {np.sum(np.array(loc_wt_row))} is row stochastic.")
         return loc_wt_row
-
-    def block_byz_aggregation(self) -> np.ndarray:
-        """
-        block aggregation,
-        return the full vector with blockwise aggregation through blockwise weights.
-        """
-        # step 0: generate the weights (related to blocks and iterations)
-        # print(f"\r ---Block Byzantine aggregation is implemented here.---\r")
-        # print(f"\rStep 0: generate the block weights related to block and iteration.")
-        self.loc_blk_wts = self.generate_block_weights(weights_plan='block_byz')  # default plan.
-        # step 1: use the block information to update
-        # print(f"\rStep 1: aggregation over the blocks using block weights.")
-        tmp_param = np.zeros(self.prob.dimension)
-        loc_params = self.load_loc_params()  # self included.
-        # print(f"\r THe local parameters including self are {loc_params}.")
-        # for agent_j, param_j in loc_params.items():
-        #     print(f"\r The {agent_j}-th parameter is {param_j}.")
-        # for blk_num_id in range(self.blk_num):
-        #     print(f"\r The {blk_num_id}-th block with indexes {self.blk_indexes[blk_num_id]} "
-        #           f"uses weight: {self.loc_blk_wts[blk_num_id]}")
-        for dim in range(self.prob.dimension):
-            for blk_num_id in range(self.blk_num):
-                for agent_j in self.blk_indexes[blk_num_id]:
-                    tmp_param[dim] += self.loc_blk_wts[blk_num_id][agent_j]*loc_params[agent_j][dim]
-        # print(f"\r The aggregated parameter is {tmp_param}.")
-        return tmp_param
 
     @staticmethod
     def _check_agent_type(agent_type: AgentType) -> str:

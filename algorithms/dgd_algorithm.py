@@ -17,9 +17,9 @@ from algorithms.abstract_algorithm import AbstractAlgorithm
 
 class DGDAlgorithm(AbstractAlgorithm):
     def __init__(self, args):
-        self.alg_name = "DGDAlgorithm"
+        self.alg_name = self.__class__.__name__
         if args.alg_settings['alg_name'] != self.alg_name:
-            raise ValueError(f"Setting for {args.alg_settings['alg_name']}, but here is DGDAlgorithm.")
+            raise ValueError(f"Setting for {args.alg_settings['alg_name']}, but here is {self.alg_name}.")
         super(DGDAlgorithm, self).__init__(args)
 
     def iter_run(self):
@@ -27,17 +27,25 @@ class DGDAlgorithm(AbstractAlgorithm):
         bc_futures = [agent_handle.broadcast.remote() for agent_handle in self.agents.values()]
         self.wait_for_all_futures(bc_futures, setup_timeout, "broadcast")
 
-        agg_futures = [agent_handle.aggregation.remote() for agent_handle in self.agents.values()]
+        agg_futures = [agent_handle.full_aggregation.remote() for agent_handle in self.agents.values()]
         self.wait_for_all_futures(agg_futures, setup_timeout, "aggregation")
 
         self.lr = self.gene_stepsize()
 
         # gradient descent update
-        upd_futures = [agent_handle.grad_desc.remote(self.lr, self.cur_iter) for agent_handle in self.agents.values()]
+        upd_futures = [agent_handle.atc_grad_desc.remote(self.lr, self.cur_iter, agg_plan='full_aggregation')
+                       for agent_handle in self.agents.values()]
+        # upd_futures = [agent_handle.cta_grad_desc.remote(self.lr, self.cur_iter, agg_plan='full_aggregation')
+        #                for agent_handle in self.agents.values()]
+
         self.wait_for_all_futures(upd_futures, setup_timeout, "update")
 
 
 if __name__ == "__main__":
-    dgd_args = parse_args()
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.abspath(os.path.join(script_dir, '..'))
+    set_one_config_path = f"{project_root}/configs/test_all_in_one_dgd.yml"
+
+    dgd_args = parse_args(set_one=set_one_config_path)
     dgd_algorithm = DGDAlgorithm(dgd_args)
     dgd_algorithm.run()

@@ -1,28 +1,23 @@
 # algorithms/bb_algorithm.py
 import numpy as np
+import os
 import ray
 import warnings
 import math
 from typing import List, Dict
 # from tqdm import tqdm
 from utils.utils import parse_args
-from algorithms.abstract_algorithm import AbstractAlgorithm
+from algorithms.abstract_algorithm import AbstractAlgorithm, BlockInfoMixin
 from agents.ray_agent import RayAgent
 
 
-class BBAlgorithm(AbstractAlgorithm):
+class BCGDAlgorithm(AbstractAlgorithm, BlockInfoMixin):
     def __init__(self, args):
-        self.alg_name = "BBAlgorithm"
+        self.alg_name = self.__class__.__name__
         if args.alg_settings['alg_name'] != self.alg_name:
-            raise ValueError(f"Setting for {args.alg_settings['alg_name']}, but here is BBAlgorithm.")
-        super(BBAlgorithm, self).__init__(args)
-        self.blk_size = self.args.alg_settings['blk_size']
-
-        self.byz_size = self.network.byz_size
-        self.min_in_degrees = np.min([len(self.network.get_in_neighbors(agent_id))
-                                      for agent_id in range(self.network.net_size)])
-
-        self.blk_indexes = self.setup_blk_info()
+            raise ValueError(f"Setting for {args.alg_settings['alg_name']}, but here is {self.alg_name}.")
+        AbstractAlgorithm.__init__(self, args)
+        BlockInfoMixin.__init__(self, args, self.network)
 
     def setup_agents(self):
         for agent_id in range(self.network.net_size):
@@ -57,33 +52,11 @@ class BBAlgorithm(AbstractAlgorithm):
         upd_futures = [agent_handle.grad_desc.remote(self.lr, self.cur_iter) for agent_handle in self.agents.values()]
         self.wait_for_all_futures(upd_futures, setup_timeout, "update")
 
-    def setup_blk_info(self) -> Dict[int, List[int]]:
-        """
-        blk_size: size of block (the last block may be smaller)
-        blk_num: blk_size*blk_num >= blk_dim
-        return blk_num, blk_size, blk_idxes
-        """
-        print(f"block size is: {self.blk_size}.")
-        blk_size = self.blk_size if isinstance(self.blk_size, int) else self.args.prob_info['dimension']
-        if 2 * blk_size * self.byz_size + 1 > self.min_in_degrees:  # check r-robust condition.
-            warnings.warn(f"The block size {blk_size} is too large for {self.byz_size} byzantine agents.")
-        return self._divide_blks(blk_size)
-
-    def _divide_blks(self, blk_size: int) -> Dict[int, List[int]]:
-        indices = np.arange(self.args.prob_info['dimension'])
-        np.random.shuffle(indices)
-        blk_num = math.ceil(self.args.prob_info['dimension'] / blk_size)
-        blk_idxes = {}
-        for i in range(blk_num):
-            if i == blk_num - 1:  # for the last block (maybe smaller than other blocks)
-                blk_idx = indices[i * blk_size:]
-            else:  # For other blocks, take blk_dim indices
-                blk_idx = indices[i * blk_size:(i + 1) * blk_size]
-            blk_idxes[i] = blk_idx.tolist()  # Convert to list for easier use
-        return blk_idxes
-
 
 if __name__ == "__main__":
-    bb_args = parse_args()
-    bb_algorithm = BBAlgorithm(bb_args)
-    bb_algorithm.run()
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.abspath(os.path.join(script_dir, '..'))
+    set_one_config_path = f"{project_root}/configs/test_all_in_one_bcgd.yml"
+    bcgd_args = parse_args(set_one=set_one_config_path)
+    bcgd_algorithm = BCGDAlgorithm(bcgd_args)
+    bcgd_algorithm.run()
