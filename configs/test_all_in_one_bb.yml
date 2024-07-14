@@ -8,7 +8,7 @@ algorithm:
     end_iter: 20
     stepsize: 0.001  # can also set: `diminishing` to be 1/(iter+1)
     alg_name: 'BBAlgorithm'
-    blk_size: 1
+    blk_size: 2
     wt_plan: 'block_byz'  # if no information, default to be `metropolis-Hastings`.
     verbose: false  # true for mute
     timeout_base: 1.0
@@ -23,7 +23,7 @@ network:
 problem:
   prob_info:
     problem_type: 'LeastSquareProblem'
-    dimension: 3
+    dimension: 5
     A:
       HessLowerBd: 1.0
       HessUpperBd: 10.0

@@ -1,9 +1,7 @@
 # agents/ray_agent.py
-import warnings
 
 import ray
 import numpy as np
-import math
 from typing import Any, List, Dict, Literal, Tuple, Set
 
 from networks.network import Network
@@ -56,7 +54,7 @@ class RayAgent:
         self.alg_settings = alg_settings
 
         self.rst_settings = rst_settings
-        # TODO: change the following setup.
+        # TODO: change the following setup. the setup for the alg_settings['alg_name'] is not elegant enough.
         self.blk_indexes = blk_indexes if blk_indexes is not None else {0: list(range(self._network.net_size))}
         self.blk_num, self.blk_size = len(self.blk_indexes), len(self.blk_indexes[0])
         if alg_settings['alg_name'] == 'BBAlgorithm':
@@ -81,19 +79,10 @@ class RayAgent:
         id_params: Dict[int, np.ndarray] = self.load_loc_params()
         # Sort the agents based on the specified dimension in their parameters.
         sorted_agents = sorted(id_params.items(), key=lambda item: item[1][dim])
-        print(sorted_agents)
         sorted_ids = [agent_id for agent_id, _ in sorted_agents]
-
-        byz_size = self.byz_size
         loc_index = sorted_ids.index(self.agent_id)
-        # print(loc_index)
         # # Select the IDs to remove the highest and lowest values, taking into account the byz_size.
-        # rm_high_ids = sorted_ids[max(loc_index + 1, len(sorted_ids) - byz_size):]
-        # rm_low_ids = sorted_ids[:min(loc_index, byz_size)]
-        # # Get all agent IDs and remove the identified high and low extremes.
-        # sel_ids = [agent_id for agent_id in sorted_ids
-        #            if (agent_id not in rm_high_ids) and (agent_id not in rm_low_ids)]
-        sel_ids = sorted_ids[min(loc_index, byz_size):max(loc_index + 1, len(sorted_ids) - byz_size)]
+        sel_ids = sorted_ids[min(loc_index, self.byz_size):max(loc_index + 1, len(sorted_ids) - self.byz_size)]
         return sel_ids  # id of selected agents among dimension dim
 
     def local_filter_block(self, block: List[int]) -> List[int]:
@@ -148,9 +137,7 @@ class RayAgent:
         if self.agent_type == 'Reg':
             msgs = {out_nbr_id: {"param": self.param} for out_nbr_id in self.out_nbr_ids}
         elif self.agent_type == 'Byz':
-            # raise ValueError("What is going on?")
             msgs = {out_nbr_id: {"param": np.random.rand(*self.param.shape)} for out_nbr_id in self.out_nbr_ids}
-            # print(msgs)
         else:
             msgs = {out_nbr_id: {"param": "something wrong."} for out_nbr_id in self.out_nbr_ids}
         self._set_outbox(msgs)
@@ -187,38 +174,47 @@ class RayAgent:
 
     def generate_block_weights(self, weights_plan: str = 'block_byz') -> Dict[int, np.ndarray]:
         """ Generate weights for each block for each iteration."""
-        print("I am generating the block weights!!!!!!!!!!!!!!!!!")
+        print("\rStep 0.0: generate_block_weights: select plan for generate the block weights.\r")
         if weights_plan == 'block_byz':
             return self._generate_block_byz_weights()
         else:
             raise ValueError(f"Unknown __block__ weights plan: {weights_plan}.")
 
     def _generate_block_byz_weights(self) -> Dict[int, np.ndarray]:
-        print("I am generating the block weights with  !!!!!!!!!!!!block_byz plan!!!!!!")
+        print(f"\rStep 0.1: _generate_block_byz_weights: generate the block byzantine weights with block_byz plan.\r")
         block_wts = {}
-        print(f"current blk indexes are: {self.blk_indexes}")
+        print(f"The block_indexes information: {self.blk_indexes}")
+        print(f"\rNotice: current params are: {self.load_loc_params()} and with self: {self.param}")
         for blk_num_id, blk_index in self.blk_indexes.items():  # blk_id (in range(blk_num)) which block, blk_i
+            print(f"\rStep 0.1.0: _generate_block_byz_weights: The {blk_num_id}-th block "
+                  f"with index {blk_index} for the parameters.")
             sel_ids = self.local_filter_block(blk_index)
-            check_subset(sel_ids, self._network.get_in_neighbors(self.agent_id))
+            print(f"\rStep 0.1.1: _generate_block_byz_weights: "
+                  f"The selected agents for {blk_num_id}-th block are {sel_ids}.")
+            # self_included = self._network.get_in_neighbors(self.agent_id)
+            # self_included.append(self.agent_id)
+            # check_subset(sel_ids, self_included)
+            print(f"\rStep 0.1.2: _generate_block_byz_weights: generate weight for the {blk_num_id}-th block.")
             block_wts[blk_num_id] = self._generate_one_block_byz_weight(sel_ids)  # just a row vector, not matrix.
-        print(block_wts)
-        print(f"\r block_wts generated.\r")
         return block_wts
 
     def _generate_one_block_byz_weight(self, sel_ids: List[int]) -> np.ndarray:
         """sel_ids is related to iteration."""
+        print(f"\rStep 0.1.2.0: _generate_one_block_byz_weight: generate the weight.")
         net_size = self._network.net_size
         wx = 1/net_size  # lower bound of weight for x variable.
         # The weight can be changed to other values such as 1/(self._network.get_out_neighbors(self.agent_id)).
         reg_size = net_size - self.byz_size
         gamma = 0.5*(1+1/(1-self.m/(self.M+self.m)))  # self.M+self.m should be self.M, but use the sum for safe.
-        wd = np.max((reg_size-1-gamma)/(reg_size-2), wx)  # diagonal of weight should be positive.
-        check_subset([self.agent_id], sel_ids)
-
+        wd = np.max([(reg_size-1-gamma)/(reg_size-2), wx])  # diagonal of weight should be positive.
+        print(f"\rStep 0.1.2.1: _generate_one_block_byz_weight: diagonal is {wd}.")
+        # check_subset([self.agent_id], sel_ids)
         w_others = (1-wd) / (len(sel_ids)-1)  # sum of weights without agent_id itself.
         loc_wt_row = np.zeros(net_size)
         loc_wt_row[sel_ids] = w_others
         loc_wt_row[self.agent_id] = wd  # replace the `diagonal` one with its value.
+        print(f"\rStep 0.1.2.2: _generate_one_block_byz_weight: "
+              f"check the {loc_wt_row}'s sum is {np.sum(np.array(loc_wt_row))} is row stochastic.")
         return loc_wt_row
 
     def block_byz_aggregation(self) -> np.ndarray:
@@ -227,14 +223,24 @@ class RayAgent:
         return the full vector with blockwise aggregation through blockwise weights.
         """
         # step 0: generate the weights (related to blocks and iterations)
+        print(f"\r ---Block Byzantine aggregation is implemented here.---\r")
+        print(f"\rStep 0: generate the block weights related to block and iteration.")
         self.loc_blk_wts = self.generate_block_weights(weights_plan='block_byz')  # default plan.
         # step 1: use the block information to update
+        print(f"\rStep 1: aggregation over the blocks using block weights.")
         tmp_param = np.zeros(self.prob.dimension)
         loc_params = self.load_loc_params()  # self included.
+        # print(f"\r THe local parameters including self are {loc_params}.")
+        for agent_j, param_j in loc_params.items():
+            print(f"\r The {agent_j}-th parameter is {param_j}.")
+        for blk_num_id in range(self.blk_num):
+            print(f"\r The {blk_num_id}-th block with indexes {self.blk_indexes[blk_num_id]} "
+                  f"uses weight: {self.loc_blk_wts[blk_num_id]}")
         for dim in range(self.prob.dimension):
             for blk_num_id in range(self.blk_num):
                 for agent_j in self.blk_indexes[blk_num_id]:
-                    tmp_param[dim] += self.loc_blk_wts[blk_num_id][self.agent_id, agent_j]*loc_params[agent_j][dim]
+                    tmp_param[dim] += self.loc_blk_wts[blk_num_id][agent_j]*loc_params[agent_j][dim]
+        print(f"\r The aggregated parameter is {tmp_param}.")
         return tmp_param
 
     @staticmethod
