@@ -8,12 +8,20 @@ import ray
 import math
 import warnings
 from typing import Dict, List
+import h5py
+from datetime import datetime
 
 from functions.quadratic_function import QuadraticFunction
 from networks.network import Network
 from agents.ray_agent import RayAgent
-from utils.utils import parse_args
+from utils.utils import parse_args, generate_logging_path
 
+import sys
+import os
+
+current_dir = os.path.dirname(os.path.abspath(__file__))  # get current path.
+project_root = os.path.join(current_dir, '..')  # root directory
+sys.path.append(project_root)  # add root to sys.path
 # os.environ["RAY_DEDUP_LOGS"] = "0"  # 禁用Ray的日志去重
 
 
@@ -33,6 +41,10 @@ class AbstractAlgorithm(ABC):
 
         self.verbose = args.alg_settings['verbose']
         self.rst_settings = args.result_settings
+
+        self.logging_result_path = generate_logging_path(
+            config_one_path=self.args.one, ext='h5', filename_plan='config_one'
+        )
 
     def setup_agents(self):
         """Setup Ray agents based on the provided network and arguments."""
@@ -100,7 +112,13 @@ class AbstractAlgorithm(ABC):
         # save the history parameters among agents
         if self.rst_settings['save_hist']:
             self.save_all_hist()
-
+        # load_all_hist_params = self.load_all_hist()
+        # all_params = self.get_all_hist()
+        # for k, v in load_all_hist_params.items():
+        #     if np.all(v == all_params[k]):
+        #         print("correct") \checked.
+        #     else:
+        #         print(f"Wrong! on agent_id: {k}")
         ray.shutdown()
 
     @abstractmethod
@@ -144,10 +162,36 @@ class AbstractAlgorithm(ABC):
         return all_hist_params
 
     def save_all_hist(self):
-        all_hist_params = self.get_all_hist()
+        """filename_plan: default generate name using generate_filename()."""
+        all_params = self.get_all_hist()
+
+        with h5py.File(self.logging_result_path, 'w') as f:
+            for agent_id, all_param in all_params.items():
+                f.create_dataset(str(agent_id), data=all_param)
+
+    def load_all_hist(self):
+        with h5py.File(self.logging_result_path, 'r') as f:
+            load_all_params = {int(agent_id): f[agent_id][()] for agent_id in f.keys()}
+        return load_all_params
+
+
+    def generate_filename(self, filename_plan: str = None) -> str:
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        # if not isinstance(filename_plan, str):
+        #     raise TypeError("In any case, the filename plan should be string. Please check.")
+        # if filename_plan is None:
+        #     self.args.
+        # else:  # set the plan as filename.
+        #     return filename_plan
+        pass
 
 
 class BlockInfoMixin:
+    """
+    To generate a mixin class for the block algorithms, where the commonly used functions are defined here.
+    blk_size: size of block (the last block may be smaller)
+    blk_num: blk_size*blk_num >= blk_dim
+    """
     def __init__(self, args, network):
         self.args = args
         self.blk_size = args.alg_settings['blk_size']
