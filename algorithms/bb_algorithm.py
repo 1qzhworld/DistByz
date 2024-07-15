@@ -49,7 +49,7 @@ class BBAlgorithm(AbstractAlgorithm, BlockInfoMixin):
 
         # gradient descent update
         self.lr = self.gene_stepsize()
-        upd_futures = [agent_handle.atc_grad_desc.remote(self.lr, self.cur_iter, agg_plan='block_byz_aggregation')
+        upd_futures = [agent_handle.cta_grad_desc.remote(self.lr, self.cur_iter, agg_plan='block_byz_aggregation')
                        for agent_handle in self.agents.values()]
         self.wait_for_all_futures(upd_futures, setup_timeout, "update")
 
