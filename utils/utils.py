@@ -2,13 +2,14 @@
 
 import argparse
 import os
+import re
 
 import numpy as np
 import ray
 import yaml
 import time
 import h5py
-
+import matplotlib.pyplot as plt
 from datetime import datetime
 from contextlib import contextmanager
 from typing import List, Any, Dict
@@ -17,6 +18,7 @@ from typing import List, Any, Dict
 script_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.abspath(os.path.join(script_dir, '..'))
 
+np.random.seed(0)
 
 def parse_args(set_one=None):
     parser = argparse.ArgumentParser(description="Run RayAgent optimization, setup for network, problem and algorithm")
@@ -138,51 +140,56 @@ def load_all_hist(logging_result_path):
     return load_all_params, global_solution, prob_a_list, prob_b_list, agent_types
 
 
-@contextmanager
-def timer():
-    """
-    with timer():
-        code to test.
-    """
-    start_time = time.time()
-    yield
-    end_time = time.time()
-    print(f"Elapsed time: {end_time - start_time:.6f} seconds")
+def get_reg_params(all_params: Dict[int, np.ndarray], agent_types: Dict[int, str]):
+    return {agent_id: all_params[agent_id] for agent_id in range(len(agent_types)) if agent_types[agent_id] == 'Reg'}
 
 
-@contextmanager
-def ray_context():
-    """with ray_context():"""
-    ray.init()
-    try:
-        yield
-    finally:
-        ray.shutdown()
+def plot_distance_to_optimal(filenames: List[str]):
+    """filenames: example: ["20240716_112329_result_all_in_one_bcgd.h5", "20240716_113756_result_all_in_one_bb.h5"]"""
+    # script_dir = os.path.dirname(os.path.abspath(__file__))
+    # project_root = os.path.abspath(os.path.join(script_dir, '..'))
+    logging_result_base = os.path.join(project_root, "logging")
+
+    plt.figure()  # 创建一个新的绘图对象
+
+    for filename in filenames:
+        logging_result_path = os.path.join(logging_result_base, filename)
+        all_params, global_solution, prob_a_list, prob_b_list, agent_types = load_all_hist(logging_result_path)
+        reg_params = get_reg_params(all_params, agent_types)
+        num_iterations = all_params[0].shape[0]
+
+        distances = []
+        for i in range(num_iterations):
+            squared_diff = 0
+            for params in reg_params.values():
+                squared_diff += np.sum((params[i] - global_solution) ** 2)
+            distances.append(squared_diff)
+
+        # Extract algorithm name from filename
+        algorithm_name = extract_algorithm_name(filename)
+
+        # Plotting each line on the same figure
+        plt.semilogy(range(num_iterations), distances, label=f'{algorithm_name} Distance to Optimal')
+
+    plt.xlabel('Iteration')
+    plt.ylabel('Squared Distance (Log Scale)')
+    plt.title('Distance to Optimal Solution over Iterations for Multiple Algorithms')
+    plt.legend()
+    plt.grid(True, which="both", ls="--")
+    plt.show()
+
+
+def extract_algorithm_name(filename: str) -> str:
+    match = re.search(r'_([^_]+)\.h5$', filename)
+    if match:  # 提取文件名中最后一个下划线后的部分，并转换为大写字母
+        return match.group(1).upper()
+    return "UNKNOWN"
 
 
 def check_subset(sublist: List[Any], super_list: List[Any]):
     if not set(sublist).issubset(set(super_list)):
         raise RuntimeError("Send or receive to/from invalid neighbors.")
 
-
-# def extract_dimensions(
-#         inbox_params: Dict[int, np.ndarray], sel_ids: List[int], blk_index: List[int]
-# ) -> Dict[int, np.ndarray]:
-#     """
-#     Removed: this is not necessary to extract dimensions for calculating the block weighted average.
-#     Args:
-#         inbox_params: parameters from inbox
-#     Extract the selected agents (from sel_ids) parameters' specialized dimension (blk_index)
-#     from the global parameters."""
-#     sel_params = {}
-#     check_subset(sel_ids, list(inbox_params.keys()))
-#     for sel_id in sel_ids:
-#         sel_params[sel_id] = inbox_params[sel_id]
-#     sel_block_params = {}
-#     for sel_id in sel_ids:
-#         sel_block_params[sel_id] = sel_params[sel_id][blk_index[sel_id]]
-#     # return sel_block_params
-#     return {sel_id: inbox_params[sel_id][blk_idx] for sel_id, blk_idx in blk_index.items() if sel_id in sel_ids}
 
 if __name__ == "__main__":
     args = parse_args()

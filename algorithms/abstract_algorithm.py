@@ -31,6 +31,8 @@ class AbstractAlgorithm(ABC):
         self.network = Network(net_settings=args.net_settings)
         print(self.network.agent_types)
 
+        np.random.seed(self.network.net_size)  # setup random seed for algorithms
+
         self.end_iter = args.alg_settings['end_iter']
         self.stepsize = args.alg_settings['stepsize']
         self.cur_iter = 0

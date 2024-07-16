@@ -5,6 +5,7 @@ import random
 import networkx as nx
 from typing import Dict, Literal, Union
 
+import numpy as np
 
 GenePlan = Literal['ER_graph', 'aver_deg', 'reg_graph', 'geo_graph', 'load_fixed']
 
@@ -17,6 +18,8 @@ class Network:
         self.net_settings = net_settings
 
         self.net_size = net_settings['net_size']
+        seed = net_settings.get('seed', self.net_size)
+        np.random.seed(seed)
         self.byz_size = net_settings['byz_size']
         self.gene_plan = net_settings['gene_plan']
 

@@ -33,6 +33,7 @@ class RayAgent:
             param: np.ndarray = None, blk_indexes: Dict[int, List[int]] = None, wt_plan: str = "metropolis-Hastings"
     ) -> None:
         self.agent_id = agent_id
+        np.random.seed(agent_id)  # setup random seed.
         self.agent_type = self._check_agent_type(_network.agent_types[agent_id])
 
         self._network = _network
