@@ -52,7 +52,7 @@ class BCGDAlgorithm(AbstractAlgorithm, BlockInfoMixin):
 if __name__ == "__main__":
     script_dir = os.path.dirname(os.path.abspath(__file__))
     project_root = os.path.abspath(os.path.join(script_dir, '..'))
-    set_one_config_path = f"{project_root}/configs/test_all_in_one_bcgd.yml"
+    set_one_config_path = f"{project_root}/configs/test_base_end2000_ss1e3_net30_byz1_dim7_blksz2_bcgd.yml"
     bcgd_args = parse_args(set_one=set_one_config_path)
     bcgd_algorithm = BCGDAlgorithm(bcgd_args)
     bcgd_algorithm.run()

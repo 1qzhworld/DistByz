@@ -38,11 +38,12 @@ def parse_args(set_one=None):
     # )
 
     parser.add_argument(
-        "-o", "--one", type=str, default=set_one or f"{project_root}/configs/test_all_in_one_bb.yml",
+        "-o", "--one", type=str,
+        default=set_one or f"{project_root}/configs/test_base_end2000_ss1e3_net30_byz0_dim7_blksz2_bb.yml",
         help="Path to the unified configuration file (default: None)."
     )
     # parser.add_argument(
-    #     "-o", "--one", type=str, default=f"{project_root}/configs/test_all_in_one_dgd.yml",
+    #     "-o", "--one", type=str, default=f"{project_root}/configs/test_base_end2000_ssdim_net30_byz0_dim7_dgd.yml",
     #     help="Path to the unified configuration file (default: None)."
     # )
 

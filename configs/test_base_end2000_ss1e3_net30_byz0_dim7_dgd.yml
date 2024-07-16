@@ -8,22 +8,22 @@ algorithm:
     end_iter: 2000
     stepsize: 0.001  # can also set: `diminishing` to be 1/(iter+1)
     alg_name: 'DGDAlgorithm'
-#    blk_size: 1
+    blk_size: 0
 #    wt_plan: 'block_byz'  # if no information, default to be `metropolis-Hastings`.
     verbose: false  # true for mute
     timeout_base: 1.0
 network:
   net_settings:
-    net_size: 6
+    net_size: 30
     byz_size: 0
     gene_plan: 'ER_graph'
     conn_req: True
     directed_req: False
-    ER_p: .9
+    ER_p: .97
 problem:
   prob_info:
     problem_type: 'LeastSquareProblem'
-    dimension: 3
+    dimension: 7
     A:
       HessLowerBd: 1.0
       HessUpperBd: 10.0
@@ -36,6 +36,6 @@ result:
     func_eval: True
     dist_lc_opt: True
     load: False
-    logging_path: 'logging/test_log.log'
+    logging_path: '\\logging\\'
     save_hist: true
 
