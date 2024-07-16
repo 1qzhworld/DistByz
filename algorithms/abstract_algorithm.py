@@ -39,6 +39,9 @@ class AbstractAlgorithm(ABC):
 
         self.agents = {}
 
+        self.prob_a_list = None  # set value in the self.centralized_solver (only regular agents)
+        self.prob_b_list = None  # set value in the self.centralized_solver
+
         self.verbose = args.alg_settings['verbose']
         self.rst_settings = args.result_settings
 
@@ -71,13 +74,13 @@ class AbstractAlgorithm(ABC):
         ready_probs, _ = self.wait_for_all_futures(prob_futures, setup_timeout, "get_prob")
 
         probs = [ray.get(ready_prob) for ready_prob in ready_probs]
-        prob_a_list = [prob.A for prob in probs]
-        sum_a = np.sum(prob_a_list, axis=0)
-        probb_list = [prob.b for prob in probs]
-        sum_b = np.sum(probb_list, axis=0)
+        self.prob_a_list = [prob.A for prob in probs]
+        sum_a = np.sum(self.prob_a_list, axis=0)
+        self.prob_b_list = [prob.b for prob in probs]
+        sum_b = np.sum(self.prob_b_list, axis=0)
         if self.verbose:
-            print(f"A for agents are: {prob_a_list}")
-            print(f"b for agents are {probb_list}")
+            print(f"A for agents are: {self.prob_a_list}")
+            print(f"b for agents are {self.prob_b_list}")
         return QuadraticFunction(sum_a, sum_b).closed_form_minimizer()
         # return (-np.linalg.inv(0.5 * (sum_a.T + sum_a)) @ sum_b).flatten()
 
@@ -119,6 +122,7 @@ class AbstractAlgorithm(ABC):
         #         print("correct") \checked.
         #     else:
         #         print(f"Wrong! on agent_id: {k}")
+        self.print_runtime_info()
         ray.shutdown()
 
     @abstractmethod
@@ -127,7 +131,7 @@ class AbstractAlgorithm(ABC):
 
     def print_runtime_info(self):
         if self.verbose:
-            if self.cur_iter % 50 == 0:
+            if (self.cur_iter+1) % 50 == 0:
                 print(f"Agent 0's outbox is {ray.get(self.agents[0].get_outbox.remote())}.")
                 print(f"Agent 0's paramt is {ray.get(self.agents[0].get_param.remote())}.")
 
@@ -168,22 +172,23 @@ class AbstractAlgorithm(ABC):
         with h5py.File(self.logging_result_path, 'w') as f:
             for agent_id, all_param in all_params.items():
                 f.create_dataset(str(agent_id), data=all_param)
+                # the i-th agent's k-th iteration will be load_all_params[i][k]
+            f.create_dataset("global_solution", data=self.centralized_solver())
+            f.create_dataset("prob_a_list", data=self.prob_a_list)
+            f.create_dataset("prob_b_list", data=self.prob_b_list)
 
     def load_all_hist(self):
+        """Not used yet, for future restart training for neural networks and so on."""
         with h5py.File(self.logging_result_path, 'r') as f:
-            load_all_params = {int(agent_id): f[agent_id][()] for agent_id in f.keys()}
-        return load_all_params
+            load_all_params = {
+                int(agent_id): f[agent_id][()] for agent_id in f.keys()
+                if agent_id not in {"global_solution", "prob_a_list", "prob_b_list"}
+            }
+            global_solution = f["global_solution"][()]
+            prob_a_list = f["prob_a_list"][()]
+            prob_b_list = f["prob_b_list"][()]
 
-
-    def generate_filename(self, filename_plan: str = None) -> str:
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        # if not isinstance(filename_plan, str):
-        #     raise TypeError("In any case, the filename plan should be string. Please check.")
-        # if filename_plan is None:
-        #     self.args.
-        # else:  # set the plan as filename.
-        #     return filename_plan
-        pass
+        return load_all_params, global_solution, prob_a_list, prob_b_list
 
 
 class BlockInfoMixin:

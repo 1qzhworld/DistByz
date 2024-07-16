@@ -120,6 +120,19 @@ def save_config(args: argparse.Namespace, saving_config_path: str) -> None:
         yaml.dump(args, file)
 
 
+def load_all_hist(logging_result_path):
+    """Copied from AbstractAlgorithm.load_all_hist()
+    Not used yet, for future restart training for neural networks and so on."""
+    with h5py.File(logging_result_path, 'r') as f:
+        load_all_params = {
+            int(agent_id): f[agent_id][()] for agent_id in f.keys()
+            if agent_id not in {"global_solution", "prob_a_list", "prob_b_list"}
+        }
+        global_solution = f["global_solution"][()]
+        prob_a_list = f["prob_a_list"][()]
+        prob_b_list = f["prob_b_list"][()]
+    return load_all_params, global_solution, prob_a_list, prob_b_list
+
 @contextmanager
 def timer():
     """
