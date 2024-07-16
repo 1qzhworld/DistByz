@@ -124,14 +124,19 @@ def load_all_hist(logging_result_path):
     """Copied from AbstractAlgorithm.load_all_hist()
     Not used yet, for future restart training for neural networks and so on."""
     with h5py.File(logging_result_path, 'r') as f:
-        load_all_params = {
+        load_all_params = {  # both regular and byzantine
             int(agent_id): f[agent_id][()] for agent_id in f.keys()
-            if agent_id not in {"global_solution", "prob_a_list", "prob_b_list"}
+            if agent_id not in {"global_solution", "prob_a_list", "prob_b_list", "agent_ids", "agent_types_values"}
         }
         global_solution = f["global_solution"][()]
-        prob_a_list = f["prob_a_list"][()]
-        prob_b_list = f["prob_b_list"][()]
-    return load_all_params, global_solution, prob_a_list, prob_b_list
+        prob_a_list = f["prob_a_list"][()]  # only regular
+        prob_b_list = f["prob_b_list"][()]  # only regular
+        agent_ids = f['agent_ids'][:]
+        agent_types_values = f['agent_types_values'][:]
+    agent_types = {int(agent_id): agent_type.decode('utf-8') for agent_id, agent_type in
+                   zip(agent_ids, agent_types_values)}
+    return load_all_params, global_solution, prob_a_list, prob_b_list, agent_types
+
 
 @contextmanager
 def timer():

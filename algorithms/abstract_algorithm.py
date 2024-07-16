@@ -166,9 +166,10 @@ class AbstractAlgorithm(ABC):
         return all_hist_params
 
     def save_all_hist(self):
-        """filename_plan: default generate name using generate_filename()."""
+        """filename_plan: default generate name using generate_filename().
+        load_all_hist is provided in utils.utils."""
         all_params = self.get_all_hist()
-
+        agent_types = self.network.agent_types
         with h5py.File(self.logging_result_path, 'w') as f:
             for agent_id, all_param in all_params.items():
                 f.create_dataset(str(agent_id), data=all_param)
@@ -177,18 +178,10 @@ class AbstractAlgorithm(ABC):
             f.create_dataset("prob_a_list", data=self.prob_a_list)
             f.create_dataset("prob_b_list", data=self.prob_b_list)
 
-    def load_all_hist(self):
-        """Not used yet, for future restart training for neural networks and so on."""
-        with h5py.File(self.logging_result_path, 'r') as f:
-            load_all_params = {
-                int(agent_id): f[agent_id][()] for agent_id in f.keys()
-                if agent_id not in {"global_solution", "prob_a_list", "prob_b_list"}
-            }
-            global_solution = f["global_solution"][()]
-            prob_a_list = f["prob_a_list"][()]
-            prob_b_list = f["prob_b_list"][()]
-
-        return load_all_params, global_solution, prob_a_list, prob_b_list
+            agent_ids = np.array(list(agent_types.keys()))
+            agent_types_values = np.array(list(agent_types.values()), dtype=h5py.string_dtype())
+            f.create_dataset("agent_ids", data=agent_ids)
+            f.create_dataset("agent_types_values", data=agent_types_values)
 
 
 class BlockInfoMixin:
