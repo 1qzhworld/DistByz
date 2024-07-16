@@ -5,13 +5,10 @@ import os
 import re
 
 import numpy as np
-import ray
 import yaml
-import time
 import h5py
 import matplotlib.pyplot as plt
 from datetime import datetime
-from contextlib import contextmanager
 from typing import List, Any, Dict
 
 
@@ -19,6 +16,7 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.abspath(os.path.join(script_dir, '..'))
 
 np.random.seed(0)
+
 
 def parse_args(set_one=None):
     parser = argparse.ArgumentParser(description="Run RayAgent optimization, setup for network, problem and algorithm")
@@ -192,8 +190,8 @@ def check_subset(sublist: List[Any], super_list: List[Any]):
 
 
 if __name__ == "__main__":
-    args = parse_args()
-    args_dict = vars(args)
+    args_test = parse_args()
+    args_dict = vars(args_test)
     for k, v in args_dict.items():
         print(f"\rThe key: {k} has value {v}.\r")
-    print(args.net_settings)
+    print(args_test.net_settings)

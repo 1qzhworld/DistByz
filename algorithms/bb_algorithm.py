@@ -1,9 +1,9 @@
 # algorithms/bb_algorithm.py
 import numpy as np
-import ray
-import warnings
-import math
-from typing import List, Dict
+# import ray
+# import warnings
+# import math
+# from typing import List, Dict
 # from tqdm import tqdm
 from utils.utils import parse_args
 from algorithms.abstract_algorithm import AbstractAlgorithm, BlockInfoMixin
@@ -52,8 +52,6 @@ class BBAlgorithm(AbstractAlgorithm, BlockInfoMixin):
         upd_futures = [agent_handle.cta_grad_desc.remote(self.lr, self.cur_iter, agg_plan='block_byz_aggregation')
                        for agent_handle in self.agents.values()]
         self.wait_for_all_futures(upd_futures, setup_timeout, "update")
-
-
 
 
 if __name__ == "__main__":
