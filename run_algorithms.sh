@@ -5,14 +5,10 @@ export PYTHONPATH="/path/to/your/pythonpath"
 
 # 定义配置文件列表
 CONFIG_FILES=(
-    "./configs/test_base_end2000_ss1e3_net30_byz0_dim7_blksz2_bcgd.yml"
-    "./configs/test_base_end2000_ss1e3_net30_byz0_dim7_blksz2_bb.yml"
-    "./configs/test_base_end2000_ss1e3_net30_byz0_dim7_dgd.yml"
-    "./configs/test_base_end2000_ssdim_net30_byz0_dim7_dgd.yml"
-    "./configs/test_base_end2000_ss1e3_net30_byz1_dim7_blksz2_bcgd.yml"
-    "./configs/test_base_end2000_ss1e3_net30_byz1_dim7_blksz2_bb.yml"
-    "./configs/test_base_end2000_ss1e3_net30_byz1_dim7_dgd.yml"
-    "./configs/test_base_end2000_ssdim_net30_byz1_dim7_dgd.yml"
+    "./configs/test_base_end1000_ss1e3_net30_byz2_dim7_blksz2_bcgd.yml"
+    "./configs/test_base_end1000_ss1e3_net30_byz2_dim7_blksz2_bb.yml"
+    "./configs/test_base_end1000_ss1e3_net30_byz2_dim7_dgd.yml"
+    "./configs/test_base_end1000_ssdim_net30_byz2_dim7_dgd.yml"
 )
 
 # 检查配置文件
@@ -37,14 +33,14 @@ for config_file in "${CONFIG_FILES[@]}"; do
 
     if echo "$filename_no_ext" | grep -qi "_bb"; then
         echo "Running BB algorithm for $config_file"
-        # python ./algorithms/bb_algorithm.py -o "$config_file"
+        python ./algorithms/bb_algorithm.py -o "$config_file"
         processed=1
     fi
 
     if [ $processed -eq 0 ]; then
         if echo "$filename_no_ext" | grep -qi "_bcgd"; then
             echo "Running BCGD algorithm for $config_file"
-            # python ./algorithms/bcgd_algorithm.py -o "$config_file"
+            python ./algorithms/bcgd_algorithm.py -o "$config_file"
             processed=1
         fi
     fi
@@ -52,7 +48,7 @@ for config_file in "${CONFIG_FILES[@]}"; do
     if [ $processed -eq 0 ]; then
         if echo "$filename_no_ext" | grep -qi "_dgd"; then
             echo "Running DGD algorithm for $config_file"
-            # python ./algorithms/dgd_algorithm.py -o "$config_file"
+            python ./algorithms/dgd_algorithm.py -o "$config_file"
             processed=1
         fi
     fi

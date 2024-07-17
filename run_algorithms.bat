@@ -4,19 +4,15 @@ setlocal enabledelayedexpansion
 set PYTHONPATH=D:\PhD_Qu_from_2021\Sketches\2024-07_BlockByz(code)\BlockByz07_v1
 
 :: Define the configurations
-REM set CONFIG_FILES=^
-REM .\configs\test_base_end2000_ss1e3_net30_byz0_dim7_blksz2_bcgd.yml ^
-REM .\configs\test_base_end2000_ss1e3_net30_byz0_dim7_blksz2_bb.yml ^
-REM .\configs\test_base_end2000_ss1e3_net30_byz0_dim7_dgd.yml ^
-REM .\configs\test_base_end2000_ssdim_net30_byz0_dim7_dgd.yml ^
-REM .\configs\test_base_end2000_ss1e3_net30_byz1_dim7_blksz2_bcgd.yml ^
-REM .\configs\test_base_end2000_ss1e3_net30_byz1_dim7_blksz2_bb.yml ^
-REM .\configs\test_base_end2000_ss1e3_net30_byz1_dim7_dgd.yml ^
-REM .\configs\test_base_end2000_ssdim_net30_byz1_dim7_dgd.yml
 set CONFIG_FILES=^
-.\configs\test_base_end2000_ss1e3_net30_byz1_dim7_blksz2_bb.yml ^
-.\configs\test_base_end2000_ss1e3_net30_byz1_dim7_dgd.yml ^
-.\configs\test_base_end2000_ssdim_net30_byz1_dim7_dgd.yml
+.\configs\test_base_end1000_ss1e3_net30_byz0_dim7_blksz2_bcgd.yml ^
+.\configs\test_base_end1000_ss1e3_net30_byz0_dim7_blksz2_bb.yml ^
+.\configs\test_base_end1000_ss1e3_net30_byz0_dim7_dgd.yml ^
+.\configs\test_base_end1000_ssdim_net30_byz0_dim7_dgd.yml ^
+.\configs\test_base_end1000_ss1e3_net30_byz1_dim7_blksz2_bcgd.yml ^
+.\configs\test_base_end1000_ss1e3_net30_byz1_dim7_blksz2_bb.yml ^
+.\configs\test_base_end1000_ss1e3_net30_byz1_dim7_dgd.yml ^
+.\configs\test_base_end1000_ssdim_net30_byz1_dim7_dgd.yml
 
 :: Check configurations
 for %%f in (%CONFIG_FILES%) do (

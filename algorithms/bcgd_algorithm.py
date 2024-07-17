@@ -23,7 +23,6 @@ class BCGDAlgorithm(AbstractAlgorithm, BlockInfoMixin):
                 prob_settings=self.args.prob_info,
                 alg_settings=self.args.alg_settings,
                 rst_settings=self.args.result_settings,
-                param=np.random.rand(self.args.prob_info['dimension']),  # TODO: Delete this for aggregation test.
                 blk_indexes=self.blk_indexes,
                 wt_plan=self.args.alg_settings["wt_plan"]
             )
@@ -44,7 +43,7 @@ class BCGDAlgorithm(AbstractAlgorithm, BlockInfoMixin):
 
         # gradient descent update
         self.lr = self.gene_stepsize()
-        upd_futures = [agent_handle.atc_grad_desc.remote(self.lr, self.cur_iter)
+        upd_futures = [agent_handle.atc_grad_desc.remote(self.lr, self.cur_iter, agg_plan='block_byz_aggregation')
                        for agent_handle in self.agents.values()]
         self.wait_for_all_futures(upd_futures, setup_timeout, "update")
 

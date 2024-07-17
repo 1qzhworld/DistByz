@@ -15,14 +15,8 @@ class BBAlgorithm(AbstractAlgorithm, BlockInfoMixin):
         self.alg_name = self.__class__.__name__
         if args.alg_settings['alg_name'] != self.alg_name:
             raise ValueError(f"Setting for {args.alg_settings['alg_name']}, but here is {self.alg_name}.")
-        super(BBAlgorithm, self).__init__(args)
-        self.blk_size = self.args.alg_settings['blk_size']
-
-        self.byz_size = self.network.byz_size
-        self.min_in_degrees = np.min([len(self.network.get_in_neighbors(agent_id))
-                                      for agent_id in range(self.network.net_size)])
-
-        self.blk_indexes = self.setup_blk_info()
+        AbstractAlgorithm.__init__(self, args)
+        BlockInfoMixin.__init__(self, args, self.network)
 
     def setup_agents(self):
         for agent_id in range(self.network.net_size):
@@ -33,7 +27,6 @@ class BBAlgorithm(AbstractAlgorithm, BlockInfoMixin):
                 prob_settings=self.args.prob_info,
                 alg_settings=self.args.alg_settings,
                 rst_settings=self.args.result_settings,
-                param=np.random.rand(self.args.prob_info['dimension']),  # TODO: Delete this for aggregation test.
                 blk_indexes=self.blk_indexes,
                 wt_plan=self.args.alg_settings["wt_plan"]
             )

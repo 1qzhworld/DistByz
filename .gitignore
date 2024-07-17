@@ -2,4 +2,4 @@ __pycache__
 .pytest_cache
 *.xml
 logging/
-results/
+results/2024*
