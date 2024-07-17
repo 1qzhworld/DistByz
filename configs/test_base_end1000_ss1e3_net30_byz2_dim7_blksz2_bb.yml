@@ -5,17 +5,17 @@
 
 algorithm:
   alg_settings:
-    end_iter: 2000
-    stepsize: 'diminishing_stepsize' # can also set: `diminishing` to be 1/(iter+1)
-    alg_name: 'DGDAlgorithm'
-    blk_size: 0
-#    wt_plan: 'block_byz'  # if no information, default to be `metropolis-Hastings`.
+    end_iter: 1000
+    stepsize: 0.001  # can also set: `diminishing` to be 1/(iter+1)
+    alg_name: 'BBAlgorithm'
+    blk_size: 2
+    wt_plan: 'block_byz'  # if no information, default to be `metropolis-Hastings`.
     verbose: false  # true for mute
     timeout_base: 1.0
 network:
   net_settings:
     net_size: 30
-    byz_size: 0
+    byz_size: 2
     gene_plan: 'ER_graph'
     conn_req: True
     directed_req: False
