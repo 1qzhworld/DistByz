@@ -44,8 +44,8 @@ class DGDAlgorithm(AbstractAlgorithm):
 if __name__ == "__main__":
     script_dir = os.path.dirname(os.path.abspath(__file__))
     project_root = os.path.abspath(os.path.join(script_dir, '..'))
-    set_one_config_path = f"{project_root}/configs/test_base_end2000_ss1e3_net30_byz0_dim7_dgd.yml"
-
-    dgd_args = parse_args(set_one=set_one_config_path)
+    # set_one_config_path = f"{project_root}/configs/test_base_end2000_ss1e3_net30_byz0_dim7_dgd.yml"
+    # dgd_args = parse_args(set_one=set_one_config_path)
+    dgd_args = parse_args()
     dgd_algorithm = DGDAlgorithm(dgd_args)
     dgd_algorithm.run()

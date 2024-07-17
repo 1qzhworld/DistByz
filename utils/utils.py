@@ -190,9 +190,71 @@ def check_subset(sublist: List[Any], super_list: List[Any]):
         raise RuntimeError("Send or receive to/from invalid neighbors.")
 
 
+def check_configurations(config_path):
+    config_filename = os.path.basename(config_path)
+
+    filename_parts = config_filename.split('_')
+    end_iter_str = filename_parts[2]
+    stepsize_str = filename_parts[3]
+    net_size_str = filename_parts[4]
+    byz_size_str = filename_parts[5]
+    dimension_str = filename_parts[6]
+
+    end_iter = int(end_iter_str.replace('end', ''))
+    net_size = int(net_size_str.replace('net', ''))
+    byz_size = int(byz_size_str.replace('byz', ''))
+    dimension = int(dimension_str.replace('dim', ''))
+
+    with open(config_path, 'r') as file:
+        config = yaml.safe_load(file)
+
+    alg_settings = config['algorithm']['alg_settings']
+    net_settings = config['network']['net_settings']
+    prob_info = config['problem']['prob_info']
+
+    errors = []
+
+    if alg_settings['end_iter'] != end_iter:
+        errors.append(f"end_iter: expected {end_iter}, found {alg_settings['end_iter']}")
+
+    if stepsize_str == 'ssdim':
+        if alg_settings['stepsize'] != 'diminishing_stepsize':
+            errors.append(f"stepsize: expected diminishing_stepsize, found {alg_settings['stepsize']}")
+    else:
+        stepsize = float(stepsize_str.replace('ss', '').replace('e', 'e-'))
+        if alg_settings['stepsize'] != stepsize:
+            errors.append(f"stepsize: expected {stepsize}, found {alg_settings['stepsize']}")
+
+    if net_settings['net_size'] != net_size:
+        errors.append(f"net_size: expected {net_size}, found {net_settings['net_size']}")
+    if net_settings['byz_size'] != byz_size:
+        errors.append(f"byz_size: expected {byz_size}, found {net_settings['byz_size']}")
+    if prob_info['dimension'] != dimension:
+        errors.append(f"dimension: expected {dimension}, found {prob_info['dimension']}")
+
+    requires_blk_size = "bb" in config_filename or "bcgd" in config_filename
+    if requires_blk_size:
+        blksz_str = filename_parts[7]
+        blk_size = int(blksz_str.replace('blksz', ''))
+        if alg_settings['blk_size'] != blk_size:
+            errors.append(f"blk_size: expected {blk_size}, found {alg_settings['blk_size']}")
+
+    if errors:
+        raise ValueError(f"Configurations in {config_filename} do not match its name:\n" + "\n".join(errors))
+
+def main():
+    parser = argparse.ArgumentParser(description="Utility script")
+    parser.add_argument('--check-config', type=str, help='Check the configuration file against its filename')
+    args = parser.parse_args()
+
+    if args.check_config:
+        try:
+            check_configurations(args.check_config)
+            print(f"{args.check_config} matches its configuration.")
+        except (ValueError, FileNotFoundError) as e:
+            print(str(e))
+            exit(1)
+
+
 if __name__ == "__main__":
-    args_test = parse_args()
-    args_dict = vars(args_test)
-    for k, v in args_dict.items():
-        print(f"\rThe key: {k} has value {v}.\r")
-    print(args_test.net_settings)
+    main()
