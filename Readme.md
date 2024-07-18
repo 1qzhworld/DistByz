@@ -27,3 +27,11 @@ currently the blk_size and related blk_indexes are calculate in the algorithm in
 ## 2024-07-15
 Currently, there is only a few things remain to be done. 
 For example, to record the distance to optimal and plot the results.
+
+## 2024-07-18
+Change the stepsize to 1e-2, because the theoretical result on the stepsize is from $(..., 1/L]$. 
+When $L=10$, we can set stepsize to 1e-2.
+
+### Larger blocksize leads to better convergence.
+
+### 2024-07-18 14H:03M:41S: change the initialization points to 100*np.ones(dimension)

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 设置 PYTHONPATH
-export PYTHONPATH="/path/to/your/pythonpath"
+export PYTHONPATH="/mnt/d/PhD_Qu_from_2021/Sketches/2024-07_BlockByz(code)/BlockByz07_v1"
 
 # 定义配置文件列表
 CONFIG_FILES=(
