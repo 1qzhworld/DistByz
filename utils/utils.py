@@ -3,6 +3,7 @@
 import argparse
 import os
 import re
+import warnings
 
 import numpy as np
 import yaml
@@ -39,7 +40,7 @@ def parse_args(set_one=None):
 
     parser.add_argument(
         "-o", "--one", type=str,
-        default=set_one or f"{project_root}/configs/test_base_end2000_ss1e3_net30_byz0_dim7_blksz2_bb.yml",
+        default=set_one or f"{project_root}/configs/test_2024-07-18_end700_ss1e2_net17_byz1_dim10_blksz2_bcgd.yml",
         help="Path to the unified configuration file (default: None)."
     )
     # parser.add_argument(
@@ -172,7 +173,8 @@ def plot_distance_to_optimal(filenames: List[str]):
 
     plt.xlabel('Iteration')
     plt.ylabel('Squared Distance (Log Scale)')
-    plt.title('Distance to Optimal Solution over Iterations for Multiple Algorithms')
+    longest_common_substring_in_result_files = find_longest_common_substring_in_all(filenames)
+    plt.title(longest_common_substring_in_result_files)
     plt.legend()
     plt.grid(True, which="both", ls="--")
     plt.show()
@@ -190,20 +192,100 @@ def check_subset(sublist: List[Any], super_list: List[Any]):
         raise RuntimeError("Send or receive to/from invalid neighbors.")
 
 
+def longest_common_substring(str1, str2):
+    m, n = len(str1), len(str2)
+    result = 0
+    end = 0
+    length = [[0] * (n + 1) for _ in range(m + 1)]
+
+    for i in range(1, m + 1):
+        for j in range(1, n + 1):
+            if str1[i - 1] == str2[j - 1]:
+                length[i][j] = length[i - 1][j - 1] + 1
+                if length[i][j] > result:
+                    result = length[i][j]
+                    end = i - 1
+            else:
+                length[i][j] = 0
+
+    return str1[end - result + 1:end + 1]
+
+
+def find_longest_common_substring_in_all(filenames):
+    if not filenames:
+        return ""
+
+    # Start with the first string
+    common_substr = filenames[0]
+
+    # Compare with each subsequent string and update the common substring
+    for i in range(1, len(filenames)):
+        common_substr = longest_common_substring(common_substr, filenames[i])
+        # If at any step the common substring is empty, return immediately
+        if not common_substr:
+            return ""
+
+    return common_substr
+
+
+def extract_parameter(filename_parts, prefix):
+    for part in filename_parts:
+        if part.startswith(prefix):
+            return part[len(prefix):]
+    return None
+
+
 def check_configurations(config_path):
     config_filename = os.path.basename(config_path)
 
     filename_parts = config_filename.split('_')
-    end_iter_str = filename_parts[2]
-    stepsize_str = filename_parts[3]
-    net_size_str = filename_parts[4]
-    byz_size_str = filename_parts[5]
-    dimension_str = filename_parts[6]
 
-    end_iter = int(end_iter_str.replace('end', ''))
-    net_size = int(net_size_str.replace('net', ''))
-    byz_size = int(byz_size_str.replace('byz', ''))
-    dimension = int(dimension_str.replace('dim', ''))
+    end_iter_str = extract_parameter(filename_parts, 'end')
+    stepsize_str = extract_parameter(filename_parts, 'ss')
+    net_size_str = extract_parameter(filename_parts, 'net')
+    byz_size_str = extract_parameter(filename_parts, 'byz')
+    dimension_str = extract_parameter(filename_parts, 'dim')
+    blk_size_str = extract_parameter(filename_parts, 'blksz')
+    param_init_str = extract_parameter(filename_parts, 'init')
+
+    if end_iter_str is None:
+        warnings.warn(f"Parameter 'end' not found in the filename: {config_filename}")
+    else:
+        end_iter = int(end_iter_str)
+
+    if stepsize_str is None:
+        warnings.warn(f"Parameter 'ss' not found in the filename: {config_filename}")
+    else:
+        if stepsize_str == 'dim':
+            stepsize = 'diminishing_stepsize'
+        else:
+            stepsize = float(stepsize_str.replace('e', 'e-'))
+
+    if net_size_str is None:
+        warnings.warn(f"Parameter 'net' not found in the filename: {config_filename}")
+    else:
+        net_size = int(net_size_str)
+
+    if byz_size_str is None:
+        warnings.warn(f"Parameter 'byz' not found in the filename: {config_filename}")
+    else:
+        byz_size = int(byz_size_str)
+
+    if dimension_str is None:
+        warnings.warn(f"Parameter 'dim' not found in the filename: {config_filename}")
+    else:
+        dimension = int(dimension_str)
+
+    if blk_size_str is None:
+        if "bb" in config_filename or "bcgd" in config_filename:
+            warnings.warn(f"Parameter 'blksz' required but not found in the filename: {config_filename}")
+    else:
+        blk_size = int(blk_size_str)
+
+    if param_init_str is None:
+        warnings.warn(f"Parameter 'param_init' not found in the filename: {config_filename}")
+    else:
+        param_init = int(param_init_str)
 
     with open(config_path, 'r') as file:
         config = yaml.safe_load(file)
@@ -214,33 +296,33 @@ def check_configurations(config_path):
 
     errors = []
 
-    if alg_settings['end_iter'] != end_iter:
+    if end_iter_str is not None and alg_settings['end_iter'] != end_iter:
         errors.append(f"end_iter: expected {end_iter}, found {alg_settings['end_iter']}")
 
-    if stepsize_str == 'ssdim':
-        if alg_settings['stepsize'] != 'diminishing_stepsize':
-            errors.append(f"stepsize: expected diminishing_stepsize, found {alg_settings['stepsize']}")
-    else:
-        stepsize = float(stepsize_str.replace('ss', '').replace('e', 'e-'))
-        if alg_settings['stepsize'] != stepsize:
-            errors.append(f"stepsize: expected {stepsize}, found {alg_settings['stepsize']}")
+    if stepsize_str is not None:
+        if stepsize == 'diminishing_stepsize':
+            if alg_settings['stepsize'] != 'diminishing_stepsize':
+                errors.append(f"stepsize: expected diminishing_stepsize, found {alg_settings['stepsize']}")
+        else:
+            if alg_settings['stepsize'] != stepsize:
+                errors.append(f"stepsize: expected {stepsize}, found {alg_settings['stepsize']}")
 
-    if net_settings['net_size'] != net_size:
+    if net_size_str is not None and net_settings['net_size'] != net_size:
         errors.append(f"net_size: expected {net_size}, found {net_settings['net_size']}")
-    if net_settings['byz_size'] != byz_size:
+    if byz_size_str is not None and net_settings['byz_size'] != byz_size:
         errors.append(f"byz_size: expected {byz_size}, found {net_settings['byz_size']}")
-    if prob_info['dimension'] != dimension:
+    if dimension_str is not None and prob_info['dimension'] != dimension:
         errors.append(f"dimension: expected {dimension}, found {prob_info['dimension']}")
 
-    requires_blk_size = "bb" in config_filename or "bcgd" in config_filename
-    if requires_blk_size:
-        blksz_str = filename_parts[7]
-        blk_size = int(blksz_str.replace('blksz', ''))
-        if alg_settings['blk_size'] != blk_size:
-            errors.append(f"blk_size: expected {blk_size}, found {alg_settings['blk_size']}")
+    if blk_size_str is not None and alg_settings.get('blk_size') is not None and alg_settings['blk_size'] != blk_size:
+        errors.append(f"blk_size: expected {blk_size}, found {alg_settings['blk_size']}")
+
+    if param_init_str is not None and alg_settings.get('param_init') is not None and alg_settings['param_init'] != param_init:
+        errors.append(f"param_init: expected {param_init}, found {alg_settings['param_init']}")
 
     if errors:
         raise ValueError(f"Configurations in {config_filename} do not match its name:\n" + "\n".join(errors))
+
 
 def main():
     parser = argparse.ArgumentParser(description="Utility script")

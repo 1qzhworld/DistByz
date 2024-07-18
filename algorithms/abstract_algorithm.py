@@ -40,6 +40,7 @@ class AbstractAlgorithm(ABC):
         self.timeout_base = args.alg_settings['timeout_base']
 
         self.agents = {}
+        self.param_init = args.alg_settings.get('param_init', 0) * np.ones(args.prob_info['dimension'])
 
         self.prob_a_list = None  # set value in the self.centralized_solver (only regular agents)
         self.prob_b_list = None  # set value in the self.centralized_solver
@@ -60,7 +61,8 @@ class AbstractAlgorithm(ABC):
                 _network=self.network,
                 prob_settings=self.args.prob_info,
                 alg_settings=self.args.alg_settings,
-                rst_settings=self.args.result_settings
+                rst_settings=self.args.result_settings,
+                param=self.param_init
             )
             self.agents[agent_id] = agent
 

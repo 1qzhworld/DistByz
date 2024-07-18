@@ -27,6 +27,7 @@ class BBAlgorithm(AbstractAlgorithm, BlockInfoMixin):
                 prob_settings=self.args.prob_info,
                 alg_settings=self.args.alg_settings,
                 rst_settings=self.args.result_settings,
+                param=self.param_init,
                 blk_indexes=self.blk_indexes,
                 wt_plan=self.args.alg_settings["wt_plan"]
             )
