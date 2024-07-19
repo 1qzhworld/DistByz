@@ -54,7 +54,24 @@ algorithm:
 - flip: -param to transmite
 - time: magnitude*param
 - ones: byz_mag*ones
+
 And the configuration files are named _planrand9_ something like this.
 
  
 The utility is updated to check the config and the name of config file.
+
+From the results, it seems that the result in `time9` diverge quickly 
+(possibly because of the initialization is too far from opt) 
+
+For other cases, the dgd with diminishing stepsize shows best performance at the initial, 
+but quickly meet the performance of dgd with constant stepsize. 
+
+`rand9` seems most suitable for the clarification.
+
+### Next time change the AHU to smaller value 1.1 and mild initialization as well as shorten end (400)
+AHU to smaller value 1.1, such that the weight of bcgd will be more relaxed.
+
+The configs are used as AHU11e1. 
+
+__Because different numbers of Byzantine agents shows similar performance, byz is set to be 2.__
+

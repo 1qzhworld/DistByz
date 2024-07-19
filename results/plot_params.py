@@ -71,11 +71,95 @@ from utils.utils import plot_distance_to_optimal
 # ]
 # plot_distance_to_optimal(byz2_init100)
 
-byz3_AHU2 = [
-    "20240719_002829_result_2024-07-19_end700_ss1e2_net17_byz3_dim10_blksz3_init100_AHU2_bb.h5",
-    "20240719_004319_result_2024-07-19_end700_ss1e2_net17_byz3_dim10_blksz3_init100_AHU2_bcgd.h5",
-    "20240719_005750_result_2024-07-19_end700_ss1e2_net17_byz3_dim10_init100_AHU2_dgd.h5",
-    # "20240719_011226_result_2024-07-19_end700_ssdim_net17_byz3_dim10_init100_AHU2_dgd.h5"
-]  # The DGD is better than bb and bcgd.
+# byz3_AHU2 = [
+#     "20240719_002829_result_2024-07-19_end700_ss1e2_net17_byz3_dim10_blksz3_init100_AHU2_bb.h5",
+#     "20240719_004319_result_2024-07-19_end700_ss1e2_net17_byz3_dim10_blksz3_init100_AHU2_bcgd.h5",
+#     "20240719_005750_result_2024-07-19_end700_ss1e2_net17_byz3_dim10_init100_AHU2_dgd.h5",
+#     "20240719_011226_result_2024-07-19_end700_ssdim_net17_byz3_dim10_init100_AHU2_dgd.h5"
+# ]  # The DGD is better than bb and bcgd.
+#
+# plot_distance_to_optimal(byz3_AHU2)
 
-plot_distance_to_optimal(byz3_AHU2)
+
+# byz2_AHU2 = [
+#     # "20240719_002829_result_2024-07-19_end700_ss1e2_net17_byz3_dim10_blksz3_init100_AHU2_bb.h5",
+#     # "20240719_004319_result_2024-07-19_end700_ss1e2_net17_byz3_dim10_blksz3_init100_AHU2_bcgd.h5",
+#     # "20240719_005750_result_2024-07-19_end700_ss1e2_net17_byz3_dim10_init100_AHU2_dgd.h5",
+#     # "20240719_011226_result_2024-07-19_end700_ssdim_net17_byz3_dim10_init100_AHU2_dgd.h5",
+#     "20240719_024050_result_2024-07-19_end700_ss1e2_net17_byz2_dim10_blksz3_init100_AHU2_bb.h5",
+#     "20240719_025532_result_2024-07-19_end700_ss1e2_net17_byz2_dim10_blksz3_init100_AHU2_bcgd.h5",
+#     "20240719_032423_result_2024-07-19_end700_ssdim_net17_byz2_dim10_init100_AHU2_dgd.h5",
+#     "20240719_030951_result_2024-07-19_end700_ss1e2_net17_byz2_dim10_init100_AHU2_dgd.h5"
+# ]  # 2 or three byzantine agents' influcence are similar. the lines are almost the same.
+# plot_distance_to_optimal(byz2_AHU2)
+
+# the number of byzantine agent seems do not influence the performance of the algorithm for agent 1,2,3 in the network
+# process similar performances.
+# byz1_AHU2 = [
+# # "20240719_024050_result_2024-07-19_end700_ss1e2_net17_byz2_dim10_blksz3_init100_AHU2_bb.h5",
+# #     "20240719_025532_result_2024-07-19_end700_ss1e2_net17_byz2_dim10_blksz3_init100_AHU2_bcgd.h5",
+# #     "20240719_032423_result_2024-07-19_end700_ssdim_net17_byz2_dim10_init100_AHU2_dgd.h5",
+# #     "20240719_030951_result_2024-07-19_end700_ss1e2_net17_byz2_dim10_init100_AHU2_dgd.h5",
+#     "20240719_021148_result_2024-07-19_end700_ss1e2_net17_byz1_dim10_init100_AHU2_dgd.h5",
+#     "20240719_014224_result_2024-07-19_end700_ss1e2_net17_byz1_dim10_blksz3_init100_AHU2_bb.h5",
+#     "20240719_015700_result_2024-07-19_end700_ss1e2_net17_byz1_dim10_blksz3_init100_AHU2_bcgd.h5",
+#     "20240719_022616_result_2024-07-19_end700_ssdim_net17_byz1_dim10_init100_AHU2_dgd.h5"
+# ]
+# plot_distance_to_optimal(byz1_AHU2)
+
+
+# byz2_AHU2_flip9 = [
+#     "20240719_124643_result_2024-07-19_end700_ss1e2_net17_byz2_planflip9_dim10_blksz3_init100_AHU2_bb.h5",
+#     "20240719_125926_result_2024-07-19_end700_ss1e2_net17_byz2_planflip9_dim10_blksz3_init100_AHU2_bcgd.h5",
+#     "20240719_131212_result_2024-07-19_end700_ss1e2_net17_byz2_planflip9_dim10_init100_AHU2_dgd.h5",
+#     "20240719_132505_result_2024-07-19_end700_ssdim_net17_byz2_planflip9_dim10_init100_AHU2_dgd.h5"
+# ]  # BCGD is better, BB is worst, DGD is fast in initialization, strange thing???
+# plot_distance_to_optimal(byz2_AHU2_flip9)
+
+# TODO: can be useful?
+# byz2_AHU2_time9 = [
+#     # "20240719_115547_result_2024-07-19_end700_ss1e2_net17_byz2_plantime9_dim10_blksz3_init100_AHU2_bb.h5",
+#     # "20240719_120830_result_2024-07-19_end700_ss1e2_net17_byz2_plantime9_dim10_blksz3_init100_AHU2_bcgd.h5",
+#     "20240719_122114_result_2024-07-19_end700_ss1e2_net17_byz2_plantime9_dim10_init100_AHU2_dgd.h5",
+#     "20240719_123356_result_2024-07-19_end700_ssdim_net17_byz2_plantime9_dim10_init100_AHU2_dgd.h5"
+# ]   # dgd becomes overflow, out of range error.
+# plot_distance_to_optimal(byz2_AHU2_time9)
+
+# TODO: DGD withi diminishing stepsize converge too fase. And others are still decreasing. However, BCGD is best.
+# byz2_AHU2_ones9 = [
+#     "20240719_043804_result_2024-07-19_end700_ss1e2_net17_byz2_planones9_dim10_blksz3_init100_AHU2_bb.h5",
+#     "20240719_045321_result_2024-07-19_end700_ss1e2_net17_byz2_planones9_dim10_blksz3_init100_AHU2_bcgd.h5",
+#     "20240719_050800_result_2024-07-19_end700_ss1e2_net17_byz2_planones9_dim10_init100_AHU2_dgd.h5",
+#     # "20240719_052225_result_2024-07-19_end700_ssdim_net17_byz2_planones9_dim10_init100_AHU2_dgd.h5"
+# ]
+# plot_distance_to_optimal(byz2_AHU2_ones9)
+
+# byz2_AHU2_rand9 = [
+#     "20240719_034657_result_2024-07-19_end700_ss1e2_net17_byz2_planrand9_dim10_blksz3_init100_AHU2_bb.h5",
+#     "20240719_040150_result_2024-07-19_end700_ss1e2_net17_byz2_planrand9_dim10_blksz3_init100_AHU2_bcgd.h5",
+#     "20240719_041627_result_2024-07-19_end700_ss1e2_net17_byz2_planrand9_dim10_init100_AHU2_dgd.h5",
+#     "20240719_043105_result_2024-07-19_end700_ssdim_net17_byz2_planrand9_dim10_init100_AHU2_dgd.h5"
+# ]
+# plot_distance_to_optimal(byz2_AHU2_rand9)
+
+# byz2_AHU11e1_rand9 = [
+# "20240719_143859_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz3_init10_AHU11e1_bb.h5",
+# "20240719_144627_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz3_init10_AHU11e1_bcgd.h5",
+# "20240719_145356_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_init10_AHU11e1_dgd.h5",
+# "20240719_150128_result_2024-07-19_end400_ssdim_net17_byz2_planrand9_dim10_init10_AHU11e1_dgd.h5"
+# ]
+# plot_distance_to_optimal(byz2_AHU11e1_rand9)
+
+# we try for different initial values
+# byz2_AHU11e1_rand9_init_10 = [
+#     "20240719_152920_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz3_init-10_AHU11e1_bb.h5",
+#     "20240719_153652_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz3_init-10_AHU11e1_bcgd.h5",
+#     "20240719_154429_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_init-10_AHU11e1_dgd.h5",
+#     "20240719_155204_result_2024-07-19_end400_ssdim_net17_byz2_planrand9_dim10_init-10_AHU11e1_dgd.h5"
+# ]
+# plot_distance_to_optimal(byz2_AHU11e1_rand9_init_10)
+# still the DGD converge first, and diverge later. Different initialization seems would not change the performances.
+
+# Let us come back to the initialization with all ones, and try different attacks.
+
+
