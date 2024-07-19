@@ -75,3 +75,9 @@ The configs are used as AHU11e1.
 
 __Because different numbers of Byzantine agents shows similar performance, byz is set to be 2.__
 
+[16H31M18S_run_algorithms_ss1e2_byz2_init10_AHU11e1_planxxxx9.sh](16H31M18S_run_algorithms_ss1e2_byz2_init10_AHU11e1_planxxxx9.sh)
+This file try different attacks and see the results to campare with different attacks 
+and see what attakcs is most attractive for comparisons.
+
+### change the magnitude of attack and see the results.
+

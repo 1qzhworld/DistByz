@@ -150,6 +150,22 @@ from utils.utils import plot_distance_to_optimal
 # ]
 # plot_distance_to_optimal(byz2_AHU11e1_rand9)
 
+# compare the different AHU (conditional numbers)
+# byz_conds = [
+#     "20240719_034657_result_2024-07-19_end700_ss1e2_net17_byz2_planrand9_dim10_blksz3_init100_AHU2_bb.h5",
+#     "20240719_040150_result_2024-07-19_end700_ss1e2_net17_byz2_planrand9_dim10_blksz3_init100_AHU2_bcgd.h5",
+#     "20240719_041627_result_2024-07-19_end700_ss1e2_net17_byz2_planrand9_dim10_init100_AHU2_dgd.h5",
+#     "20240719_043105_result_2024-07-19_end700_ssdim_net17_byz2_planrand9_dim10_init100_AHU2_dgd.h5",
+#     "20240719_143859_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz3_init10_AHU11e1_bb.h5",
+#     "20240719_144627_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz3_init10_AHU11e1_bcgd.h5",
+#     "20240719_145356_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_init10_AHU11e1_dgd.h5",
+#     "20240719_150128_result_2024-07-19_end400_ssdim_net17_byz2_planrand9_dim10_init10_AHU11e1_dgd.h5"
+# ]  # it seems that the ill-conditioned case (not really, but larger AHU2), the performance is better
+# plot_distance_to_optimal(byz_conds)
+# TODO: try different conditional numbers under this case.
+
+
+
 # we try for different initial values
 # byz2_AHU11e1_rand9_init_10 = [
 #     "20240719_152920_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz3_init-10_AHU11e1_bb.h5",
@@ -160,6 +176,72 @@ from utils.utils import plot_distance_to_optimal
 # plot_distance_to_optimal(byz2_AHU11e1_rand9_init_10)
 # still the DGD converge first, and diverge later. Different initialization seems would not change the performances.
 
-# Let us come back to the initialization with all ones, and try different attacks.
+# # Let us come back to the initialization with all 10, and try different attacks.
+# byz2_AHU11e1_planxxxx9 = [
+# # "20240719_143859_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz3_init10_AHU11e1_bb.h5",
+# # "20240719_144627_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz3_init10_AHU11e1_bcgd.h5",
+# # "20240719_145356_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_init10_AHU11e1_dgd.h5",
+# # "20240719_150128_result_2024-07-19_end400_ssdim_net17_byz2_planrand9_dim10_init10_AHU11e1_dgd.h5",
+# # "20240719_094216_result_2024-07-19_end400_ss1e2_net17_byz2_plantime9_dim10_blksz3_init10_AHU11e1_bb.h5",
+# # "20240719_095032_result_2024-07-19_end400_ss1e2_net17_byz2_plantime9_dim10_blksz3_init10_AHU11e1_bcgd.h5",
+# # "20240719_095849_result_2024-07-19_end400_ss1e2_net17_byz2_plantime9_dim10_init10_AHU11e1_dgd.h5",
+# # "20240719_100706_result_2024-07-19_end400_ssdim_net17_byz2_plantime9_dim10_init10_AHU11e1_dgd.h5",
+# "20240719_085242_result_2024-07-19_end400_ss1e2_net17_byz2_planones9_dim10_init10_AHU11e1_dgd.h5",
+# "20240719_090055_result_2024-07-19_end400_ssdim_net17_byz2_planones9_dim10_init10_AHU11e1_dgd.h5",
+# # "20240719_090908_result_2024-07-19_end400_ss1e2_net17_byz2_planflip9_dim10_blksz3_init10_AHU11e1_bb.h5",
+# # "20240719_091724_result_2024-07-19_end400_ss1e2_net17_byz2_planflip9_dim10_blksz3_init10_AHU11e1_bcgd.h5",
+# # "20240719_092544_result_2024-07-19_end400_ss1e2_net17_byz2_planflip9_dim10_init10_AHU11e1_dgd.h5",
+# # "20240719_093402_result_2024-07-19_end400_ssdim_net17_byz2_planflip9_dim10_init10_AHU11e1_dgd.h5"
+# ]
+# # The attacks result in similar performances. The commented time9 makes the dgd diverge clearly.
+# plot_distance_to_optimal(byz2_AHU11e1_planxxxx9)
 
+# byz2_init10_AHU11e1_planxxxx2 = [
+#     # "20240719_184616_result_2024-07-19_end400_ssdim_net17_byz2_plantime2_dim10_init10_AHU11e1_dgd.h5",
+#     # "20240719_183850_result_2024-07-19_end400_ss1e2_net17_byz2_plantime2_dim10_init10_AHU11e1_dgd.h5",
+#     # "20240719_183120_result_2024-07-19_end400_ss1e2_net17_byz2_plantime2_dim10_blksz3_init10_AHU11e1_bcgd.h5",
+#     # "20240719_182347_result_2024-07-19_end400_ss1e2_net17_byz2_plantime2_dim10_blksz3_init10_AHU11e1_bb.h5",
+#     # "20240719_181609_result_2024-07-19_end400_ssdim_net17_byz2_planflip2_dim10_init10_AHU11e1_dgd.h5",
+#     # "20240719_180831_result_2024-07-19_end400_ss1e2_net17_byz2_planflip2_dim10_init10_AHU11e1_dgd.h5",
+#     # "20240719_180052_result_2024-07-19_end400_ss1e2_net17_byz2_planflip2_dim10_blksz3_init10_AHU11e1_bcgd.h5",
+#     # "20240719_175326_result_2024-07-19_end400_ss1e2_net17_byz2_planflip2_dim10_blksz3_init10_AHU11e1_bb.h5",
+#     "20240719_174600_result_2024-07-19_end400_ssdim_net17_byz2_planrand2_dim10_init10_AHU11e1_dgd.h5",
+#     "20240719_173836_result_2024-07-19_end400_ss1e2_net17_byz2_planrand2_dim10_init10_AHU11e1_dgd.h5",
+#     "20240719_173109_result_2024-07-19_end400_ss1e2_net17_byz2_planrand2_dim10_blksz3_init10_AHU11e1_bcgd.h5",
+#     "20240719_172343_result_2024-07-19_end400_ss1e2_net17_byz2_planrand2_dim10_blksz3_init10_AHU11e1_bb.h5",
+#     "20240719_171619_result_2024-07-19_end400_ssdim_net17_byz2_planones2_dim10_init10_AHU11e1_dgd.h5",
+#     "20240719_170853_result_2024-07-19_end400_ss1e2_net17_byz2_planones2_dim10_init10_AHU11e1_dgd.h5",
+#     "20240719_170122_result_2024-07-19_end400_ss1e2_net17_byz2_planones2_dim10_blksz3_init10_AHU11e1_bcgd.h5",
+#     "20240719_165350_result_2024-07-19_end400_ss1e2_net17_byz2_planones2_dim10_blksz3_init10_AHU11e1_bb.h5"
+# ]
+# # all seems similar, the attack magenitude should influence a little, but anyway, larger attack magnitude is better for bb, bcgd's performance.
+# # When the magnitude is 2, the performance is similar.
+# plot_distance_to_optimal(byz2_init10_AHU11e1_planxxxx2)
 
+# byz2_init10_planflip29 = [
+#     "20240719_180052_result_2024-07-19_end400_ss1e2_net17_byz2_planflip2_dim10_blksz3_init10_AHU11e1_bcgd.h5",
+#     "20240719_175326_result_2024-07-19_end400_ss1e2_net17_byz2_planflip2_dim10_blksz3_init10_AHU11e1_bb.h5",
+#     # "20240719_181609_result_2024-07-19_end400_ssdim_net17_byz2_planflip2_dim10_init10_AHU11e1_dgd.h5",
+#     "20240719_180831_result_2024-07-19_end400_ss1e2_net17_byz2_planflip2_dim10_init10_AHU11e1_dgd.h5",
+#     # "20240719_091724_result_2024-07-19_end400_ss1e2_net17_byz2_planflip9_dim10_blksz3_init10_AHU11e1_bcgd.h5",
+#     # "20240719_090908_result_2024-07-19_end400_ss1e2_net17_byz2_planflip9_dim10_blksz3_init10_AHU11e1_bb.h5",
+#     "20240719_092544_result_2024-07-19_end400_ss1e2_net17_byz2_planflip9_dim10_init10_AHU11e1_dgd.h5",
+#     # "20240719_093402_result_2024-07-19_end400_ssdim_net17_byz2_planflip9_dim10_init10_AHU11e1_dgd.h5"
+#
+# # The comparison is not clear, DGD sometiems better than BB and BCGD.
+# plot_distance_to_optimal(byz2_init10_planrand29)
+
+byz2_planrand29 = [
+    "20240719_172343_result_2024-07-19_end400_ss1e2_net17_byz2_planrand2_dim10_blksz3_init10_AHU11e1_bb.h5",
+    "20240719_173109_result_2024-07-19_end400_ss1e2_net17_byz2_planrand2_dim10_blksz3_init10_AHU11e1_bcgd.h5",
+    "20240719_173836_result_2024-07-19_end400_ss1e2_net17_byz2_planrand2_dim10_init10_AHU11e1_dgd.h5",
+    "20240719_174600_result_2024-07-19_end400_ssdim_net17_byz2_planrand2_dim10_init10_AHU11e1_dgd.h5",
+    "20240719_143859_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz3_init10_AHU11e1_bb.h5",
+    "20240719_144627_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz3_init10_AHU11e1_bcgd.h5",
+    "20240719_145356_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_init10_AHU11e1_dgd.h5",
+    "20240719_150128_result_2024-07-19_end400_ssdim_net17_byz2_planrand9_dim10_init10_AHU11e1_dgd.h5",
+]  # DGD is similar when attack mag=2.
+
+plot_distance_to_optimal(byz2_planrand29)
+
+# It seems that higher AHU has better comparisons?
