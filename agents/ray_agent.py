@@ -53,6 +53,15 @@ class RayAgent:
         self.m = prob_settings['A']['HessLowerBd']
 
         self.alg_settings = alg_settings
+        if self.alg_settings.get("byz_msg"):
+            self.byz_plan = self.alg_settings['byz_msg']['byz_plan']
+            self.byz_mag = self.alg_settings['byz_msg']['byz_mag']
+        else:  # in original config files, there is no such setting.
+            self.byz_plan = 'rand'
+            self.byz_mag = 1
+
+
+
 
         self.rst_settings = rst_settings
         # TODO: change the following setup. the setup for the alg_settings['alg_name'] is not elegant enough.
@@ -135,7 +144,7 @@ class RayAgent:
         if self.agent_type == 'Reg':
             msgs = {out_nbr_id: {"param": self.param} for out_nbr_id in self.out_nbr_ids}
         elif self.agent_type == 'Byz':
-            msgs = {out_nbr_id: {"param": np.random.rand(*self.param.shape)} for out_nbr_id in self.out_nbr_ids}
+            msgs = self._byz_msg_generator()
         else:
             msgs = {out_nbr_id: {"param": "something wrong."} for out_nbr_id in self.out_nbr_ids}
         self._set_outbox(msgs)
@@ -252,6 +261,21 @@ class RayAgent:
         # print(f"\rStep 0.1.2.2: _generate_one_block_byz_weight: "
         #       f"check the {loc_wt_row}'s sum is {np.sum(np.array(loc_wt_row))} is row stochastic.")
         return loc_wt_row
+
+    def _byz_msg_generator(self) -> Dict[int, Dict[str, np.ndarray]]:
+        if self.agent_type != 'Byz':
+            raise ValueError(f"Regular agent {self.agent_id} should not generate Byzantine messages.")
+        if self.byz_plan == "rand":
+            msgs = {out_nbr_id: {"param": self.byz_mag*np.random.rand(*self.param.shape)} for out_nbr_id in self.out_nbr_ids}
+        elif self.byz_plan == "flip":
+            msgs = {out_nbr_id: {"param": -self.byz_mag*self.param} for out_nbr_id in self.out_nbr_ids}
+        elif self.byz_plan == "time":
+            msgs = {out_nbr_id: {"param": self.byz_mag*self.param} for out_nbr_id in self.out_nbr_ids}
+        elif self.byz_plan == "ones":
+            msgs = {out_nbr_id: {"param": self.byz_mag*np.ones_like(self.param)} for out_nbr_id in self.out_nbr_ids}
+        else:
+            raise ValueError(f"Current byzantine plan: {self.byz_plan} is not supported.")
+        return msgs
 
     @staticmethod
     def _check_agent_type(agent_type: AgentType) -> str:

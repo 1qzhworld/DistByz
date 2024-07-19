@@ -1,4 +1,6 @@
 # algorithms/bb_algorithm.py
+import os.path
+
 import numpy as np
 # import ray
 # import warnings
@@ -49,6 +51,13 @@ class BBAlgorithm(AbstractAlgorithm, BlockInfoMixin):
 
 
 if __name__ == "__main__":
+    # script_dir = os.path.dirname(os.path.abspath(__file__))
+    # project_root = os.path.abspath(os.path.join(script_dir, '..'))
+    # # set_one = f"{project_root}\\configs\\test_2024-07-18_end700_ss1e2_net17_byz1_planflip9_dim10_blksz3_init100_bb.yml"
+    # # set_one = f"{project_root}\\configs\\test_2024-07-18_end700_ss1e2_net17_byz1_planrand9_dim10_blksz3_init100_bb.yml"
+    # # set_one = f"{project_root}\\configs\\test_2024-07-18_end700_ss1e2_net17_byz1_planones9_dim10_blksz3_init100_bb.yml"
+    # set_one = f"{project_root}\\configs\\test_2024-07-18_end700_ss1e2_net17_byz1_plantime9_dim10_blksz3_init100_bb.yml"
+    # bb_args = parse_args(set_one)
     bb_args = parse_args()
     bb_algorithm = BBAlgorithm(bb_args)
     bb_algorithm.run()

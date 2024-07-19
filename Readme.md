@@ -23,7 +23,6 @@ Currrently they are transmite through the algorithm, but not initialized in each
 
 currently the blk_size and related blk_indexes are calculate in the algorithm instead of the agent. Because in the previous setting it implies that each agent can have its own block split methods and the blocks can be different in the agents. Therefore, is different from the algorithm in the analysis. We have changed this to make the algorithm more robust by ensure the blocks are same for all agents.
 
-
 ## 2024-07-15
 Currently, there is only a few things remain to be done. 
 For example, to record the distance to optimal and plot the results.
@@ -35,3 +34,27 @@ When $L=10$, we can set stepsize to 1e-2.
 ### Larger blocksize leads to better convergence.
 
 ### 2024-07-18 14H:03M:41S: change the initialization points to 100*np.ones(dimension)
+
+## 2024-07-19
+
+### run different Lipschitz gradient (AHU2)
+In this case, the DGD seems better than the BB and the BCGD.
+
+### Change the strategy of Byzantine agents to make the attacks more fierce.
+
+The strategy of the Byzantine agent is added to the algorithm_setting in the config file with 
+```yaml
+algorithm:
+  alg_settings:
+    byz_msg:
+      byz_plan: 'rand'  # rand, flipping, times, ones
+      byz_mag: 9    # 
+```
+- rand: generate random number
+- flip: -param to transmite
+- time: magnitude*param
+- ones: byz_mag*ones
+And the configuration files are named _planrand9_ something like this.
+
+ 
+The utility is updated to check the config and the name of config file.
