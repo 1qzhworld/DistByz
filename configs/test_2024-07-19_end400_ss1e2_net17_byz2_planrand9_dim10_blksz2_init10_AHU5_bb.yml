@@ -1,0 +1,45 @@
+# This configuration file is a combination of the split configuration files,
+#  includes the settings for the algorithm, network, problem and the results.
+# In addition, if this is provided by -o or --one,
+#  the priority is higher than the split configurations.
+
+algorithm:
+  alg_settings:
+    end_iter: 400
+    stepsize: 0.01 # can also set: `diminishing` to be 1/(iter+1)
+    alg_name: 'BBAlgorithm'
+    blk_size: 2
+    wt_plan: 'block_byz'  # if no information, default to be `metropolis-Hastings`.
+    verbose: false  # true for mute
+    timeout_base: 1.0
+    param_init: 10
+    byz_msg:
+      byz_plan: 'rand'  # rand, flip, time, ones
+      byz_mag: 9
+network:
+  net_settings:
+    net_size: 17
+    byz_size: 2
+    gene_plan: 'ER_graph'
+    conn_req: True
+    directed_req: False
+    ER_p: .97
+problem:
+  prob_info:
+    problem_type: 'LeastSquareProblem'
+    dimension: 10
+    A:
+      HessLowerBd: 1.0
+      HessUpperBd: 5  # AHU in config title
+    b: [ -5, 5 ]
+    c: 0.0
+result:
+  result_settings:
+    record: False
+    save: False
+    func_eval: True
+    dist_lc_opt: True
+    load: False
+    logging_path: 'logging/test_log.log'
+    save_hist: true
+

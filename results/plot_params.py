@@ -231,17 +231,33 @@ from utils.utils import plot_distance_to_optimal
 # # The comparison is not clear, DGD sometiems better than BB and BCGD.
 # plot_distance_to_optimal(byz2_init10_planrand29)
 
-byz2_planrand29 = [
-    "20240719_172343_result_2024-07-19_end400_ss1e2_net17_byz2_planrand2_dim10_blksz3_init10_AHU11e1_bb.h5",
-    "20240719_173109_result_2024-07-19_end400_ss1e2_net17_byz2_planrand2_dim10_blksz3_init10_AHU11e1_bcgd.h5",
-    "20240719_173836_result_2024-07-19_end400_ss1e2_net17_byz2_planrand2_dim10_init10_AHU11e1_dgd.h5",
-    "20240719_174600_result_2024-07-19_end400_ssdim_net17_byz2_planrand2_dim10_init10_AHU11e1_dgd.h5",
-    "20240719_143859_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz3_init10_AHU11e1_bb.h5",
-    "20240719_144627_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz3_init10_AHU11e1_bcgd.h5",
-    "20240719_145356_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_init10_AHU11e1_dgd.h5",
-    "20240719_150128_result_2024-07-19_end400_ssdim_net17_byz2_planrand9_dim10_init10_AHU11e1_dgd.h5",
-]  # DGD is similar when attack mag=2.
-
-plot_distance_to_optimal(byz2_planrand29)
+# byz2_planrand29 = [
+#     # "20240719_172343_result_2024-07-19_end400_ss1e2_net17_byz2_planrand2_dim10_blksz3_init10_AHU11e1_bb.h5",
+#     # "20240719_173109_result_2024-07-19_end400_ss1e2_net17_byz2_planrand2_dim10_blksz3_init10_AHU11e1_bcgd.h5",
+#     # "20240719_173836_result_2024-07-19_end400_ss1e2_net17_byz2_planrand2_dim10_init10_AHU11e1_dgd.h5",
+#     # "20240719_174600_result_2024-07-19_end400_ssdim_net17_byz2_planrand2_dim10_init10_AHU11e1_dgd.h5",
+#     "20240719_143859_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz3_init10_AHU11e1_bb.h5",
+#     "20240719_144627_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz3_init10_AHU11e1_bcgd.h5",
+#     "20240719_145356_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_init10_AHU11e1_dgd.h5",
+#     "20240719_150128_result_2024-07-19_end400_ssdim_net17_byz2_planrand9_dim10_init10_AHU11e1_dgd.h5",
+# ]  # DGD is similar when attack mag=2.
+#
+# plot_distance_to_optimal(byz2_planrand29)
 
 # It seems that higher AHU has better comparisons?
+run_algorithms_2024_07_19_20H43M22S_ss1e2_byz2_init10_AHU5_palnrand9_blkszxx = [
+"20240719_215539_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz10_init10_AHU5_bcgd.h5",
+"20240719_214806_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz10_init10_AHU5_bb.h5",
+"20240719_214037_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz7_init10_AHU5_bcgd.h5",
+"20240719_213303_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz7_init10_AHU5_bb.h5",
+"20240719_212527_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz5_init10_AHU5_bcgd.h5",
+"20240719_211756_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz5_init10_AHU5_bb.h5",
+# "20240719_130911_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz3_init10_AHU5_bcgd.h5",
+# "20240719_131741_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz3_init10_AHU5_bb.h5",
+"20240719_211018_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz2_init10_AHU5_bcgd.h5",
+"20240719_210238_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz2_init10_AHU5_bb.h5",
+"20240719_205459_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz1_init10_AHU5_bcgd.h5",
+"20240719_204718_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz1_init10_AHU5_bb.h5",
+# "20240719_132611_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_init10_AHU5_dgd.h5"
+]
+plot_distance_to_optimal(run_algorithms_2024_07_19_20H43M22S_ss1e2_byz2_init10_AHU5_palnrand9_blkszxx)
