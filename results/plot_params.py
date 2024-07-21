@@ -244,20 +244,81 @@ from utils.utils import plot_distance_to_optimal
 #
 # plot_distance_to_optimal(byz2_planrand29)
 
-# It seems that higher AHU has better comparisons?
-run_algorithms_2024_07_19_20H43M22S_ss1e2_byz2_init10_AHU5_palnrand9_blkszxx = [
-"20240719_215539_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz10_init10_AHU5_bcgd.h5",
-"20240719_214806_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz10_init10_AHU5_bb.h5",
-"20240719_214037_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz7_init10_AHU5_bcgd.h5",
-"20240719_213303_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz7_init10_AHU5_bb.h5",
-"20240719_212527_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz5_init10_AHU5_bcgd.h5",
-"20240719_211756_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz5_init10_AHU5_bb.h5",
-# "20240719_130911_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz3_init10_AHU5_bcgd.h5",
-# "20240719_131741_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz3_init10_AHU5_bb.h5",
-"20240719_211018_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz2_init10_AHU5_bcgd.h5",
-"20240719_210238_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz2_init10_AHU5_bb.h5",
-"20240719_205459_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz1_init10_AHU5_bcgd.h5",
-"20240719_204718_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz1_init10_AHU5_bb.h5",
-# "20240719_132611_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_init10_AHU5_dgd.h5"
-]
-plot_distance_to_optimal(run_algorithms_2024_07_19_20H43M22S_ss1e2_byz2_init10_AHU5_palnrand9_blkszxx)
+# # It seems that higher AHU has better comparisons?
+# run_algorithms_2024_07_19_20H43M22S_ss1e2_byz2_init10_AHU5_palnrand9_blkszxx = [
+# "20240719_215539_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz10_init10_AHU5_bcgd.h5",
+# "20240719_214806_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz10_init10_AHU5_bb.h5",
+# "20240719_214037_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz7_init10_AHU5_bcgd.h5",
+# "20240719_213303_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz7_init10_AHU5_bb.h5",
+# "20240719_212527_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz5_init10_AHU5_bcgd.h5",
+# "20240719_211756_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz5_init10_AHU5_bb.h5",
+# # "20240719_130911_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz3_init10_AHU5_bcgd.h5",
+# # "20240719_131741_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz3_init10_AHU5_bb.h5",
+# "20240719_211018_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz2_init10_AHU5_bcgd.h5",
+# "20240719_210238_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz2_init10_AHU5_bb.h5",
+# "20240719_205459_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz1_init10_AHU5_bcgd.h5",
+# "20240719_204718_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz1_init10_AHU5_bb.h5",
+# # "20240719_132611_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_init10_AHU5_dgd.h5"
+# ]  # Not larger block size brings better performances.
+# plot_distance_to_optimal(run_algorithms_2024_07_19_20H43M22S_ss1e2_byz2_init10_AHU5_palnrand9_blkszxx)
+
+
+# run_20H29M56S_run_algorithms_ss1e2_byz2_init10_planrand9_AHUxx = [
+#     "20240719_130911_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz3_init10_AHU5_bcgd.h5",
+#     "20240719_131741_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz3_init10_AHU5_bb.h5",
+#     "20240719_132611_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_init10_AHU5_dgd.h5",
+#     "20240719_123531_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz3_init10_AHU10_bcgd.h5",
+#     "20240719_124356_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz3_init10_AHU10_bb.h5",
+#     "20240719_125222_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_init10_AHU10_dgd.h5",
+#     # "20240719_130044_result_2024-07-19_end400_ssdim_net17_byz2_planrand9_dim10_init10_AHU10_dgd.h5"
+# ]  # AHU10 is better than AHU5!
+# plot_distance_to_optimal(run_20H29M56S_run_algorithms_ss1e2_byz2_init10_planrand9_AHUxx)
+
+###########################################################################################################
+###############################################  GREAT PERFORMANCE ########################################
+###############################################  GREAT PERFORMANCE ########################################
+###############################################  GREAT PERFORMANCE ########################################
+###########################################################################################################
+# "20240719_123531_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz3_init10_AHU10_bcgd.h5",
+# "20240719_124356_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz3_init10_AHU10_bb.h5",
+###########################################################################################################
+###############################################  GREAT PERFORMANCE ########################################
+###############################################  GREAT PERFORMANCE ########################################
+###############################################  GREAT PERFORMANCE ########################################
+###########################################################################################################
+
+
+# run_algorithms_20240721_18H23M37S_bxx_dim_bb_bcgd = [
+# "20240721_110041_result_2024-07-21_end300_ss1e1_net17_byz2_planrand9_dim10_blksz3_init10_AHU10_b20_bcgd.h5",
+# "20240721_110723_result_2024-07-21_end300_ss1e1_net17_byz2_planrand9_dim10_blksz3_init10_AHU10_b20_dgd.h5",
+# "20240721_103545_result_2024-07-21_end300_ss1e1_net17_byz2_planrand9_dim10_blksz3_init10_AHU10_b10_bb.h5",
+# "20240721_104200_result_2024-07-21_end300_ss1e1_net17_byz2_planrand9_dim10_blksz3_init10_AHU10_b10_bcgd.h5",
+# "20240721_104810_result_2024-07-21_end300_ss1e1_net17_byz2_planrand9_dim10_blksz3_init10_AHU10_b10_dgd.h5",
+# "20240721_105419_result_2024-07-21_end300_ss1e1_net17_byz2_planrand9_dim10_blksz3_init10_AHU10_b20_bb.h5",
+# "20240721_111348_result_2024-07-21_end300_ss1e2_net17_byz2_planrand9_dim10_blksz3_init10_AHU10_b10_bb.h5",
+# "20240721_112704_result_2024-07-21_end300_ss1e2_net17_byz2_planrand9_dim10_blksz3_init10_AHU10_b10_dgd.h5",
+# "20240721_113408_result_2024-07-21_end300_ss1e2_net17_byz2_planrand9_dim10_blksz3_init10_AHU10_b20_bb.h5",
+# "20240721_112012_result_2024-07-21_end300_ss1e2_net17_byz2_planrand9_dim10_blksz3_init10_AHU10_b10_bcgd.h5",
+# ]
+# plot_distance_to_optimal(run_algorithms_20240721_18H23M37S_bxx_dim_bb_bcgd)
+# run_algorithms_20240721_18H23M37S_bxx_dim_bb_bcgd = [
+# "20240721_110041_result_2024-07-21_end300_ss1e1_net17_byz2_planrand9_dim10_blksz3_init10_AHU10_b20_bcgd.h5",
+# "20240721_110723_result_2024-07-21_end300_ss1e1_net17_byz2_planrand9_dim10_blksz3_init10_AHU10_b20_dgd.h5",
+# "20240721_105419_result_2024-07-21_end300_ss1e1_net17_byz2_planrand9_dim10_blksz3_init10_AHU10_b20_bb.h5",
+# "20240721_113408_result_2024-07-21_end300_ss1e2_net17_byz2_planrand9_dim10_blksz3_init10_AHU10_b20_bb.h5",
+# ]  # IN THIS CASE, DGD (second) is the best!!!!!!!!!!!NONONONONONONO NOT DESIRED!!!!!!!!!!!
+# plot_distance_to_optimal(run_algorithms_20240721_18H23M37S_bxx_dim_bb_bcgd)
+# run_algorithms_20240721_18H23M37S_bxx_dim_bb_bcgd = [
+# "20240721_103545_result_2024-07-21_end300_ss1e1_net17_byz2_planrand9_dim10_blksz3_init10_AHU10_b10_bb.h5",
+# "20240721_104200_result_2024-07-21_end300_ss1e1_net17_byz2_planrand9_dim10_blksz3_init10_AHU10_b10_bcgd.h5",
+# "20240721_104810_result_2024-07-21_end300_ss1e1_net17_byz2_planrand9_dim10_blksz3_init10_AHU10_b10_dgd.h5",
+# "20240721_111348_result_2024-07-21_end300_ss1e2_net17_byz2_planrand9_dim10_blksz3_init10_AHU10_b10_bb.h5",
+# "20240721_112704_result_2024-07-21_end300_ss1e2_net17_byz2_planrand9_dim10_blksz3_init10_AHU10_b10_dgd.h5",
+# "20240721_112012_result_2024-07-21_end300_ss1e2_net17_byz2_planrand9_dim10_blksz3_init10_AHU10_b10_bcgd.h5",
+# "20240719_123531_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz3_init10_AHU10_bcgd.h5",
+# "20240719_124356_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz3_init10_AHU10_bb.h5",
+# # "20240719_125222_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_init10_AHU10_dgd.h5",
+# ]  # The DGD is also works well when stepsize is 1e-1.
+# # ??????????????? Therefore, the performance of the DGD can be lead because of the poor stepsize????
+# plot_distance_to_optimal(run_algorithms_20240721_18H23M37S_bxx_dim_bb_bcgd)
+
