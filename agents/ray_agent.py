@@ -57,11 +57,8 @@ class RayAgent:
             self.byz_plan = self.alg_settings['byz_msg']['byz_plan']
             self.byz_mag = self.alg_settings['byz_msg']['byz_mag']
         else:  # in original config files, there is no such setting.
-            self.byz_plan = 'rand'
-            self.byz_mag = 1
-
-
-
+            self.byz_plan = 'rand'  # default attack plan.
+            self.byz_mag = 1  # default attack magnitude.
 
         self.rst_settings = rst_settings
         # TODO: change the following setup. the setup for the alg_settings['alg_name'] is not elegant enough.
