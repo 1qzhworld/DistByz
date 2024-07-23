@@ -4,36 +4,45 @@ import time
 import random
 import networkx as nx
 from typing import Dict, Literal, Union
-
+import os
 import numpy as np
 
 GenePlan = Literal['ER_graph', 'aver_deg', 'reg_graph', 'geo_graph', 'load_fixed']
+script_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.abspath(os.path.join(script_dir, '..'))
 
 
 class Network:
-    """
-    The _network generation is designed with different strategies.
-    """
-    def __init__(self, net_settings: Dict[str, Union[int, str, nx.Graph, nx.DiGraph]]) -> None:
+    def __init__(self, net_settings: Dict[str, Union[int, str, bool, nx.Graph, nx.DiGraph]]) -> None:
         self.net_settings = net_settings
-
         self.net_size = net_settings['net_size']
         seed = net_settings.get('seed', self.net_size)
         np.random.seed(seed)
-        self.byz_size = net_settings['byz_size']
-        self.gene_plan = net_settings['gene_plan']
+        self.byz_size = net_settings['byz_size']  # This should be part of network to check $r$-robust property.
 
-        self.net_conn_req = net_settings['conn_req']
-        self.directed_req = net_settings['directed_req']
-        self.network = self._generate_connected_network() if self.net_conn_req else self._generate_network()
-        self.agent_types = self.gene_agent_types()
+        if self.net_settings.get('load', False):
+            # previous configs do not have such settings.
+            self.load_path = net_settings['load_path']
+            self._load_stored_network()
+            self._check_loaded_network()
+        else:
+            if net_settings['conn_req']:
+                self.network = self._generate_connected_network(net_settings['gene_plan'], net_settings['directed_req'])
+            else:
+                self.network = self._generate_network(net_settings['gene_plan'], net_settings['directed_req'])
+            self.agent_types = self.gene_agent_types()
+        self._save_generated_network()
 
-    def _generate_connected_network(self) -> Union[nx.Graph, nx.DiGraph]:
+    def _generate_connected_network(self, gene_plan: str, directed_req: bool) -> Union[nx.Graph, nx.DiGraph]:
+        """
+        Try to generate connected (directed or undirected) network net_setting['allow_gene_iter'] times.
+        return: network
+        """
         allow_generate_iteration: int = self.net_settings.get('allow_gene_iter', 1000)
         allow_generate_time: int = self.net_settings.get('allow_gene_time', 120)
         start_time = time.time()
         for _ in range(allow_generate_iteration):
-            network = self._generate_network()
+            network = self._generate_network(gene_plan, directed_req)
             if isinstance(network, nx.DiGraph):
                 # print(f"Generated _network type: {type(_network)}")
                 if nx.is_strongly_connected(network):
@@ -47,39 +56,49 @@ class Network:
         raise ValueError(f"Generated _network {allow_generate_iteration} iters and {time.time() - start_time} seconds, "
                          f"but cannot meet connectivity requirement.")
 
-    def _generate_network(self) -> Union[nx.Graph, nx.DiGraph]:
+    def _generate_network(self, gene_plan: str, directed_req: bool) -> Union[nx.Graph, nx.DiGraph]:
         generators = {
             'ER_graph': self._generate_er_graph,
             'aver_deg': self._generate_aver_deg_graph,
             'reg_graph': self._generate_reg_graph,
             'geo_graph': self._generate_geo_graph,
-            'load_fixed': self._load_fixed_graph,
+            # 'load_fixed': self._load_fixed_graph,
         }
-        if self.gene_plan in generators:
-            return generators[self.gene_plan]()
+        if gene_plan in generators:
+            return generators[gene_plan](directed_req)
         else:
-            raise ValueError(f"Unknown gene_plan: {self.gene_plan}")
+            raise ValueError(f"Unknown gene_plan: {gene_plan}")
 
-    def _generate_er_graph(self) -> Union[nx.Graph, nx.DiGraph]:
+    def _load_stored_network(self) -> None:
+        pass
+
+    def _save_generated_network(self) -> None:
+        pass
+
+    def _check_loaded_network(self) -> None:
+        """Ensure the settings in the network is the same as the generated network."""
+        pass
+
+    def _generate_er_graph(self, directed_req: bool) -> Union[nx.Graph, nx.DiGraph]:
         if 'ER_p' not in self.net_settings:
             raise ValueError("The parameter 'ER_p' is required in net_settings for ER (Erdos–Renyi) graph.")
-        return nx.gnp_random_graph(self.net_size, self.net_settings['ER_p'], directed=self.directed_req)
+        return nx.gnp_random_graph(self.net_size, self.net_settings['ER_p'], directed=directed_req)
 
-    def _generate_aver_deg_graph(self) -> Union[nx.Graph, nx.DiGraph]:
+    def _generate_aver_deg_graph(self, directed_req: bool) -> Union[nx.Graph, nx.DiGraph]:
         if 'aver_deg' not in self.net_settings:
             raise ValueError("The parameter 'aver_deg' is required in net_settings for average degree graph.")
         aver_deg = self.net_settings['aver_deg']
         assert 0 < aver_deg < self.net_size, "aver_deg must be between 0 and net_size."
-        return nx.gnp_random_graph(self.net_size, aver_deg / (self.net_size - 1), directed=self.directed_req)
+        return nx.gnp_random_graph(self.net_size, aver_deg / (self.net_size - 1), directed=directed_req)
 
-    def _generate_reg_graph(self) -> Union[nx.Graph, nx.DiGraph]:
+    def _generate_reg_graph(self, directed_req: bool) -> Union[nx.Graph, nx.DiGraph]:
         if 'reg_deg' not in self.net_settings:
             raise ValueError("The parameter 'reg_deg' is required in net_settings for regular graph.")
         reg_deg = self.net_settings['reg_deg']
         assert 0 < reg_deg < self.net_size, "reg_deg must be between 0 and net_size."
         assert (self.net_size * reg_deg) % 2 == 0, \
             "The product of net_size and reg_deg must be even for a regular graph."
-        if self.directed_req:
+        if directed_req:
             # Generate a random regular directed graph
             G = nx.DiGraph()
             nodes = list(range(self.net_size))
@@ -96,17 +115,17 @@ class Network:
         else:
             return nx.random_regular_graph(reg_deg, self.net_size)
 
-    def _generate_geo_graph(self) -> Union[nx.Graph, nx.DiGraph]:
+    def _generate_geo_graph(self, directed_req: bool) -> Union[nx.Graph, nx.DiGraph]:
         if 'radius' not in self.net_settings:
             raise ValueError("The parameter 'radius' is required in net_settings for geometric graph.")
-        return nx.DiGraph(nx.random_geometric_graph(self.net_size, self.net_settings['radius'])) if self.directed_req \
+        return nx.DiGraph(nx.random_geometric_graph(self.net_size, self.net_settings['radius'])) if directed_req \
             else nx.random_geometric_graph(self.net_size, self.net_settings['radius'])
 
-    def _load_fixed_graph(self) -> Union[nx.Graph, nx.DiGraph]:
-        if not (isinstance(self.net_settings['load_fixed'], nx.Graph) or
-                isinstance(self.net_settings['load_fixed'], nx.DiGraph)):
-            raise ValueError("The parameter 'load_fixed' must be a networkx Graph instance.")
-        return self.net_settings['load_fixed']
+    # def _load_fixed_graph(self) -> Union[nx.Graph, nx.DiGraph]:
+    #     if not (isinstance(self.net_settings['load_fixed'], nx.Graph) or
+    #             isinstance(self.net_settings['load_fixed'], nx.DiGraph)):
+    #         raise ValueError("The parameter 'load_fixed' must be a networkx Graph instance.")
+    #     return self.net_settings['load_fixed']
 
     def gene_agent_types(self) -> Dict[int, str]:
         """

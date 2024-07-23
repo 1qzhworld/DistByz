@@ -322,3 +322,37 @@ from utils.utils import plot_distance_to_optimal
 # # ??????????????? Therefore, the performance of the DGD can be lead because of the poor stepsize????
 # plot_distance_to_optimal(run_algorithms_20240721_18H23M37S_bxx_dim_bb_bcgd)
 
+#############################################################################################################
+#############################################################################################################
+# run_algorithms_2024_07_21_22H00M51S_bxx_AHUxx = [
+# "20240721_140857_result_2024-07-21_end300_ssdim_net17_byz2_planrand9_dim10_blksz3_init10_AHU10_b50_bb.h5",
+# "20240721_141517_result_2024-07-21_end300_ssdim_net17_byz2_planrand9_dim10_blksz3_init10_AHU10_b50_bcgd.h5",
+# "20240721_142135_result_2024-07-21_end300_ssdim_net17_byz2_planrand9_dim10_blksz3_init10_AHU10_b50_dgd.h5",
+# "20240721_142747_result_2024-07-21_end300_ssdim_net17_byz2_planrand9_dim10_blksz3_init10_AHU10_b100_bb.h5",
+# "20240721_143405_result_2024-07-21_end300_ssdim_net17_byz2_planrand9_dim10_blksz3_init10_AHU10_b100_bcgd.h5",
+# "20240721_144025_result_2024-07-21_end300_ssdim_net17_byz2_planrand9_dim10_blksz3_init10_AHU10_b100_dgd.h5",
+# "20240721_144641_result_2024-07-21_end300_ssdim_net17_byz2_planrand9_dim10_blksz3_init10_AHU100_b50_bb.h5",
+# "20240721_145922_result_2024-07-21_end300_ssdim_net17_byz2_planrand9_dim10_blksz3_init10_AHU100_b50_dgd.h5",
+# "20240721_145302_result_2024-07-21_end300_ssdim_net17_byz2_planrand9_dim10_blksz3_init10_AHU100_b50_bcgd.h5",
+# ]
+# plot_distance_to_optimal(run_algorithms_2024_07_21_22H00M51S_bxx_AHUxx)
+# run_algorithms_2024_07_21_22H00M51S_b50_AHU10 = [
+# "20240721_140857_result_2024-07-21_end300_ssdim_net17_byz2_planrand9_dim10_blksz3_init10_AHU10_b50_bb.h5",
+# "20240721_141517_result_2024-07-21_end300_ssdim_net17_byz2_planrand9_dim10_blksz3_init10_AHU10_b50_bcgd.h5",
+# "20240721_142135_result_2024-07-21_end300_ssdim_net17_byz2_planrand9_dim10_blksz3_init10_AHU10_b50_dgd.h5",
+# ] # the performance is not so good in this case.
+# plot_distance_to_optimal(run_algorithms_2024_07_21_22H00M51S_b50_AHU10)
+# run_algorithms_2024_07_21_22H00M51S_bxx_AHU10 = [
+# # "20240721_140857_result_2024-07-21_end300_ssdim_net17_byz2_planrand9_dim10_blksz3_init10_AHU10_b50_bb.h5",
+# # "20240721_141517_result_2024-07-21_end300_ssdim_net17_byz2_planrand9_dim10_blksz3_init10_AHU10_b50_bcgd.h5",
+# # "20240721_142135_result_2024-07-21_end300_ssdim_net17_byz2_planrand9_dim10_blksz3_init10_AHU10_b50_dgd.h5",
+# "20240721_142747_result_2024-07-21_end300_ssdim_net17_byz2_planrand9_dim10_blksz3_init10_AHU10_b100_bb.h5",
+# "20240721_143405_result_2024-07-21_end300_ssdim_net17_byz2_planrand9_dim10_blksz3_init10_AHU10_b100_bcgd.h5",
+# "20240721_144025_result_2024-07-21_end300_ssdim_net17_byz2_planrand9_dim10_blksz3_init10_AHU10_b100_dgd.h5",
+# # "20240721_144641_result_2024-07-21_end300_ssdim_net17_byz2_planrand9_dim10_blksz3_init10_AHU100_b50_bb.h5",
+# # "20240721_145922_result_2024-07-21_end300_ssdim_net17_byz2_planrand9_dim10_blksz3_init10_AHU100_b50_dgd.h5",
+# # "20240721_145302_result_2024-07-21_end300_ssdim_net17_byz2_planrand9_dim10_blksz3_init10_AHU100_b50_bcgd.h5",
+# ]  # there is little difference between b50 and b100.
+# plot_distance_to_optimal(run_algorithms_2024_07_21_22H00M51S_bxx_AHU10)
+
+#############################################################################################################

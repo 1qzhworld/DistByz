@@ -10,7 +10,10 @@ import yaml
 import h5py
 import matplotlib.pyplot as plt
 from datetime import datetime
-from typing import List, Any, Dict
+from typing import List, Any, Dict, Union
+
+from problems.least_square_problem import LeastSquareProblem
+from functions.quadratic_function import QuadraticFunction
 
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -363,6 +366,29 @@ def main():
         except (ValueError, FileNotFoundError) as e:
             print(str(e))
             exit(1)
+
+
+def generate_common_network():
+    pass
+
+
+def generate_common_problem(net_size: int, prob_settings: Dict[str, Any], param_init: np.ndarray) \
+        -> Dict[int, Dict[str, Union[LeastSquareProblem, QuadraticFunction]]]:
+    common_problems = {}
+    if prob_settings['problem_type'] == 'LeastSquareProblem':
+        for agent_id in range(net_size):
+            prob = LeastSquareProblem(agent_id=agent_id, prob_settings=prob_settings)
+            loss = QuadraticFunction(prob.A, prob.b, prob.c, param_init)
+            common_problems[agent_id] = {'prob': prob, 'loss': loss}
+    # elif prob_settings['problem_type'] == 'LogitRegressionProblem':
+    #     for agent_id in range(net_size):
+    #         prob = LogitRegressionProblem(agent_id=agent_id, prob_settings=prob_settings)
+    #         loss = LogitRegressionFunction(prob.A, prob.b, prob.c, param_init)
+    #         common_problems[agent_id] = {'prob': prob, 'loss': loss}
+    else:
+        raise ValueError(f"Invalid problem type: {prob_settings['problem_type']}")
+
+    return common_problems
 
 
 if __name__ == "__main__":

@@ -3,6 +3,7 @@
 import ray
 import numpy as np
 from typing import Any, List, Dict, Literal, Tuple, Set
+import os
 
 from networks.network import Network
 from problems.abstract_problem import AbstractProblem
@@ -14,6 +15,8 @@ from utils.utils import check_subset
 AgentType = Literal['Reg', 'Byz']
 # ProblemType = Literal['LeastSquareProblem', 'LogitRegressionProblem']
 # ImplementedAlgorithm = Literal['DGDAlgorithm', 'BBAlgorithm']
+script_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.abspath(os.path.join(script_dir, '..'))
 
 
 @ray.remote
@@ -48,9 +51,15 @@ class RayAgent:
         self.outbox = {out_nbr_id: {"param": None, "iter": 0} for out_nbr_id in self.out_nbr_ids}
 
         self.param: np.ndarray = param if isinstance(param, np.ndarray) else np.zeros(prob_settings['dimension'])
-        self._setup_problem(agent_id, prob_settings)
-        self.M = prob_settings['A']['HessUpperBd']
-        self.m = prob_settings['A']['HessLowerBd']
+        if prob_settings['load_problem']:
+            problem_path = prob_settings['problem_path']
+            self._load_problem()
+            self.M =
+            self.m =
+        else:
+            self._setup_problem(agent_id, prob_settings)
+            self.M = prob_settings['A']['HessUpperBd']
+            self.m = prob_settings['A']['HessLowerBd']
 
         self.alg_settings = alg_settings
         if self.alg_settings.get("byz_msg"):
@@ -289,6 +298,13 @@ class RayAgent:
             # self.loss = TODO: not finished for logit regression problem.
         else:
             raise ValueError(f"Invalid problem type: {prob_settings['problem_type']}")
+
+    def _load_problem(self, agent_id, prob_settings: Dict[str, Any], load_path: str):
+        # no save problem, save is in the generate_common_problem.py in utils.py
+        load_path = os.path.join(load_path, f"agent_{agent_id}")
+        if prob_settings['problem_type'] == 'LeastSquareProblem':
+            self.prob =
+            self.loss =
 
     def _set_outbox(self, msgs: Dict[int, Any]) -> None:
         self.outbox = msgs

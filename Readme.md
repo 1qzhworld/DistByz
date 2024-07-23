@@ -81,3 +81,11 @@ and see what attakcs is most attractive for comparisons.
 
 ### change the magnitude of attack and see the results.
 
+# New version: V1.1
+
+TODO list:
+- [ ] Add load configs for problem, networks and others.
+
+load the networks, and problems to different algorithms.
+- generate_common_network
+- generate_common_problem
