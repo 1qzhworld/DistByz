@@ -26,7 +26,7 @@ class BBAlgorithm(AbstractAlgorithm, BlockInfoMixin):
             agent = RayAgent.options(name=f'{agent_id}').remote(
                 agent_id=agent_id,
                 _network=self.network,
-                prob_settings=self.args.prob_info,
+                problem=self.prob,
                 alg_settings=self.args.alg_settings,
                 rst_settings=self.args.result_settings,
                 param=self.param_init,

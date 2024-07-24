@@ -84,6 +84,16 @@ and see what attakcs is most attractive for comparisons.
 # V1.1 start to use same problems and networks.
 - Change the initialization of RayAgent.py
   - Instead of generate the problem on each agent, we first generate the problem and then share them to agents.
-- LeastSquareProblem class add $M$ and $m$ to its attribution.
-  - self.M, self.m
-  - self.b_cond for the condition of b.
+  - check where `RayAgent` is initialized.
+    - 因为是`ray.remote()`所以没法直接找到。还是通过搜索的方式找`RayAgent.options(name=f'{agent_id}'` 看看能搜到什么不能。
+      - They appear in the `__init__` of the algorithms.
+      - Change from `prob_settings=self.args.prob_info,` to `problem=self.prob,` 
+    - 从`load_data` branch的代码中吸取经验，通过新的main函数进行书写。
+- `LeastSquareProblem` class add $M$ and $m$ to its attribution.
+  - `self.M`, `self.m`
+  - `self.b_cond` for the condition of b.
+- New `data` folder with `shared_networks` and `shared_problems` as subfolders.
+- Restructured the `least_square_problem.py`.
+- Add `network_io.py` for the load, save of common network, they are moved from utils (in branch load_data)
+  - save_common_network
+  - load_common_network
