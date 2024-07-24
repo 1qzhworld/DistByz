@@ -1,0 +1,34 @@
+!!python/object:argparse.Namespace
+alg_settings:
+  alg_name: DGDAlgorithm
+  blk_size: 0
+  end_iter: 1000
+  stepsize: 0.001
+  timeout_base: 1.0
+  verbose: false
+net_settings:
+  ER_p: 0.97
+  byz_size: 1
+  conn_req: true
+  directed_req: false
+  gene_plan: ER_graph
+  net_size: 30
+one: .\configs\test_base_end1000_ss1e3_net30_byz1_dim7_dgd.yml
+prob_info:
+  A:
+    HessLowerBd: 1.0
+    HessUpperBd: 10.0
+  b:
+  - -5
+  - 5
+  c: 0.0
+  dimension: 7
+  problem_type: LeastSquareProblem
+result_settings:
+  dist_lc_opt: true
+  func_eval: true
+  load: false
+  logging_path: \\logs\\
+  record: false
+  save: false
+  save_hist: true

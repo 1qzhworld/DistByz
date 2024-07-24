@@ -1,0 +1,38 @@
+!!python/object:argparse.Namespace
+alg_settings:
+  alg_name: DGDAlgorithm
+  blk_size: 0
+  byz_msg:
+    byz_mag: 2
+    byz_plan: flip
+  end_iter: 400
+  param_init: 10
+  stepsize: 0.01
+  timeout_base: 1.0
+  verbose: false
+net_settings:
+  ER_p: 0.97
+  byz_size: 2
+  conn_req: true
+  directed_req: false
+  gene_plan: ER_graph
+  net_size: 17
+one: .\configs\test_2024-07-19_end400_ss1e2_net17_byz2_planflip2_dim10_init10_AHU11e1_dgd.yml
+prob_info:
+  A:
+    HessLowerBd: 1.0
+    HessUpperBd: 1.1
+  b:
+  - -5
+  - 5
+  c: 0.0
+  dimension: 10
+  problem_type: LeastSquareProblem
+result_settings:
+  dist_lc_opt: true
+  func_eval: true
+  load: false
+  logging_path: logs/test_log.log
+  record: false
+  save: false
+  save_hist: true

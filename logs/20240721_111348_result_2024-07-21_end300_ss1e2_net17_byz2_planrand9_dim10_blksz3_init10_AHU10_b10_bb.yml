@@ -1,0 +1,39 @@
+!!python/object:argparse.Namespace
+alg_settings:
+  alg_name: BBAlgorithm
+  blk_size: 3
+  byz_msg:
+    byz_mag: 9
+    byz_plan: rand
+  end_iter: 300
+  param_init: 10
+  stepsize: 0.01
+  timeout_base: 1.0
+  verbose: false
+  wt_plan: block_byz
+net_settings:
+  ER_p: 0.97
+  byz_size: 2
+  conn_req: true
+  directed_req: false
+  gene_plan: ER_graph
+  net_size: 17
+one: ./configs/test_2024-07-21_end300_ss1e2_net17_byz2_planrand9_dim10_blksz3_init10_AHU10_b10_bb.yml
+prob_info:
+  A:
+    HessLowerBd: 1.0
+    HessUpperBd: 10.0
+  b:
+  - -10
+  - 10
+  c: 0.0
+  dimension: 10
+  problem_type: LeastSquareProblem
+result_settings:
+  dist_lc_opt: true
+  func_eval: true
+  load: false
+  logging_path: logs/test_log.log
+  record: false
+  save: false
+  save_hist: true
