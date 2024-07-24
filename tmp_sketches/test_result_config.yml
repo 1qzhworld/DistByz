@@ -4,5 +4,5 @@ result_settings:
   func_eval: True
   dist_lc_opt: True
   load: False
-  logging_path: 'logging/test_log.log'
+  logging_path: 'logs/test_log.log'
   save_hist: true

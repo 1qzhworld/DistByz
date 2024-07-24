@@ -3,35 +3,32 @@
 import time
 import random
 import networkx as nx
-from typing import Dict, Literal, Union
-import os
+from typing import Dict, Union
 import numpy as np
 
-GenePlan = Literal['ER_graph', 'aver_deg', 'reg_graph', 'geo_graph', 'load_fixed']
-script_dir = os.path.dirname(os.path.abspath(__file__))
-project_root = os.path.abspath(os.path.join(script_dir, '..'))
+# from configs.configs import project_root, common_networks_dir
+from utils.utils import load_common_network
 
 
 class Network:
-    def __init__(self, net_settings: Dict[str, Union[int, str, bool, nx.Graph, nx.DiGraph]]) -> None:
+    def __init__(self, net_settings: Dict[str, Union[int, str, bool]]) -> None:
         self.net_settings = net_settings
-        self.net_size = net_settings['net_size']
-        seed = net_settings.get('seed', self.net_size)
-        np.random.seed(seed)
-        self.byz_size = net_settings['byz_size']  # This should be part of network to check $r$-robust property.
 
-        if self.net_settings.get('load', False):
-            # previous configs do not have such settings.
-            self.load_path = net_settings['load_path']
-            self._load_stored_network()
-            self._check_loaded_network()
-        else:
+        self.load_network = self.net_settings.get('load', False)
+        if self.load_network:  # previous configs do not have such settings.
+            common_network = load_common_network(filename=net_settings['load_filename'])
+            self.__dict__.update(common_network.__dict__)
+        else:  # generate the network.
+            self.net_size = net_settings['net_size']
+            self.byz_size = net_settings['byz_size']  # This should be part of network to check $r$-robust property.
+
+            self.seed = net_settings.get('seed', self.net_size)
+            np.random.seed(self.seed)
             if net_settings['conn_req']:
                 self.network = self._generate_connected_network(net_settings['gene_plan'], net_settings['directed_req'])
             else:
                 self.network = self._generate_network(net_settings['gene_plan'], net_settings['directed_req'])
             self.agent_types = self.gene_agent_types()
-        self._save_generated_network()
 
     def _generate_connected_network(self, gene_plan: str, directed_req: bool) -> Union[nx.Graph, nx.DiGraph]:
         """
@@ -69,16 +66,6 @@ class Network:
         else:
             raise ValueError(f"Unknown gene_plan: {gene_plan}")
 
-    def _load_stored_network(self) -> None:
-        pass
-
-    def _save_generated_network(self) -> None:
-        pass
-
-    def _check_loaded_network(self) -> None:
-        """Ensure the settings in the network is the same as the generated network."""
-        pass
-
     def _generate_er_graph(self, directed_req: bool) -> Union[nx.Graph, nx.DiGraph]:
         if 'ER_p' not in self.net_settings:
             raise ValueError("The parameter 'ER_p' is required in net_settings for ER (Erdos–Renyi) graph.")
@@ -100,7 +87,7 @@ class Network:
             "The product of net_size and reg_deg must be even for a regular graph."
         if directed_req:
             # Generate a random regular directed graph
-            G = nx.DiGraph()
+            graph = nx.DiGraph()
             nodes = list(range(self.net_size))
             for node in nodes:
                 targets = set()
@@ -110,8 +97,8 @@ class Network:
                         target = random.choice(nodes)
                     targets.add(target)
                 for target in targets:
-                    G.add_edge(node, target)
-            return G
+                    graph.add_edge(node, target)
+            return graph
         else:
             return nx.random_regular_graph(reg_deg, self.net_size)
 

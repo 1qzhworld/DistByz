@@ -1,5 +1,7 @@
 __pycache__
 .pytest_cache
 *.xml
-logging/
+logs/
 results/2024*
+# Ignore old configs for v1.0
+configs/old_configs_for_v1.0_no_load/

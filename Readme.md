@@ -57,7 +57,7 @@ algorithm:
 
 And the configuration files are named _planrand9_ something like this.
 
- 
+
 The utility is updated to check the config and the name of config file.
 
 From the results, it seems that the result in `time9` diverge quickly 
@@ -87,5 +87,24 @@ TODO list:
 - [ ] Add load configs for problem, networks and others.
 
 load the networks, and problems to different algorithms.
-- generate_common_network
-- generate_common_problem
+
+要保存什么文件？在什么位置进行数据/网络等的生成？ ->  __utils.utils.py__
+
+- generate_common_network --> finished and tested.
+- generate_common_problem --> 
+
+为了避免遗漏，从config文件中重新看一下要保存和生成哪些部分（对比以前matlab的代码，找一下）
+
+- Change seed for problems to the seed+agent_id, instead of the same
+
+  - move the seed to a property of class AbstractProblem.
+
+  - In the RayAgent, the problem and the loss are setup in two functions instead of one (previous)
+
+  - ```python
+    self._setup_problem(agent_id, prob_settings)
+    self._setup_loss(prob_settings)
+    ```
+
+- Add `self.prob_settings` to the `__init__` of `abstract_problem.py`.
+- Add `generate_common_problems` in `utils.py`.

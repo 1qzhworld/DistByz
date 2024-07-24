@@ -4,22 +4,19 @@ import argparse
 import os
 import re
 import warnings
-
+import joblib
 import numpy as np
 import yaml
 import h5py
 import matplotlib.pyplot as plt
 from datetime import datetime
-from typing import List, Any, Dict, Union
+from typing import List, Any, Dict, TYPE_CHECKING
 
+if TYPE_CHECKING:
+    from networks.network import Network
 from problems.least_square_problem import LeastSquareProblem
-from functions.quadratic_function import QuadraticFunction
-
-
-script_dir = os.path.dirname(os.path.abspath(__file__))
-project_root = os.path.abspath(os.path.join(script_dir, '..'))
-
-np.random.seed(0)
+# from functions.quadratic_function import QuadraticFunction
+from configs.configs import project_root, common_problems_dir, common_networks_dir
 
 
 def parse_args(set_one=None):
@@ -81,7 +78,7 @@ def parse_args(set_one=None):
     _merge_configs(args, [network_config, problem_config, algorithm_config, result_config])
 
     # Generate a filename for the result configuration with a timestamp
-    # logging_dir = project_root+f"/logging/"
+    # logging_dir = project_root+f"/logs/"
     logging_path = generate_logging_path(config_one_path=args.one, ext='yml', filename_plan='config_one')
 
     save_config(args, logging_path)
@@ -107,7 +104,7 @@ def generate_logging_path(config_one_path: str, ext: str, filename_plan: str = '
     if ext not in ['yml', 'yaml', 'h5']:
         raise ValueError(f"ext should be one of 'yml', 'yaml', 'h5'. Current ext: {ext}, is not implemented.")
     if filename_plan == 'config_one':
-        logging_dir_name = os.path.join(project_root, "logging")
+        logging_dir_name = os.path.join(project_root, "logs")
         config_one_name = os.path.basename(config_one_path)
         logging_config_one_name = os.path.splitext(config_one_name)[0].replace('test', 'result')
         new_filename = f"{timestamp}_{logging_config_one_name}.{ext}"
@@ -119,7 +116,7 @@ def generate_logging_path(config_one_path: str, ext: str, filename_plan: str = '
 
 def save_config(args: argparse.Namespace, saving_config_path: str) -> None:
     """
-    Save the configuration dictionary to a YAML file in logging.
+    Save the configuration dictionary to a YAML file in logs.
     """
     with open(saving_config_path, 'w') as file:
         yaml.dump(args, file)
@@ -151,7 +148,7 @@ def plot_distance_to_optimal(filenames: List[str]):
     """filenames: example: ["20240716_112329_result_all_in_one_bcgd.h5", "20240716_113756_result_all_in_one_bb.h5"]"""
     # script_dir = os.path.dirname(os.path.abspath(__file__))
     # project_root = os.path.abspath(os.path.join(script_dir, '..'))
-    logging_result_base = os.path.join(project_root, "logging")
+    logging_result_base = os.path.join(project_root, "logs")
 
     plt.figure()  # 创建一个新的绘图对象
 
@@ -238,157 +235,52 @@ def extract_parameter(filename_parts, prefix):
     return None
 
 
-def check_configurations(config_path):
-    config_filename = os.path.basename(config_path)
-    filename_parts = config_filename.split('_')
+def save_common_network(common_network: 'Network', filename: str) -> None:
+    save_path = os.path.join(common_networks_dir, filename)
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
+    joblib.dump(common_network, save_path)
+    print(f"Saved common network to: {save_path}")
 
-    end_iter_str = extract_parameter(filename_parts, 'end')
-    stepsize_str = extract_parameter(filename_parts, 'ss')
-    net_size_str = extract_parameter(filename_parts, 'net')
-    byz_size_str = extract_parameter(filename_parts, 'byz')
-    dimension_str = extract_parameter(filename_parts, 'dim')
-    blk_size_str = extract_parameter(filename_parts, 'blksz')
-    param_init_str = extract_parameter(filename_parts, 'init')
 
-    byz_plan_and_mag_str = extract_parameter(filename_parts, 'plan')
-    if byz_plan_and_mag_str:
-        # Extract plan and magnitude
-        byz_plan_str = ''.join(filter(str.isalpha, byz_plan_and_mag_str))
-        byz_mag_str = ''.join(filter(str.isdigit, byz_plan_and_mag_str))
+def load_common_network(filename: str) -> 'Network':
+    load_path = os.path.join(common_networks_dir, filename)
+    if not os.path.exists(load_path):
+        raise FileNotFoundError(f"Common network file not found: {load_path}")
+    common_network = joblib.load(load_path)
+    return common_network
+
+
+def generate_common_problem(net_size: int, prob_settings: Dict[str, Any]) -> Dict[int, 'LeastSquareProblem']:
+    if prob_settings['problem_type'] == 'LeastSquareProblem':
+        common_problems = {
+            agent_id: LeastSquareProblem(agent_id=agent_id, prob_settings=prob_settings) for agent_id in range(net_size)
+        }
+    elif prob_settings['problem_type'] == 'LeastSquareProblem':
+        raise NotImplementedError('LogitRegressionProblem is not finished yet.')
     else:
-        byz_plan_str = None
-        byz_mag_str = None
-
-    if end_iter_str is None:
-        warnings.warn(f"Parameter 'end' not found in the filename: {config_filename}")
-    else:
-        end_iter = int(end_iter_str)
-
-    if stepsize_str is None:
-        warnings.warn(f"Parameter 'ss' not found in the filename: {config_filename}")
-    else:
-        if stepsize_str == 'dim':
-            stepsize = 'diminishing_stepsize'
-        else:
-            stepsize = float(stepsize_str.replace('e', 'e-'))
-
-    if net_size_str is None:
-        warnings.warn(f"Parameter 'net' not found in the filename: {config_filename}")
-    else:
-        net_size = int(net_size_str)
-
-    if byz_size_str is None:
-        warnings.warn(f"Parameter 'byz' not found in the filename: {config_filename}")
-    else:
-        byz_size = int(byz_size_str)
-
-    if dimension_str is None:
-        warnings.warn(f"Parameter 'dim' not found in the filename: {config_filename}")
-    else:
-        dimension = int(dimension_str)
-
-    if blk_size_str is None:
-        if "bb" in config_filename or "bcgd" in config_filename:
-            warnings.warn(f"Parameter 'blksz' required but not found in the filename: {config_filename}")
-    else:
-        blk_size = int(blk_size_str)
-
-    if param_init_str is None:
-        warnings.warn(f"Parameter 'param_init' not found in the filename: {config_filename}")
-    else:
-        param_init = int(param_init_str)
-
-    with open(config_path, 'r') as file:
-        config = yaml.safe_load(file)
-
-    alg_settings = config['algorithm']['alg_settings']
-    net_settings = config['network']['net_settings']
-    prob_info = config['problem']['prob_info']
-    byz_msg = config['algorithm']['alg_settings']['byz_msg']
-
-    errors = []
-
-    if end_iter_str is not None and alg_settings['end_iter'] != end_iter:
-        errors.append(f"end_iter: expected {end_iter}, found {alg_settings['end_iter']}")
-
-    if stepsize_str is not None:
-        if stepsize == 'diminishing_stepsize':
-            if alg_settings['stepsize'] != 'diminishing_stepsize':
-                errors.append(f"stepsize: expected diminishing_stepsize, found {alg_settings['stepsize']}")
-        else:
-            if alg_settings['stepsize'] != stepsize:
-                errors.append(f"stepsize: expected {stepsize}, found {alg_settings['stepsize']}")
-
-    if net_size_str is not None and net_settings['net_size'] != net_size:
-        errors.append(f"net_size: expected {net_size}, found {net_settings['net_size']}")
-
-    if byz_size_str is not None and net_settings['byz_size'] != byz_size:
-        errors.append(f"byz_size: expected {byz_size}, found {net_settings['byz_size']}")
-
-    if dimension_str is not None and prob_info['dimension'] != dimension:
-        errors.append(f"dimension: expected {dimension}, found {prob_info['dimension']}")
-
-    if blk_size_str is not None and alg_settings.get('blk_size') is not None and alg_settings['blk_size'] != blk_size:
-        errors.append(f"blk_size: expected {blk_size}, found {alg_settings['blk_size']}")
-
-    if param_init_str is not None and alg_settings.get('param_init') is not None and alg_settings[
-        'param_init'] != param_init:
-        errors.append(f"param_init: expected {param_init}, found {alg_settings['param_init']}")
-
-    if byz_plan_str is not None and byz_msg.get('byz_plan') != byz_plan_str:
-        errors.append(f"byz_plan: expected {byz_plan_str}, found {byz_msg.get('byz_plan')}")
-
-    if byz_mag_str is not None:
-        byz_mag = int(byz_mag_str)
-        if byz_msg.get('byz_mag') != byz_mag:
-            errors.append(f"byz_mag: expected {byz_mag}, found {byz_msg.get('byz_mag')}")
-
-    if errors:
-        raise ValueError(f"Configurations in {config_filename} do not match its name:\n" + "\n".join(errors))
+        raise ValueError(f"Invalid problem type: {prob_settings['problem_type']}")
+    return common_problems
 
 
-def find_a_key_by_value(d, target_value):  # can be used to find the agent_id of Byz.
-    for key, value in d.items():
-        if value == target_value:
-            return key
-    return None
+def save_common_problems(
+        common_problems: Dict[int, 'LeastSquareProblem'], filename: str
+) -> None:
+    save_path = os.path.join(common_problems_dir, filename)
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)  # generate folder if not exist
+    joblib.dump(common_problems, save_path)
+    print(f"Saved common problems to: {save_path}")
+
+
+def load_common_problems(filename: str) -> Dict[int, 'LeastSquareProblem']:
+    load_path = os.path.join(common_problems_dir, filename)
+    if not os.path.exists(load_path):
+        raise FileNotFoundError(f"No such file: '{load_path}'")
+    common_problems = joblib.load(load_path)
+    return common_problems
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Utility script")
-    parser.add_argument('--check-config', type=str, help='Check the configuration file against its filename')
-    args = parser.parse_args()
-
-    if args.check_config:
-        try:
-            check_configurations(args.check_config)
-            print(f"{args.check_config} matches its configuration.")
-        except (ValueError, FileNotFoundError) as e:
-            print(str(e))
-            exit(1)
-
-
-def generate_common_network():
     pass
-
-
-def generate_common_problem(net_size: int, prob_settings: Dict[str, Any], param_init: np.ndarray) \
-        -> Dict[int, Dict[str, Union[LeastSquareProblem, QuadraticFunction]]]:
-    common_problems = {}
-    if prob_settings['problem_type'] == 'LeastSquareProblem':
-        for agent_id in range(net_size):
-            prob = LeastSquareProblem(agent_id=agent_id, prob_settings=prob_settings)
-            loss = QuadraticFunction(prob.A, prob.b, prob.c, param_init)
-            common_problems[agent_id] = {'prob': prob, 'loss': loss}
-    # elif prob_settings['problem_type'] == 'LogitRegressionProblem':
-    #     for agent_id in range(net_size):
-    #         prob = LogitRegressionProblem(agent_id=agent_id, prob_settings=prob_settings)
-    #         loss = LogitRegressionFunction(prob.A, prob.b, prob.c, param_init)
-    #         common_problems[agent_id] = {'prob': prob, 'loss': loss}
-    else:
-        raise ValueError(f"Invalid problem type: {prob_settings['problem_type']}")
-
-    return common_problems
 
 
 if __name__ == "__main__":

@@ -89,17 +89,17 @@ class AbstractAlgorithm(ABC):
         # return (-np.linalg.inv(0.5 * (sum_a.T + sum_a)) @ sum_b).flatten()
 
     def run(self):
-        # logging.info("Start ray.")
+        # logs.info("Start ray.")
         print("Starting ray.")
         ray.init(ignore_reinit_error=True)
-        # logging.info('Start to setup agents.')
+        # logs.info('Start to setup agents.')
         print('Setup agents.')
         self.setup_agents()
         print(f"Generate the closed form global solution before update: {self.centralized_solver()}.")
         tmp_timeout = self.timeout_base * self.network.net_size  # timeout for synchronize comm, setup and others.
         setup_timeout = tmp_timeout if tmp_timeout > 20 else 20  # experimental value
         self.setup_communicators(setup_timeout=setup_timeout)
-        # logging.info('Successfully setup all agents and their communicators.')
+        # logs.info('Successfully setup all agents and their communicators.')
         print('Successfully setup all agents and their communicators.')
 
         with tqdm(total=self.end_iter, desc="Training Progress", unit="iter") as pbar:
@@ -154,7 +154,7 @@ class AbstractAlgorithm(ABC):
         ready, remaining = ray.wait(futures, num_returns=len(futures), timeout=timeout)
         if remaining:
             raise TimeoutError(f"Timeout reached, {len(remaining)} {action_name} did not respond in {timeout}s.")
-            # logging.warning(f"Timeout reached, {len(remaining)} {action_name} did not respond in time {timeout}s.")
+            # logs.warning(f"Timeout reached, {len(remaining)} {action_name} did not respond in time {timeout}s.")
         return ready, remaining
 
     @staticmethod

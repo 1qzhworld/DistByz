@@ -12,8 +12,7 @@ class LeastSquareProblem(AbstractProblem):
     """
     def __init__(self, agent_id: int, prob_settings: Dict[str, Any]) -> None:
         super().__init__(agent_id, prob_settings)
-        seed = prob_settings.get("seed", 0)
-        np.random.seed(seed)
+
         self.A, self.b, self.c = self.generate_abc(prob_settings)
         self.sol = self.closed_form_sol()
 

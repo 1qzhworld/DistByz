@@ -10,13 +10,9 @@ from problems.abstract_problem import AbstractProblem
 from problems.least_square_problem import LeastSquareProblem
 from problems.logit_regression_problem import LogitRegressionProblem
 from functions.quadratic_function import QuadraticFunction
-from utils.utils import check_subset
+from utils.utils import check_subset, load_common_problems
 
-AgentType = Literal['Reg', 'Byz']
-# ProblemType = Literal['LeastSquareProblem', 'LogitRegressionProblem']
-# ImplementedAlgorithm = Literal['DGDAlgorithm', 'BBAlgorithm']
-script_dir = os.path.dirname(os.path.abspath(__file__))
-project_root = os.path.abspath(os.path.join(script_dir, '..'))
+
 
 
 @ray.remote
@@ -50,16 +46,11 @@ class RayAgent:
         self.inbox = {in_nbr_id: {"param": None, "iter": 0} for in_nbr_id in self.in_nbr_ids}
         self.outbox = {out_nbr_id: {"param": None, "iter": 0} for out_nbr_id in self.out_nbr_ids}
 
+        self._setup_problem(prob_settings)
         self.param: np.ndarray = param if isinstance(param, np.ndarray) else np.zeros(prob_settings['dimension'])
-        if prob_settings['load_problem']:
-            problem_path = prob_settings['problem_path']
-            self._load_problem()
-            self.M =
-            self.m =
-        else:
-            self._setup_problem(agent_id, prob_settings)
-            self.M = prob_settings['A']['HessUpperBd']
-            self.m = prob_settings['A']['HessLowerBd']
+        self._setup_loss()
+        self.M = self.prob.prob_settings['A']['HessUpperBd']
+        self.m = self.prob.prob_settings['A']['HessLowerBd']
 
         self.alg_settings = alg_settings
         if self.alg_settings.get("byz_msg"):
@@ -79,7 +70,7 @@ class RayAgent:
             self.loc_wts = self.generate_weights(weights_plan=wt_plan)[:, agent_id]  # different from block weights.
 
         self.end_iter = self.alg_settings['end_iter']
-        self.hist_param = np.zeros((self.end_iter, prob_settings['dimension']))
+        self.hist_param = np.zeros((self.end_iter, self.prob.prob_settings['dimension']))
 
     def agent_setup(self) -> None:
         """This should be the first function called after __init__."""
@@ -87,6 +78,35 @@ class RayAgent:
         msgs = {out_nbr_id: {'param': self.param} for out_nbr_id in self.out_nbr_ids} if self.agent_type == 'Reg'\
             else {out_nbr_id: {'param': np.random.randn(*self.prob.dimension)} for out_nbr_id in self.out_nbr_ids}
         self._set_outbox(msgs)
+
+    def _setup_problem(self, prob_settings: Dict[str, Any]) -> None:
+        if prob_settings['load_problem']:  # load the problems from agent_id.
+            load_problems_filename = prob_settings['problem_filename']
+            self._load_problem(load_problems_filename)
+        else:  # generate the problem for agent_id.
+            self._gene_problem(prob_settings)
+
+    def _gene_problem(self, prob_settings):
+        if prob_settings['problem_type'] == 'LeastSquareProblem':
+            self.prob = LeastSquareProblem(agent_id=self.agent_id, prob_settings=prob_settings)
+            # self.loss = QuadraticFunction(self.prob.A, self.prob.b, self.prob.c, self.param)
+        elif prob_settings['problem_type'] == 'LogitRegressionProblem':
+            self.prob = LogitRegressionProblem(agent_id=self.agent_id, prob_settings=prob_settings)
+            # self.loss = TODO: not finished for logit regression problem.
+        else:
+            raise ValueError(f"Invalid problem type: {prob_settings['problem_type']}")
+
+    def _load_problem(self, common_problems_filename: str) -> None:
+        common_problems = load_common_problems(common_problems_filename)
+        self.prob = common_problems[self.agent_id]
+
+    def _setup_loss(self) -> None:
+        if self.prob.prob_settings['problem_type'] == 'LeastSquareProblem':
+            self.loss = QuadraticFunction(self.prob.A, self.prob.b, self.prob.c, self.param)
+        elif self.prob.prob_settings['problem_type'] == 'LogitRegressionProblem':
+            raise NotImplementedError("Not finished for logit regression problem.")
+        else:
+            raise ValueError(f"Invalid problem type: {self.prob.prob_settings['problem_type']}")
 
     def local_filter_scalar(self, dim: int) -> List[int]:
         """
@@ -284,27 +304,10 @@ class RayAgent:
         return msgs
 
     @staticmethod
-    def _check_agent_type(agent_type: AgentType) -> str:
+    def _check_agent_type(agent_type: str) -> str:
         if agent_type not in ['Reg', 'Byz']:
             raise ValueError(f"Invalid agent type: {agent_type}")
         return agent_type
-
-    def _setup_problem(self, agent_id, prob_settings: Dict[str, Any]) -> None:
-        if prob_settings['problem_type'] == 'LeastSquareProblem':
-            self.prob = LeastSquareProblem(agent_id=agent_id, prob_settings=prob_settings)
-            self.loss = QuadraticFunction(self.prob.A, self.prob.b, self.prob.c, self.param)
-        elif prob_settings['problem_type'] == 'LogitRegressionProblem':
-            self.prob = LogitRegressionProblem(agent_id=agent_id, prob_settings=prob_settings)
-            # self.loss = TODO: not finished for logit regression problem.
-        else:
-            raise ValueError(f"Invalid problem type: {prob_settings['problem_type']}")
-
-    def _load_problem(self, agent_id, prob_settings: Dict[str, Any], load_path: str):
-        # no save problem, save is in the generate_common_problem.py in utils.py
-        load_path = os.path.join(load_path, f"agent_{agent_id}")
-        if prob_settings['problem_type'] == 'LeastSquareProblem':
-            self.prob =
-            self.loss =
 
     def _set_outbox(self, msgs: Dict[int, Any]) -> None:
         self.outbox = msgs
