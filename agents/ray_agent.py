@@ -13,8 +13,6 @@ from functions.quadratic_function import QuadraticFunction
 from utils.utils import check_subset, load_common_problems
 
 
-
-
 @ray.remote
 class RayAgent:
     """

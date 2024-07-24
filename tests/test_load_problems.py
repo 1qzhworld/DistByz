@@ -1,6 +1,6 @@
 import os
 import unittest
-from utils.utils import generate_common_problem, save_common_problems, load_common_problems
+from utils.utils import generate_common_problems, save_common_problems, load_common_problems
 
 
 class TestProblemLoading(unittest.TestCase):
@@ -20,7 +20,7 @@ class TestProblemLoading(unittest.TestCase):
         }
 
         self.filename = 'test_common_problem_utils.joblib'
-        self.common_problems = generate_common_problem(net_size=3, prob_settings=self.prob_settings)
+        self.common_problems = generate_common_problems(net_size=3, prob_settings=self.prob_settings)
         save_common_problems(common_problems=self.common_problems, filename=self.filename)
 
     def tearDown(self):

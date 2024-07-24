@@ -177,24 +177,24 @@ from utils.utils import plot_distance_to_optimal
 # still the DGD converge first, and diverge later. Different initialization seems would not change the performances.
 
 # # Let us come back to the initialization with all 10, and try different attacks.
-# byz2_AHU11e1_planxxxx9 = [
-# # "20240719_143859_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz3_init10_AHU11e1_bb.h5",
-# # "20240719_144627_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz3_init10_AHU11e1_bcgd.h5",
-# # "20240719_145356_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_init10_AHU11e1_dgd.h5",
-# # "20240719_150128_result_2024-07-19_end400_ssdim_net17_byz2_planrand9_dim10_init10_AHU11e1_dgd.h5",
-# # "20240719_094216_result_2024-07-19_end400_ss1e2_net17_byz2_plantime9_dim10_blksz3_init10_AHU11e1_bb.h5",
-# # "20240719_095032_result_2024-07-19_end400_ss1e2_net17_byz2_plantime9_dim10_blksz3_init10_AHU11e1_bcgd.h5",
-# # "20240719_095849_result_2024-07-19_end400_ss1e2_net17_byz2_plantime9_dim10_init10_AHU11e1_dgd.h5",
-# # "20240719_100706_result_2024-07-19_end400_ssdim_net17_byz2_plantime9_dim10_init10_AHU11e1_dgd.h5",
+byz2_AHU11e1_planxxxx9 = [
+"20240719_143859_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz3_init10_AHU11e1_bb.h5",
+"20240719_144627_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_blksz3_init10_AHU11e1_bcgd.h5",
+"20240719_145356_result_2024-07-19_end400_ss1e2_net17_byz2_planrand9_dim10_init10_AHU11e1_dgd.h5",
+"20240719_150128_result_2024-07-19_end400_ssdim_net17_byz2_planrand9_dim10_init10_AHU11e1_dgd.h5",
+"20240719_094216_result_2024-07-19_end400_ss1e2_net17_byz2_plantime9_dim10_blksz3_init10_AHU11e1_bb.h5",
+"20240719_095032_result_2024-07-19_end400_ss1e2_net17_byz2_plantime9_dim10_blksz3_init10_AHU11e1_bcgd.h5",
+# "20240719_095849_result_2024-07-19_end400_ss1e2_net17_byz2_plantime9_dim10_init10_AHU11e1_dgd.h5",
+# "20240719_100706_result_2024-07-19_end400_ssdim_net17_byz2_plantime9_dim10_init10_AHU11e1_dgd.h5",
 # "20240719_085242_result_2024-07-19_end400_ss1e2_net17_byz2_planones9_dim10_init10_AHU11e1_dgd.h5",
-# "20240719_090055_result_2024-07-19_end400_ssdim_net17_byz2_planones9_dim10_init10_AHU11e1_dgd.h5",
-# # "20240719_090908_result_2024-07-19_end400_ss1e2_net17_byz2_planflip9_dim10_blksz3_init10_AHU11e1_bb.h5",
-# # "20240719_091724_result_2024-07-19_end400_ss1e2_net17_byz2_planflip9_dim10_blksz3_init10_AHU11e1_bcgd.h5",
-# # "20240719_092544_result_2024-07-19_end400_ss1e2_net17_byz2_planflip9_dim10_init10_AHU11e1_dgd.h5",
-# # "20240719_093402_result_2024-07-19_end400_ssdim_net17_byz2_planflip9_dim10_init10_AHU11e1_dgd.h5"
-# ]
-# # The attacks result in similar performances. The commented time9 makes the dgd diverge clearly.
-# plot_distance_to_optimal(byz2_AHU11e1_planxxxx9)
+"20240719_090055_result_2024-07-19_end400_ssdim_net17_byz2_planones9_dim10_init10_AHU11e1_dgd.h5",
+"20240719_090908_result_2024-07-19_end400_ss1e2_net17_byz2_planflip9_dim10_blksz3_init10_AHU11e1_bb.h5",
+"20240719_091724_result_2024-07-19_end400_ss1e2_net17_byz2_planflip9_dim10_blksz3_init10_AHU11e1_bcgd.h5",
+"20240719_092544_result_2024-07-19_end400_ss1e2_net17_byz2_planflip9_dim10_init10_AHU11e1_dgd.h5",
+"20240719_093402_result_2024-07-19_end400_ssdim_net17_byz2_planflip9_dim10_init10_AHU11e1_dgd.h5"
+]
+# The attacks result in similar performances. The commented time9 makes the dgd diverge clearly.
+plot_distance_to_optimal(byz2_AHU11e1_planxxxx9)
 
 # byz2_init10_AHU11e1_planxxxx2 = [
 #     # "20240719_184616_result_2024-07-19_end400_ssdim_net17_byz2_plantime2_dim10_init10_AHU11e1_dgd.h5",

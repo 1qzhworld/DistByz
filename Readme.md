@@ -108,3 +108,7 @@ load the networks, and problems to different algorithms.
 
 - Add `self.prob_settings` to the `__init__` of `abstract_problem.py`.
 - Add `generate_common_problems` in `utils.py`.
+
+Initialize ray only at the `main.py` and remove its `__init__` in the `AbstractAlgorithm.run` where is unreasonable and cost more sources.
+
+changed the plot from sum of square norm to sum of norm.

@@ -7,7 +7,10 @@ algorithm:
   alg_settings:
     end_iter: 300
     stepsize: 'diminishing_stepsize' # can also set: `diminishing` to be 1/(iter+1)
-    alg_name: 'DGDAlgorithm'
+    alg_name:
+    - 'DGDAlgorithm'
+    - 'BCGDAlgorithm'
+    - 'BBAlgorithm'
     blk_size: 3
     wt_plan: 'block_byz'  # if no information, default to be `metropolis-Hastings`.
     verbose: false  # true for mute
@@ -20,7 +23,7 @@ algorithm:
 network:
   net_settings:
     # New after 2024-07-23 for load network
-    load: true  # true for load,
+    load_network: false  # true for load,
     load_filename:  'test_common_network_utils.joblib'
     # The following settings are for generating networks.
     seed: 0
@@ -34,7 +37,7 @@ network:
 problem:
   prob_info:
     # New after 2024-07-24 for load problems.
-    load_problem: true
+    load_problem: false  # true for load
     load_filename: 'test_common_problem_utils.joblib'
     # settings for generating problems
     seed: 0

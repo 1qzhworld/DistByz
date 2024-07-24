@@ -160,10 +160,10 @@ def plot_distance_to_optimal(filenames: List[str]):
 
         distances = []
         for i in range(num_iterations):
-            squared_diff = 0
+            diff_sum = 0
             for params in reg_params.values():
-                squared_diff += np.sum((params[i] - global_solution) ** 2)
-            distances.append(squared_diff)
+                diff_sum += np.sum(np.linalg.norm(params[i] - global_solution))
+            distances.append(diff_sum)
 
         # Extract algorithm name from filename
         algorithm_name = extract_algorithm_name(filename)
@@ -250,7 +250,7 @@ def load_common_network(filename: str) -> 'Network':
     return common_network
 
 
-def generate_common_problem(net_size: int, prob_settings: Dict[str, Any]) -> Dict[int, 'LeastSquareProblem']:
+def generate_common_problems(net_size: int, prob_settings: Dict[str, Any]) -> Dict[int, 'LeastSquareProblem']:
     if prob_settings['problem_type'] == 'LeastSquareProblem':
         common_problems = {
             agent_id: LeastSquareProblem(agent_id=agent_id, prob_settings=prob_settings) for agent_id in range(net_size)

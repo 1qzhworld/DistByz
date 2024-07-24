@@ -14,7 +14,7 @@ class Network:
     def __init__(self, net_settings: Dict[str, Union[int, str, bool]]) -> None:
         self.net_settings = net_settings
 
-        self.load_network = self.net_settings.get('load', False)
+        self.load_network = self.net_settings.get('load_network', False)
         if self.load_network:  # previous configs do not have such settings.
             common_network = load_common_network(filename=net_settings['load_filename'])
             self.__dict__.update(common_network.__dict__)

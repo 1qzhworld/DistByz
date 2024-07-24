@@ -90,8 +90,8 @@ class AbstractAlgorithm(ABC):
 
     def run(self):
         # logs.info("Start ray.")
-        print("Starting ray.")
-        ray.init(ignore_reinit_error=True)
+        # print("Starting ray.")
+        # ray.init(ignore_reinit_error=True)  # start the ray in the main.py
         # logs.info('Start to setup agents.')
         print('Setup agents.')
         self.setup_agents()
@@ -230,7 +230,7 @@ class BlockInfoMixin:
         return blk_idxes
 
 
-if __name__ == "__main__":
-    abs_args = parse_args()
-    dgd_algorithm = AbstractAlgorithm(abs_args)
-    dgd_algorithm.run()
+# if __name__ == "__main__":
+#     abs_args = parse_args()
+#     dgd_algorithm = AbstractAlgorithm(abs_args)
+#     dgd_algorithm.run()
