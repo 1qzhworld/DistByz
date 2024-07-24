@@ -57,7 +57,7 @@ algorithm:
 
 And the configuration files are named _planrand9_ something like this.
 
- 
+
 The utility is updated to check the config and the name of config file.
 
 From the results, it seems that the result in `time9` diverge quickly 
@@ -81,3 +81,9 @@ and see what attakcs is most attractive for comparisons.
 
 ### change the magnitude of attack and see the results.
 
+# V1.1 start to use same problems and networks.
+- Change the initialization of RayAgent.py
+  - Instead of generate the problem on each agent, we first generate the problem and then share them to agents.
+- LeastSquareProblem class add $M$ and $m$ to its attribution.
+  - self.M, self.m
+  - self.b_cond for the condition of b.

@@ -14,14 +14,18 @@ class LeastSquareProblem(AbstractProblem):
         super().__init__(agent_id, prob_settings)
         seed = prob_settings.get("seed", 0)
         np.random.seed(seed)
-        self.A, self.b, self.c = self.generate_abc(prob_settings)
+
+        self.M, self.m = prob_settings['A']['HessUpperBd'], prob_settings['A']['HessLowerBd']
+        self.b_cond = prob_settings['b']
+        self.c = prob_settings['c']
+
+        self.A, self.b = self.generate_abc()
         self.sol = self.closed_form_sol()
 
-    def generate_abc(self, abc_conditions: Dict[str, Any]) -> Tuple[np.ndarray, np.ndarray, float]:
-        a_mat = self.generate_a(abc_conditions['A']['HessLowerBd'], abc_conditions['A']['HessUpperBd'], self.dimension)
-        b = self.generate_b(abc_conditions['b'], self.dimension)
-        c = abc_conditions['c']
-        return a_mat, b, c
+    def generate_abc(self) -> Tuple[np.ndarray, np.ndarray]:
+        a_mat = self.generate_a(lbd=self.m, ubd=self.M, dim=self.dimension)
+        b = self.generate_b(self.b_cond, self.dimension)
+        return a_mat, b
 
     def closed_form_sol(self) -> np.ndarray:
         if self.constrain is None:

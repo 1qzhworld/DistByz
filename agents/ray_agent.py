@@ -12,8 +12,6 @@ from functions.quadratic_function import QuadraticFunction
 from utils.utils import check_subset
 
 AgentType = Literal['Reg', 'Byz']
-# ProblemType = Literal['LeastSquareProblem', 'LogitRegressionProblem']
-# ImplementedAlgorithm = Literal['DGDAlgorithm', 'BBAlgorithm']
 
 
 @ray.remote
@@ -27,15 +25,17 @@ class RayAgent:
     RayAgent(...).options(name=f"{agent_id}").remote().
     after create the instances, agent_setup() should be firstly executed.
     """
+
     def __init__(
-            self, agent_id: int, _network: Network, prob_settings: Dict[str, Any],
-            alg_settings: Dict[str, Any], rst_settings: Dict[str, Any],
-            param: np.ndarray = None, blk_indexes: Dict[int, List[int]] = None, wt_plan: str = "metropolis-Hastings"
+            self, agent_id: int, _network: Network, problem: LeastSquareProblem,
+            alg_settings: Dict[str, Any], rst_settings: Dict[str, Any], param: np.ndarray = None,
+            blk_indexes: Dict[int, List[int]] = None, wt_plan: str = "metropolis-Hastings"
     ) -> None:
+        # Agent information setup
         self.agent_id = agent_id
         np.random.seed(agent_id)  # setup random seed.
         self.agent_type = self._check_agent_type(_network.agent_types[agent_id])
-
+        # Network setup
         self._network = _network
         self.byz_size = _network.byz_size
         self.in_nbr_ids = _network.get_in_neighbors(agent_id)
@@ -43,15 +43,13 @@ class RayAgent:
 
         self.cached_in_nbr_handles = {}
         self.cached_out_nbr_handles = {}
-
         self.inbox = {in_nbr_id: {"param": None, "iter": 0} for in_nbr_id in self.in_nbr_ids}
         self.outbox = {out_nbr_id: {"param": None, "iter": 0} for out_nbr_id in self.out_nbr_ids}
-
-        self.param: np.ndarray = param if isinstance(param, np.ndarray) else np.zeros(prob_settings['dimension'])
-        self._setup_problem(agent_id, prob_settings)
-        self.M = prob_settings['A']['HessUpperBd']
-        self.m = prob_settings['A']['HessLowerBd']
-
+        # Problem setup
+        self.prob = problem  # Set the problem to agent. How the problem is generated is removed from this version.
+        self.param: np.ndarray = param if isinstance(param, np.ndarray) else np.zeros(self.prob.dimension)
+        self.M, self.m = self.prob.M, self.prob.m
+        # Algorithm setup
         self.alg_settings = alg_settings
         if self.alg_settings.get("byz_msg"):
             self.byz_plan = self.alg_settings['byz_msg']['byz_plan']
@@ -61,7 +59,6 @@ class RayAgent:
             self.byz_mag = 1  # default attack magnitude.
 
         self.rst_settings = rst_settings
-        # TODO: change the following setup. the setup for the alg_settings['alg_name'] is not elegant enough.
         self.blk_indexes = blk_indexes if blk_indexes is not None else {0: list(range(self._network.net_size))}
         self.blk_num, self.blk_size = len(self.blk_indexes), len(self.blk_indexes[0])
         if alg_settings['alg_name'] == 'BBAlgorithm':
@@ -70,21 +67,34 @@ class RayAgent:
             self.loc_wts = self.generate_weights(weights_plan=wt_plan)[:, agent_id]  # different from block weights.
 
         self.end_iter = self.alg_settings['end_iter']
-        self.hist_param = np.zeros((self.end_iter, prob_settings['dimension']))
+        self.hist_param = np.zeros((self.end_iter, self.prob.dimension))
 
     def agent_setup(self) -> None:
         """This should be the first function called after __init__."""
         self._set_cached_handles()
-        msgs = {out_nbr_id: {'param': self.param} for out_nbr_id in self.out_nbr_ids} if self.agent_type == 'Reg'\
-            else {out_nbr_id: {'param': np.random.randn(*self.prob.dimension)} for out_nbr_id in self.out_nbr_ids}
+        if self.agent_type == 'Reg':
+            msgs = {out_nbr_id: {'param': self.param} for out_nbr_id in self.out_nbr_ids}
+        else:
+            msgs = self._byz_msg_generator()
         self._set_outbox(msgs)
 
+    def _setup_problem(self, agent_id, prob_settings: Dict[str, Any]) -> None:
+        if prob_settings['problem_type'] == 'LeastSquareProblem':
+            self.prob = LeastSquareProblem(agent_id=agent_id, prob_settings=prob_settings)
+            self.loss = QuadraticFunction(self.prob.A, self.prob.b, self.prob.c, self.param)
+        elif prob_settings['problem_type'] == 'LogitRegressionProblem':
+            self.prob = LogitRegressionProblem(agent_id=agent_id, prob_settings=prob_settings)
+            # self.loss = TODO: not finished for logit regression problem.
+        else:
+            raise ValueError(f"Invalid problem type: {prob_settings['problem_type']}")
+
+    def _set_cached_handles(self) -> None:
+        """Function is called in agent_setup(). The cached handles are used for send messages."""
+        self.cached_in_nbr_handles = {in_nbr: ray.get_actor(f"{in_nbr}") for in_nbr in self.in_nbr_ids}
+        self.cached_out_nbr_handles = {out_nbr: ray.get_actor(f"{out_nbr}") for out_nbr in self.out_nbr_ids}
+
     def local_filter_scalar(self, dim: int) -> List[int]:
-        """
-        Filter out the largest and smallest extreme values based on a specified dimension.
-        self._network.byz_size: int
-        return the agent_ids that are in the middle.
-        """
+        """return the selected agent_ids from in_nbr_ids"""
         # Retrieve the parameters from the inbox and include the current agent's parameters.
         id_params: Dict[int, np.ndarray] = self.load_loc_params()
         # Sort the agents based on the specified dimension in their parameters.
@@ -98,10 +108,6 @@ class RayAgent:
     def local_filter_block(self, block: List[int]) -> List[int]:
         """
         Filter out the largest and smallest extreme values based on a specified dimension.
-        args:
-            block: dimensions in the block for the filter.
-        return:
-            the agent_ids that all the dimensions within the block are in the middle.
         """
         if not block:  # If block is empty, return an empty list
             raise ValueError("The blocksize is zero? Why this occur?")
@@ -116,11 +122,6 @@ class RayAgent:
         id_params = {agent_id: msg['param'] for agent_id, msg in self.get_inbox().items()}
         id_params[self.agent_id] = self.param
         return id_params
-
-    def _set_cached_handles(self) -> None:
-        """Function is called in agent_setup(). The cached handles are used for send messages."""
-        self.cached_in_nbr_handles = {in_nbr: ray.get_actor(f"{in_nbr}") for in_nbr in self.in_nbr_ids}
-        self.cached_out_nbr_handles = {out_nbr: ray.get_actor(f"{out_nbr}") for out_nbr in self.out_nbr_ids}
 
     def send_to_nbrs(self, used_out_nbr_ids: List[int], timeout=1.0) -> None:
         """Only send from outbox. Therefore, no message parameter is provided."""
@@ -158,7 +159,7 @@ class RayAgent:
         return the full vector with blockwise aggregation through blockwise weights.
         """
         # step 0: generate the weights (related to blocks and iterations)
-        self.loc_blk_wts = self.generate_block_weights(weights_plan='block_byz')  # default plan.
+        self.loc_blk_wts = self.generate_all_block_weights(weights_plan='block_byz')  # default plan.
         tmp_param = np.zeros(self.prob.dimension)
         loc_params = self.load_loc_params()  # self included.
         for dim in range(self.prob.dimension):
@@ -214,15 +215,15 @@ class RayAgent:
             weights[agent_id, agent_id] = 1 - np.sum(weights[:, agent_id])
         return weights
 
-    def generate_block_weights(self, weights_plan: str = 'block_byz') -> Dict[int, np.ndarray]:
+    def generate_all_block_weights(self, weights_plan: str = 'block_byz') -> Dict[int, np.ndarray]:
         """ Generate weights for each block for each iteration."""
         # print("\rStep 0.0: generate_block_weights: select plan for generate the block weights.\r")
         if weights_plan == 'block_byz':
-            return self._generate_block_byz_weights()
+            return self._generate_all_block_byz_weights()
         else:
             raise ValueError(f"Unknown __block__ weights plan: {weights_plan}.")
 
-    def _generate_block_byz_weights(self) -> Dict[int, np.ndarray]:
+    def _generate_all_block_byz_weights(self) -> Dict[int, np.ndarray]:
         # print(f"\rStep 0.1: _generate_block_byz_weights: generate the block byzantine weights with block_byz plan.\r")
         block_wts = {}
         # print(f"The block_indexes information: {self.blk_indexes}")
@@ -279,16 +280,6 @@ class RayAgent:
         if agent_type not in ['Reg', 'Byz']:
             raise ValueError(f"Invalid agent type: {agent_type}")
         return agent_type
-
-    def _setup_problem(self, agent_id, prob_settings: Dict[str, Any]) -> None:
-        if prob_settings['problem_type'] == 'LeastSquareProblem':
-            self.prob = LeastSquareProblem(agent_id=agent_id, prob_settings=prob_settings)
-            self.loss = QuadraticFunction(self.prob.A, self.prob.b, self.prob.c, self.param)
-        elif prob_settings['problem_type'] == 'LogitRegressionProblem':
-            self.prob = LogitRegressionProblem(agent_id=agent_id, prob_settings=prob_settings)
-            # self.loss = TODO: not finished for logit regression problem.
-        else:
-            raise ValueError(f"Invalid problem type: {prob_settings['problem_type']}")
 
     def _set_outbox(self, msgs: Dict[int, Any]) -> None:
         self.outbox = msgs
