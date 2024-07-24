@@ -90,8 +90,8 @@ class AbstractAlgorithm(ABC):
 
     def run(self):
         # logging.info("Start ray.")
-        print("Starting ray.")
-        ray.init(ignore_reinit_error=True)
+        # print("Starting ray.")
+        # ray.init(ignore_reinit_error=True)
         # logging.info('Start to setup agents.')
         print('Setup agents.')
         self.setup_agents()
