@@ -21,12 +21,12 @@ algorithm:
       byz_mag: 9
 network:
   net_settings:
-    net_size: 10
+    net_size: 50
     byz_size: 1
-    gene_plan: 'ER_graph'
-    ER_p: .97
-#    gene_plan: 'reg_graph'
-#    reg_deg: 18
+#    gene_plan: 'ER_graph'
+#    ER_p: .97
+    gene_plan: 'reg_graph'
+    reg_deg: 40
     conn_req: True
     directed_req: False
 problem:
@@ -42,12 +42,5 @@ result:
   result_settings:
     save_hist: true
     save_results: true
-#
-#    record: False
-#    save: False
-#    func_eval: True
-#    dist_lc_opt: True
-#    load: False
-#    logging_path: 'logging/test_log.log'
 
 

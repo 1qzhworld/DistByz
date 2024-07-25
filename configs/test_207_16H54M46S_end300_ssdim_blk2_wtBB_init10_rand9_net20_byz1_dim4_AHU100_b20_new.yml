@@ -7,8 +7,11 @@ algorithm:
   alg_settings:
     end_iter: 300
     stepsize: 'diminishing_stepsize' # can also set: `diminishing` to be 1/(iter+1)
-    alg_name: 'BCGDAlgorithm'
-    blk_size: 3
+    alg_name:
+      - "BCGDAlgorithm"
+      - "BBAlgorithm"
+      - "DGDAlgorithm"
+    blk_size: 2
     wt_plan: 'block_byz'  # if no information, default to be `metropolis-Hastings`.
     verbose: false  # true for mute
     timeout_base: 1.0
@@ -18,28 +21,26 @@ algorithm:
       byz_mag: 9
 network:
   net_settings:
-    net_size: 17
-    byz_size: 2
+    net_size: 20
+    byz_size: 1
     gene_plan: 'ER_graph'
+    ER_p: .9
+#    gene_plan: 'reg_graph'
+#    reg_deg: 40
     conn_req: True
     directed_req: False
-    ER_p: .97
 problem:
   prob_settings:
     problem_type: 'LeastSquareProblem'
-    dimension: 10
+    dimension: 4
     A:
       HessLowerBd: 1.0
-      HessUpperBd: 10.  # AHU in config title
+      HessUpperBd: 100.0  # AHU in config title
     b: [ -20, 20 ]
     c: 0.0
 result:
   result_settings:
-    record: False
-    save: False
-    func_eval: True
-    dist_lc_opt: True
-    load: False
-    logging_path: 'logging/test_log.log'
     save_hist: true
+    save_results: true
+
 

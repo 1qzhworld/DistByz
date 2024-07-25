@@ -76,7 +76,7 @@ class Network:
         if 'reg_deg' not in self.net_settings:
             raise ValueError("The parameter 'reg_deg' is required in net_settings for regular graph.")
         reg_deg = self.net_settings['reg_deg']
-        assert 0 < reg_deg < self.net_size, "reg_deg must be between 0 and net_size."
+        assert 0 < reg_deg < self.net_size, f"reg_deg must be between 0 and net_size {self.net_size}."
         assert (self.net_size * reg_deg) % 2 == 0, \
             "The product of net_size and reg_deg must be even for a regular graph."
         if self.directed_req:

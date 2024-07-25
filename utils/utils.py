@@ -11,12 +11,12 @@ import matplotlib.pyplot as plt
 from typing import List, Any, Dict
 
 from datetime import datetime
-from configs.configs import project_root, logs_dir
+from configs.configs import project_root, logs_dir, configs_dir
 
 np.random.seed(0)
 
 
-def parse_args(config_all=None):
+def parse_args(config_filename=None):
     parser = argparse.ArgumentParser(description="Run RayAgent optimization, setup for network, problem and algorithm")
     # parser.add_argument(
     #     "-n", "--net", type=str, default=f"{project_root}/configs/test_ER_network_config.yml",
@@ -37,7 +37,7 @@ def parse_args(config_all=None):
 
     parser.add_argument(
         "-a", "--all", type=str,
-        default=config_all or f"{project_root}/configs/test_207_07H14M29S_new.yml",
+        default=config_filename or "test_207_07H14M29S_new.yml",
         help="Path to the unified configuration file (default: None)."
     )
     # parser.add_argument(
@@ -54,10 +54,11 @@ def parse_args(config_all=None):
     problem_config = {}
     algorithm_config = {}
     result_config = {}
+    # print(args.all)
     # Load unified configuration if provided (higher priority than split configs.)
     if args.all:
         print(f"Training with config file: {args.all}")
-        unified_config = _load_yaml(args.all)
+        unified_config = _load_yaml(os.path.join(configs_dir, args.all))
         network_config = unified_config.get('network', {})
         problem_config = unified_config.get('problem', {})
         algorithm_config = unified_config.get('algorithm', {})
