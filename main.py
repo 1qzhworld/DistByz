@@ -1,5 +1,7 @@
 import ray
-from configs.configs import *
+from ray.exceptions import RayActorError
+
+# from configs.configs import *
 from networks.network import Network
 from problems.least_square_problem import LeastSquareProblem
 from utils.utils import parse_args, centralized_solver
@@ -29,14 +31,19 @@ print(f"The centralized solution is: {centralized_solver(common_problems, common
 # TODO: load the saved common_problems
 
 ray.init()
-
 # run all the algorithms in the alg_settings.
 for alg_name in args.alg_settings['alg_name']:
+
     AlgorithmClass = algorithms[alg_name]
     alg_args = args
     alg_args.alg_settings['alg_name'] = alg_name
     alg = AlgorithmClass(alg_args, common_network, common_problems)
     alg.run()
 
+    # kill all agents
+    agent_handles = {agent_id: ray.get_actor(f"{agent_id}") for agent_id in range(args.net_settings['net_size'])}
+    for agent_id, agent_handle in agent_handles.items():
+        ray.kill(agent_handle)
+        print(f"Agent {agent_id} has been killed.")
 
 ray.shutdown()

@@ -8,15 +8,15 @@ import numpy as np
 import yaml
 import h5py
 import matplotlib.pyplot as plt
-from datetime import datetime
 from typing import List, Any, Dict
 
-from configs.configs import project_root
+from datetime import datetime
+from configs.configs import project_root, logs_dir
 
 np.random.seed(0)
 
 
-def parse_args(set_one=None):
+def parse_args(config_all=None):
     parser = argparse.ArgumentParser(description="Run RayAgent optimization, setup for network, problem and algorithm")
     # parser.add_argument(
     #     "-n", "--net", type=str, default=f"{project_root}/configs/test_ER_network_config.yml",
@@ -36,8 +36,8 @@ def parse_args(set_one=None):
     # )
 
     parser.add_argument(
-        "-o", "--one", type=str,
-        default=set_one or f"{project_root}/configs/test_207_07H14M29S_new.yml",
+        "-a", "--all", type=str,
+        default=config_all or f"{project_root}/configs/test_207_07H14M29S_new.yml",
         help="Path to the unified configuration file (default: None)."
     )
     # parser.add_argument(
@@ -46,6 +46,8 @@ def parse_args(set_one=None):
     # )
 
     args = parser.parse_args()
+    current_timestamp = datetime.now().strftime("%j_%HH%MM%SS")
+    args.timestamp = current_timestamp  # add timestamp here such that the files have same prefixes.
 
     # Initialize configurations
     network_config = {}
@@ -53,33 +55,15 @@ def parse_args(set_one=None):
     algorithm_config = {}
     result_config = {}
     # Load unified configuration if provided (higher priority than split configs.)
-    if args.one:
-        print(f"Training with config file: {args.one}")
-        unified_config = _load_yaml(args.one)
+    if args.all:
+        print(f"Training with config file: {args.all}")
+        unified_config = _load_yaml(args.all)
         network_config = unified_config.get('network', {})
-        # print(f"Our network config: {network_config}")
         problem_config = unified_config.get('problem', {})
         algorithm_config = unified_config.get('algorithm', {})
         result_config = unified_config.get('result', {})
 
-    # # Override with specific configuration files if all in one is not provided
-    # if not args.net:
-    #     network_config.update(_load_yaml(args.net))
-    # if not args.prob:
-    #     problem_config.update(_load_yaml(args.prob))
-    # if not args.alg:
-    #     algorithm_config.update(_load_yaml(args.alg))
-    # if not args.rst:
-    #     result_config.update(_load_yaml(args.rst))
-
     _merge_configs(args, [network_config, problem_config, algorithm_config, result_config])
-
-    # Generate a filename for the result configuration with a timestamp
-    # logging_dir = project_root+f"/logging/"
-    logging_path = generate_logging_path(config_one_path=args.one, ext='yml', filename_plan='config_one')
-
-    save_config(args, logging_path)
-
     return args
 
 
@@ -96,18 +80,29 @@ def _merge_configs(args: argparse.Namespace, configs: List[Dict[str, Any]]):
             setattr(args, key, value)
 
 
-def generate_logging_path(config_one_path: str, ext: str, filename_plan: str = 'config_one') -> str:
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+def generate_log_path(
+        config_path: str, timestamp: str, ext: str, logging_dir: str = logs_dir, filename_plan: str = 'config', **kwargs
+) -> str:
     if ext not in ['yml', 'yaml', 'h5']:
         raise ValueError(f"ext should be one of 'yml', 'yaml', 'h5'. Current ext: {ext}, is not implemented.")
-    if filename_plan == 'config_one':
-        logging_dir_name = os.path.join(project_root, "logs")
-        config_one_name = os.path.basename(config_one_path)
-        logging_config_one_name = os.path.splitext(config_one_name)[0].replace('test', 'result')
-        new_filename = f"{timestamp}_{logging_config_one_name}.{ext}"
-        return os.path.join(logging_dir_name, new_filename)
+    if filename_plan == 'config':
+        if ext not in ['yml', 'yaml']:
+            raise ValueError(f"ext should be one of 'yml', 'yaml' for config. Current ext: {ext}, is not implemented.")
+        config_name = os.path.basename(config_path)
+        logging_config_name = os.path.splitext(config_name)[0].replace('test', 'result')
+        new_filename = f"{timestamp}_{logging_config_name}.{ext}"
+        return os.path.join(logging_dir, new_filename)
+    elif filename_plan == 'alg_hist':
+        if ext != 'h5':
+            raise ValueError(f"ext should be one of 'h5', not {ext}.")
+        if 'alg_name' not in kwargs:
+            raise ValueError(f"alg_name should be one of kwargs: {kwargs.keys()}. Not provided yet.")
+        alg_name = kwargs['alg_name']
+        config_name = os.path.basename(config_path)
+        logging_alg_hist_name = os.path.splitext(config_name)[0].replace('test', 'result')
+        new_filename = f"{timestamp}_{logging_alg_hist_name}_{alg_name}.{ext}"
+        return os.path.join(logging_dir, new_filename)
     else:
-        # return os.path.splitext(filename_plan)[0].replace()
         raise NotImplementedError
 
 

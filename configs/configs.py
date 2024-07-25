@@ -9,6 +9,11 @@ os.environ['PROJECT_ROOT'] = project_root
 sys.path.append(project_root)
 
 algorithms_dir = os.path.join(project_root, 'algorithms')
+algorithms_filename = [
+    filename[:-3] for filename in os.listdir(algorithms_dir)
+    if filename.endswith("_algorithm.py")
+]
+
 configs_dir = os.path.join(project_root, 'configs')
 data_dir = os.path.join(project_root, 'data')
 common_problems_dir = os.path.join(data_dir, 'common_problems')
@@ -21,4 +26,5 @@ utils_dir = os.path.join(project_root, 'utils')
 
 # GenePlan = Literal['ER_graph', 'aver_deg', 'reg_graph', 'geo_graph', 'load_fixed']
 # AgentType = Literal['Reg', 'Byz']
+
 

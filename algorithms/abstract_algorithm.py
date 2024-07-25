@@ -9,19 +9,17 @@ import math
 import warnings
 from typing import Dict, List
 import h5py
+import sys
+import os
 # from datetime import datetime
 
 from functions.quadratic_function import QuadraticFunction
 from networks.network import Network
 from problems.abstract_problem import AbstractProblem
 from agents.ray_agent import RayAgent
-from utils.utils import parse_args, generate_logging_path, centralized_solver
+from utils.utils import parse_args, centralized_solver, save_config, generate_log_path
+from configs.configs import project_root
 
-import sys
-import os
-
-current_dir = os.path.dirname(os.path.abspath(__file__))  # get current path.
-project_root = os.path.join(current_dir, '..')  # root directory
 sys.path.append(project_root)  # add root to sys.path
 # os.environ["RAY_DEDUP_LOGS"] = "0"  # 禁用Ray的日志去重
 
@@ -52,8 +50,9 @@ class AbstractAlgorithm(ABC):
         self.verbose = args.alg_settings['verbose']
         self.rst_settings = args.result_settings
 
-        self.logging_result_path = generate_logging_path(
-            config_one_path=self.args.one, ext='h5', filename_plan='config_one'
+        self.logging_result_path = generate_log_path(
+            config_path=self.args.all, timestamp=self.args.timestamp, ext='h5',
+            filename_plan='alg_hist', alg_name=self.args.alg_settings['alg_name']
         )
 
     def setup_agents(self):
@@ -102,6 +101,9 @@ class AbstractAlgorithm(ABC):
         # save the history parameters among agents
         if self.rst_settings['save_hist']:
             self.save_all_hist()
+        if self.rst_settings['save_results']:
+            self.save_config_settings()
+
         # load_all_hist_params = self.load_all_hist()
         # all_params = self.get_all_hist()
         # for k, v in load_all_hist_params.items():
@@ -171,11 +173,15 @@ class AbstractAlgorithm(ABC):
             f.create_dataset(
                 "global_solution", data=centralized_solver(self.common_problems, self.network.agent_types)
             )
-            f.create_dataset('config_file', data=os.path.basename(self.args.one))
+            f.create_dataset('config_file', data=os.path.basename(self.args.all))
             agent_ids = np.array(list(agent_types.keys()))
             agent_types_values = np.array(list(agent_types.values()), dtype=h5py.string_dtype())
             f.create_dataset("agent_ids", data=agent_ids)
             f.create_dataset("agent_types_values", data=agent_types_values)
+
+    def save_config_settings(self):
+        log_config_path = generate_log_path(config_path=self.args.all, timestamp=self.args.timestamp, ext='yml')
+        save_config(self.args, log_config_path)
 
 
 class BlockInfoMixin:

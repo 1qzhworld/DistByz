@@ -146,3 +146,9 @@ and see what attakcs is most attractive for comparisons.
 - Change `get_all_hist` in the `abstract_algorithm.py` to parallel get.
 
 - remove the redundant settings in config.yml.
+
+- Move `save_config` to the `abstract_algorithm`.
+
+- `generate_log_path` is changed form `generate_logging_path`. This helps to generate the path (filename) of the algorithm results and the configurations.
+
+- add `kill` to main.py such that the agents can be free after the algorithm is finished.
