@@ -1,4 +1,4 @@
-prob_info:
+prob_settings:
   problem_type: 'LeastSquareProblem'
   dimension: 3
   A:

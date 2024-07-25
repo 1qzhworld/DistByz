@@ -13,6 +13,7 @@ import h5py
 
 from functions.quadratic_function import QuadraticFunction
 from networks.network import Network
+from problems.abstract_problem import AbstractProblem
 from agents.ray_agent import RayAgent
 from utils.utils import parse_args, generate_logging_path
 
@@ -26,10 +27,13 @@ sys.path.append(project_root)  # add root to sys.path
 
 
 class AbstractAlgorithm(ABC):
-    def __init__(self, args):
+    def __init__(self, args, common_network: Network, common_problems: AbstractProblem) -> None:
         self.args = args
-        self.network = Network(net_settings=args.net_settings)
+        # self.network = Network(net_settings=args.net_settings)
+        self.network = common_network
         print(self.network.agent_types)
+
+        self.common_problems = common_problems
 
         np.random.seed(self.network.net_size)  # setup random seed for algorithms
 
@@ -40,7 +44,7 @@ class AbstractAlgorithm(ABC):
         self.timeout_base = args.alg_settings['timeout_base']
 
         self.agents = {}
-        self.param_init = args.alg_settings.get('param_init', 0) * np.ones(args.prob_info['dimension'])
+        self.param_init = args.alg_settings.get('param_init', 0) * np.ones(args.prob_settings['dimension'])
 
         self.prob_a_list = None  # set value in the self.centralized_solver (only regular agents)
         self.prob_b_list = None  # set value in the self.centralized_solver
@@ -59,7 +63,7 @@ class AbstractAlgorithm(ABC):
             agent = RayAgent.options(name=f'{agent_id}').remote(
                 agent_id=agent_id,
                 _network=self.network,
-                problem=self.prob,
+                problem=self.common_problems[agent_id],
                 alg_settings=self.args.alg_settings,
                 rst_settings=self.args.result_settings,
                 param=self.param_init
@@ -89,10 +93,6 @@ class AbstractAlgorithm(ABC):
         # return (-np.linalg.inv(0.5 * (sum_a.T + sum_a)) @ sum_b).flatten()
 
     def run(self):
-        # logging.info("Start ray.")
-        # print("Starting ray.")
-        # ray.init(ignore_reinit_error=True)
-        # logging.info('Start to setup agents.')
         print('Setup agents.')
         self.setup_agents()
         print(f"Generate the closed form global solution before update: {self.centralized_solver()}.")
@@ -127,7 +127,7 @@ class AbstractAlgorithm(ABC):
         #     else:
         #         print(f"Wrong! on agent_id: {k}")
         self.print_runtime_info()
-        ray.shutdown()
+        # ray.shutdown()
 
     @abstractmethod
     def iter_run(self):
@@ -211,15 +211,15 @@ class BlockInfoMixin:
         return blk_num, blk_size, blk_idxes
         """
         print(f"block size is: {self.blk_size}.")
-        blk_size = self.blk_size if isinstance(self.blk_size, int) else self.args.prob_info['dimension']
+        blk_size = self.blk_size if isinstance(self.blk_size, int) else self.args.prob_settings['dimension']
         if 2 * blk_size * self.byz_size + 1 > self.min_in_degrees:  # check r-robust condition.
             warnings.warn(f"The block size {blk_size} is too large for {self.byz_size} byzantine agents.")
         return self._divide_blks(blk_size)
 
     def _divide_blks(self, blk_size: int) -> Dict[int, List[int]]:
-        indices = np.arange(self.args.prob_info['dimension'])
+        indices = np.arange(self.args.prob_settings['dimension'])
         np.random.shuffle(indices)
-        blk_num = math.ceil(self.args.prob_info['dimension'] / blk_size)
+        blk_num = math.ceil(self.args.prob_settings['dimension'] / blk_size)
         blk_idxes = {}
         for i in range(blk_num):
             if i == blk_num - 1:  # for the last block (maybe smaller than other blocks)
@@ -230,7 +230,7 @@ class BlockInfoMixin:
         return blk_idxes
 
 
-if __name__ == "__main__":
-    abs_args = parse_args()
-    dgd_algorithm = AbstractAlgorithm(abs_args)
-    dgd_algorithm.run()
+# if __name__ == "__main__":
+#     abs_args = parse_args()
+#     dgd_algorithm = AbstractAlgorithm(abs_args)
+#     dgd_algorithm.run()

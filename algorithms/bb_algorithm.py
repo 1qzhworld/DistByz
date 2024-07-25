@@ -1,6 +1,4 @@
 # algorithms/bb_algorithm.py
-import os.path
-
 import numpy as np
 # import ray
 # import warnings
@@ -13,11 +11,11 @@ from agents.ray_agent import RayAgent
 
 
 class BBAlgorithm(AbstractAlgorithm, BlockInfoMixin):
-    def __init__(self, args):
+    def __init__(self, args, common_network, common_problems):
         self.alg_name = self.__class__.__name__
         if args.alg_settings['alg_name'] != self.alg_name:
             raise ValueError(f"Setting for {args.alg_settings['alg_name']}, but here is {self.alg_name}.")
-        AbstractAlgorithm.__init__(self, args)
+        AbstractAlgorithm.__init__(self, args, common_network, common_problems)
         BlockInfoMixin.__init__(self, args, self.network)
 
     def setup_agents(self):
@@ -26,7 +24,7 @@ class BBAlgorithm(AbstractAlgorithm, BlockInfoMixin):
             agent = RayAgent.options(name=f'{agent_id}').remote(
                 agent_id=agent_id,
                 _network=self.network,
-                problem=self.prob,
+                problem=self.common_problems[agent_id],
                 alg_settings=self.args.alg_settings,
                 rst_settings=self.args.result_settings,
                 param=self.param_init,
@@ -50,14 +48,14 @@ class BBAlgorithm(AbstractAlgorithm, BlockInfoMixin):
         self.wait_for_all_futures(upd_futures, setup_timeout, "update")
 
 
-if __name__ == "__main__":
-    # script_dir = os.path.dirname(os.path.abspath(__file__))
-    # project_root = os.path.abspath(os.path.join(script_dir, '..'))
-    # # set_one = f"{project_root}\\configs\\test_2024-07-18_end700_ss1e2_net17_byz1_planflip9_dim10_blksz3_init100_bb.yml"
-    # # set_one = f"{project_root}\\configs\\test_2024-07-18_end700_ss1e2_net17_byz1_planrand9_dim10_blksz3_init100_bb.yml"
-    # # set_one = f"{project_root}\\configs\\test_2024-07-18_end700_ss1e2_net17_byz1_planones9_dim10_blksz3_init100_bb.yml"
-    # set_one = f"{project_root}\\configs\\test_2024-07-18_end700_ss1e2_net17_byz1_plantime9_dim10_blksz3_init100_bb.yml"
-    # bb_args = parse_args(set_one)
-    bb_args = parse_args()
-    bb_algorithm = BBAlgorithm(bb_args)
-    bb_algorithm.run()
+# if __name__ == "__main__":
+#     # script_dir = os.path.dirname(os.path.abspath(__file__))
+#     # project_root = os.path.abspath(os.path.join(script_dir, '..'))
+#     # # set_one = f"{project_root}\\configs\\test_2024-07-18_end700_ss1e2_net17_byz1_planflip9_dim10_blksz3_init100_bb.yml"
+#     # # set_one = f"{project_root}\\configs\\test_2024-07-18_end700_ss1e2_net17_byz1_planrand9_dim10_blksz3_init100_bb.yml"
+#     # # set_one = f"{project_root}\\configs\\test_2024-07-18_end700_ss1e2_net17_byz1_planones9_dim10_blksz3_init100_bb.yml"
+#     # set_one = f"{project_root}\\configs\\test_2024-07-18_end700_ss1e2_net17_byz1_plantime9_dim10_blksz3_init100_bb.yml"
+#     # bb_args = parse_args(set_one)
+#     bb_args = parse_args()
+#     bb_algorithm = BBAlgorithm(bb_args)
+#     bb_algorithm.run()

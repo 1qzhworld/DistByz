@@ -37,7 +37,7 @@ def parse_args(set_one=None):
 
     parser.add_argument(
         "-o", "--one", type=str,
-        default=set_one or f"{project_root}/configs/test_2024-07-18_end700_ss1e2_net17_byz1_dim10_blksz2_bcgd.yml",
+        default=set_one or f"{project_root}/configs/test_207_07H14M29S_new.yml",
         help="Path to the unified configuration file (default: None)."
     )
     # parser.add_argument(
@@ -101,7 +101,7 @@ def generate_logging_path(config_one_path: str, ext: str, filename_plan: str = '
     if ext not in ['yml', 'yaml', 'h5']:
         raise ValueError(f"ext should be one of 'yml', 'yaml', 'h5'. Current ext: {ext}, is not implemented.")
     if filename_plan == 'config_one':
-        logging_dir_name = os.path.join(project_root, "logging")
+        logging_dir_name = os.path.join(project_root, "logs")
         config_one_name = os.path.basename(config_one_path)
         logging_config_one_name = os.path.splitext(config_one_name)[0].replace('test', 'result')
         new_filename = f"{timestamp}_{logging_config_one_name}.{ext}"
@@ -297,7 +297,7 @@ def extract_parameter(filename_parts, prefix):
 #
 #     alg_settings = config['algorithm']['alg_settings']
 #     net_settings = config['network']['net_settings']
-#     prob_info = config['problem']['prob_info']
+#     prob_settings = config['problem']['prob_settings']
 #     byz_msg = config['algorithm']['alg_settings']['byz_msg']
 #
 #     errors = []
@@ -319,8 +319,8 @@ def extract_parameter(filename_parts, prefix):
 #     if byz_size_str is not None and net_settings['byz_size'] != byz_size:
 #         errors.append(f"byz_size: expected {byz_size}, found {net_settings['byz_size']}")
 #
-#     if dimension_str is not None and prob_info['dimension'] != dimension:
-#         errors.append(f"dimension: expected {dimension}, found {prob_info['dimension']}")
+#     if dimension_str is not None and prob_settings['dimension'] != dimension:
+#         errors.append(f"dimension: expected {dimension}, found {prob_settings['dimension']}")
 #
 #     if blk_size_str is not None and alg_settings.get('blk_size') is not None and alg_settings['blk_size'] != blk_size:
 #         errors.append(f"blk_size: expected {blk_size}, found {alg_settings['blk_size']}")

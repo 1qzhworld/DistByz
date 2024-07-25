@@ -25,7 +25,7 @@ network:
     directed_req: False
     ER_p: .97
 problem:
-  prob_info:
+  prob_settings:
     problem_type: 'LeastSquareProblem'
     dimension: 10
     A:

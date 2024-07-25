@@ -2,13 +2,13 @@
 
 import os
 import joblib
-
+from abc import ABC, abstractmethod
 from typing import Any, Dict
 
 from configs.configs import common_problems_dir
 
 
-class AbstractProblem:
+class AbstractProblem(ABC):
     def __init__(self, agent_id: int, prob_settings: Dict[str, Any]) -> None:
         self.agent_id = agent_id
         self.problem_type = prob_settings['problem_type']
@@ -19,17 +19,19 @@ class AbstractProblem:
         raise NotImplementedError("Constrain handling is not implemented.")
 
     @classmethod
+    @abstractmethod
     def generate_common_problems(cls, net_size: int, prob_settings: Dict[str, Any]) -> Dict[int, 'AbstractProblem']:
         """common_problems = LeastSquareProblem.generate_common_problems(net_size, prob_settings) """
-        if prob_settings['problem_type'] == 'LeastSquareProblem':
-            common_problems = {
-                agent_id: cls(agent_id=agent_id, prob_settings=prob_settings) for agent_id in range(net_size)
-            }
-        elif prob_settings['problem_type'] == 'LeastSquareProblem':
-            raise NotImplementedError('LogitRegressionProblem is not finished yet.')
-        else:
-            raise ValueError(f"Invalid problem type: {prob_settings['problem_type']}")
-        return common_problems
+        # if prob_settings['problem_type'] == 'LeastSquareProblem':
+        #     common_problems = {
+        #         agent_id: cls(agent_id=agent_id, prob_settings=prob_settings) for agent_id in range(net_size)
+        #     }
+        # elif prob_settings['problem_type'] == 'LeastSquareProblem':
+        #     raise NotImplementedError('LogitRegressionProblem is not finished yet.')
+        # else:
+        #     raise ValueError(f"Invalid problem type: {prob_settings['problem_type']}")
+        # return common_problems
+        pass
 
     @staticmethod
     def save_common_problems(common_problems: Dict[int, 'AbstractProblem'], filename: str) -> None:

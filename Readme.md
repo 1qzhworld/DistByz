@@ -87,7 +87,7 @@ and see what attakcs is most attractive for comparisons.
   - check where `RayAgent` is initialized.
     - 因为是`ray.remote()`所以没法直接找到。还是通过搜索的方式找`RayAgent.options(name=f'{agent_id}'` 看看能搜到什么不能。
       - They appear in the `__init__` of the algorithms.
-      - Change from `prob_settings=self.args.prob_info,` to `problem=self.prob,` 
+      - Change from `prob_settings=self.args.prob_settings,` to `problem=self.common_problems[agent_id],` 
     - 从`load_data` branch的代码中吸取经验，通过新的main函数进行书写。
 - `LeastSquareProblem` class add $M$ and $m$ to its attribution.
   - `self.M`, `self.m`
@@ -97,3 +97,20 @@ and see what attakcs is most attractive for comparisons.
 - Add `network_io.py` for the load, save of common network, they are moved from utils (in branch load_data)
   - save_common_network
   - load_common_network
+- Changed the `prob_info` to `prob_settings` from the yaml config file to the codes.
+- Change the config files' setting:
+  - algorithm to algorithms (list when read), see `test_207_07H14M29S_new.yml` for details.
+    - see `alg_name` in `algorithm` 
+    - change the default config in`utils.py`.
+
+- Changed the algorithm related initialization contents.
+
+  ```python
+  def __init__(self, args, common_network: Network, common_problems: AbstractProblem) -> None:
+      self.args = args
+      # self.network = Network(net_settings=args.net_settings)
+      self.network = common_network
+      print(self.network.agent_types)
+  
+      self.common_problems = common_problems
+  ```

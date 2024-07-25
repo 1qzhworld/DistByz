@@ -54,3 +54,16 @@ class LeastSquareProblem(AbstractProblem):
     @staticmethod
     def generate_b(condition_b: Any, dim: int) -> np.ndarray:
         return np.random.uniform(condition_b[0], condition_b[1], (dim, 1))
+
+    @classmethod
+    def generate_common_problems(cls, net_size: int, prob_settings: Dict[str, Any]) -> Dict[int, 'AbstractProblem']:
+        """common_problems = LeastSquareProblem.generate_common_problems(net_size, prob_settings) """
+        if prob_settings['problem_type'] == 'LeastSquareProblem':
+            common_problems = {
+                agent_id: cls(agent_id=agent_id, prob_settings=prob_settings) for agent_id in range(net_size)
+            }
+        elif prob_settings['problem_type'] == 'LeastSquareProblem':
+            raise NotImplementedError('LogitRegressionProblem is not finished yet.')
+        else:
+            raise ValueError(f"Invalid problem type: {prob_settings['problem_type']}")
+        return common_problems
