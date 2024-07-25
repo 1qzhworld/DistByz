@@ -119,18 +119,17 @@ def load_all_hist(logging_result_path):
     """Copied from AbstractAlgorithm.load_all_hist()
     Not used yet, for future restart training for neural networks and so on."""
     with h5py.File(logging_result_path, 'r') as f:
+        agent_ids = f.keys()
         load_all_params = {  # both regular and byzantine
             int(agent_id): f[agent_id][()] for agent_id in f.keys()
-            if agent_id not in {"global_solution", "prob_a_list", "prob_b_list", "agent_ids", "agent_types_values"}
+            if agent_id not in {"global_solution", "config_file", "agent_ids", "agent_types_values"}
         }
         global_solution = f["global_solution"][()]
-        prob_a_list = f["prob_a_list"][()]  # only regular
-        prob_b_list = f["prob_b_list"][()]  # only regular
         agent_ids = f['agent_ids'][:]
         agent_types_values = f['agent_types_values'][:]
     agent_types = {int(agent_id): agent_type.decode('utf-8') for agent_id, agent_type in
                    zip(agent_ids, agent_types_values)}
-    return load_all_params, global_solution, prob_a_list, prob_b_list, agent_types
+    return load_all_params, global_solution, agent_types
 
 
 def get_reg_params(all_params: Dict[int, np.ndarray], agent_types: Dict[int, str]):
@@ -139,15 +138,11 @@ def get_reg_params(all_params: Dict[int, np.ndarray], agent_types: Dict[int, str
 
 def plot_distance_to_optimal(filenames: List[str]):
     """filenames: example: ["20240716_112329_result_all_in_one_bcgd.h5", "20240716_113756_result_all_in_one_bb.h5"]"""
-    # script_dir = os.path.dirname(os.path.abspath(__file__))
-    # project_root = os.path.abspath(os.path.join(script_dir, '..'))
-    logging_result_base = os.path.join(project_root, "logging")
-
-    plt.figure()  # 创建一个新的绘图对象
+    plt.figure()
 
     for filename in filenames:
-        logging_result_path = os.path.join(logging_result_base, filename)
-        all_params, global_solution, prob_a_list, prob_b_list, agent_types = load_all_hist(logging_result_path)
+        logging_result_path = os.path.join(logs_dir, filename)
+        all_params, global_solution, agent_types = load_all_hist(logging_result_path)
         reg_params = get_reg_params(all_params, agent_types)
         num_iterations = all_params[0].shape[0]
 

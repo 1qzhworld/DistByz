@@ -21,7 +21,7 @@ algorithm:
       byz_mag: 9
 network:
   net_settings:
-    net_size: 50
+    net_size: 10
     byz_size: 1
 #    gene_plan: 'ER_graph'
 #    ER_p: .97

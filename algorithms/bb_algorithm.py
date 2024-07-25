@@ -46,16 +46,3 @@ class BBAlgorithm(AbstractAlgorithm, BlockInfoMixin):
         upd_futures = [agent_handle.cta_grad_desc.remote(self.lr, self.cur_iter, agg_plan='block_byz_aggregation')
                        for agent_handle in self.agents.values()]
         self.wait_for_all_futures(upd_futures, setup_timeout, "update")
-
-
-# if __name__ == "__main__":
-#     # script_dir = os.path.dirname(os.path.abspath(__file__))
-#     # project_root = os.path.abspath(os.path.join(script_dir, '..'))
-#     # # set_one = f"{project_root}\\configs\\test_2024-07-18_end700_ss1e2_net17_byz1_planflip9_dim10_blksz3_init100_bb.yml"
-#     # # set_one = f"{project_root}\\configs\\test_2024-07-18_end700_ss1e2_net17_byz1_planrand9_dim10_blksz3_init100_bb.yml"
-#     # # set_one = f"{project_root}\\configs\\test_2024-07-18_end700_ss1e2_net17_byz1_planones9_dim10_blksz3_init100_bb.yml"
-#     # set_one = f"{project_root}\\configs\\test_2024-07-18_end700_ss1e2_net17_byz1_plantime9_dim10_blksz3_init100_bb.yml"
-#     # bb_args = parse_args(set_one)
-#     bb_args = parse_args()
-#     bb_algorithm = BBAlgorithm(bb_args)
-#     bb_algorithm.run()
