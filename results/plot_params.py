@@ -359,8 +359,8 @@ from utils.utils import plot_distance_to_optimal
 # plot_distance_to_optimal(run_configs_207_20H20M44S_ssxx)
 
 test_new = [
-    "208_01H06M39S_result_207_07H14M29S_new_BBAlgorithm.h5",
-    "208_01H06M39S_result_207_07H14M29S_new_BCGDAlgorithm.h5",
-    "208_01H06M39S_result_207_07H14M29S_new_DGDAlgorithm.h5",
+    # "208_01H40M42S_result_207_07H14M29S_new_BCGDAlgorithm.h5",
+    "208_01H42M31S_result_207_07H14M29S_new_BCGDAlgorithm.h5",
+    # "208_01H06M39S_result_207_07H14M29S_new_DGDAlgorithm.h5",
 ]
 plot_distance_to_optimal(test_new)

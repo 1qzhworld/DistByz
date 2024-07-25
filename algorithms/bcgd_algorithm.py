@@ -1,6 +1,6 @@
 # algorithms/bb_algorithm.py
 import numpy as np
-
+import ray
 from utils.utils import parse_args
 from algorithms.abstract_algorithm import AbstractAlgorithm, BlockInfoMixin
 from agents.ray_agent import RayAgent

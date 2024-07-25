@@ -48,6 +48,7 @@ class RayAgent:
         # Problem setup
         self.prob = problem  # Set the problem to agent. How the problem is generated is removed from this version.
         self.param: np.ndarray = param if isinstance(param, np.ndarray) else np.zeros(self.prob.dimension)
+        self.loss = QuadraticFunction(self.prob.A, self.prob.b, self.prob.c, self.param)
         self.M, self.m = self.prob.M, self.prob.m
         # Algorithm setup
         self.alg_settings = alg_settings
@@ -78,15 +79,15 @@ class RayAgent:
             msgs = self._byz_msg_generator()
         self._set_outbox(msgs)
 
-    def _setup_problem(self, agent_id, prob_settings: Dict[str, Any]) -> None:
-        if prob_settings['problem_type'] == 'LeastSquareProblem':
-            self.prob = LeastSquareProblem(agent_id=agent_id, prob_settings=prob_settings)
-            self.loss = QuadraticFunction(self.prob.A, self.prob.b, self.prob.c, self.param)
-        elif prob_settings['problem_type'] == 'LogitRegressionProblem':
-            self.prob = LogitRegressionProblem(agent_id=agent_id, prob_settings=prob_settings)
-            # self.loss = TODO: not finished for logit regression problem.
-        else:
-            raise ValueError(f"Invalid problem type: {prob_settings['problem_type']}")
+    # def _setup_problem(self, agent_id, prob_settings: Dict[str, Any]) -> None:
+    #     if prob_settings['problem_type'] == 'LeastSquareProblem':
+    #         self.prob = LeastSquareProblem(agent_id=agent_id, prob_settings=prob_settings)
+    #         self.loss = QuadraticFunction(self.prob.A, self.prob.b, self.prob.c, self.param)
+    #     elif prob_settings['problem_type'] == 'LogitRegressionProblem':
+    #         self.prob = LogitRegressionProblem(agent_id=agent_id, prob_settings=prob_settings)
+    #         # self.loss = TODO: not finished for logit regression problem.
+    #     else:
+    #         raise ValueError(f"Invalid problem type: {prob_settings['problem_type']}")
 
     def _set_cached_handles(self) -> None:
         """Function is called in agent_setup(). The cached handles are used for send messages."""
