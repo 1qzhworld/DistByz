@@ -54,7 +54,7 @@ def parse_args(set_one=None):
     result_config = {}
     # Load unified configuration if provided (higher priority than split configs.)
     if args.one:
-        print(f"here we are in {args.one}")
+        print(f"Training with config file: {args.one}")
         unified_config = _load_yaml(args.one)
         network_config = unified_config.get('network', {})
         # print(f"Our network config: {network_config}")
@@ -347,6 +347,12 @@ def find_a_key_by_value(d, target_value):  # can be used to find the agent_id of
             return key
     return None
 
+
+def centralized_solver(common_problems, agent_types) -> np.ndarray:
+    reg_problems = [common_problems[agent_id] for agent_id in range(len(agent_types)) if agent_types[agent_id] == 'Reg']
+    sum_a = np.sum([prob.A for prob in reg_problems], axis=0)
+    sum_b = np.sum([prob.b for prob in reg_problems], axis=0)
+    return (-np.linalg.inv(0.5 * (sum_a.T + sum_a)) @ sum_b).flatten()
 
 def main():
     # parser = argparse.ArgumentParser(description="Utility script")

@@ -2,10 +2,11 @@ import ray
 from configs.configs import *
 from networks.network import Network
 from problems.least_square_problem import LeastSquareProblem
-from utils.utils import parse_args
+from utils.utils import parse_args, centralized_solver
 from algorithms.bcgd_algorithm import BCGDAlgorithm
 from algorithms.bb_algorithm import BBAlgorithm
 from algorithms.dgd_algorithm import DGDAlgorithm
+
 algorithms = {
     "BBAlgorithm": BBAlgorithm,
     "BCGDAlgorithm": BCGDAlgorithm,
@@ -23,10 +24,12 @@ common_network = Network(net_settings=args.net_settings)
 common_problems = LeastSquareProblem.generate_common_problems(
     net_size=args.net_settings['net_size'], prob_settings=args.prob_settings
 )
+print(f"The centralized solution is: {centralized_solver(common_problems, common_network.agent_types)}")
 # TODO: save and load the common_problems
 # TODO: load the saved common_problems
+
 ray.init()
-#
+
 # run all the algorithms in the alg_settings.
 for alg_name in args.alg_settings['alg_name']:
     AlgorithmClass = algorithms[alg_name]

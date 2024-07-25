@@ -114,3 +114,35 @@ and see what attakcs is most attractive for comparisons.
   
       self.common_problems = common_problems
   ```
+
+# V1.3 Change the name of logs
+
+
+
+- Move the `centralized_solver` from `abstract-algorithm` to `utils`
+
+  ```python
+  def centralized_solver(self) -> np.ndarray:
+      """Compute the global centralized solution."""
+      prob_futures = [agent.get_prob.remote() for agent in self.agents.values()
+                      if ray.get(agent.get_type.remote()) == 'Reg']
+      setup_timeout = self.timeout_base*self.network.net_size
+      ready_probs, _ = self.wait_for_all_futures(prob_futures, setup_timeout, "get_prob")
+  
+      probs = [ray.get(ready_prob) for ready_prob in ready_probs]
+      self.prob_a_list = [prob.A for prob in probs]
+      sum_a = np.sum(self.prob_a_list, axis=0)
+      self.prob_b_list = [prob.b for prob in probs]
+      sum_b = np.sum(self.prob_b_list, axis=0)
+      if self.verbose:
+          print(f"A for agents are: {self.prob_a_list}")
+          print(f"b for agents are {self.prob_b_list}")
+      return QuadraticFunction(sum_a, sum_b).closed_form_minimizer()
+      # return (-np.linalg.inv(0.5 * (sum_a.T + sum_a)) @ sum_b).flatten()
+  ```
+
+- removed `prob_a_list` and `prob_b_list` in `save_all_hist`, and add `config_filename` to logs.
+
+- Change `get_all_hist` in the `abstract_algorithm.py` to parallel get.
+
+- remove the redundant settings in config.yml.

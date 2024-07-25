@@ -15,7 +15,7 @@ from functions.quadratic_function import QuadraticFunction
 from networks.network import Network
 from problems.abstract_problem import AbstractProblem
 from agents.ray_agent import RayAgent
-from utils.utils import parse_args, generate_logging_path
+from utils.utils import parse_args, generate_logging_path, centralized_solver
 
 import sys
 import os
@@ -74,42 +74,25 @@ class AbstractAlgorithm(ABC):
         comm_setup_futures = [agent.agent_setup.remote() for agent in self.agents.values()]
         self.wait_for_all_futures(comm_setup_futures, setup_timeout, "setup of communicators")
 
-    def centralized_solver(self) -> np.ndarray:
-        """Compute the global centralized solution."""
-        prob_futures = [agent.get_prob.remote() for agent in self.agents.values()
-                        if ray.get(agent.get_type.remote()) == 'Reg']
-        setup_timeout = self.timeout_base*self.network.net_size
-        ready_probs, _ = self.wait_for_all_futures(prob_futures, setup_timeout, "get_prob")
-
-        probs = [ray.get(ready_prob) for ready_prob in ready_probs]
-        self.prob_a_list = [prob.A for prob in probs]
-        sum_a = np.sum(self.prob_a_list, axis=0)
-        self.prob_b_list = [prob.b for prob in probs]
-        sum_b = np.sum(self.prob_b_list, axis=0)
-        if self.verbose:
-            print(f"A for agents are: {self.prob_a_list}")
-            print(f"b for agents are {self.prob_b_list}")
-        return QuadraticFunction(sum_a, sum_b).closed_form_minimizer()
-        # return (-np.linalg.inv(0.5 * (sum_a.T + sum_a)) @ sum_b).flatten()
-
     def run(self):
-        print('Setup agents.')
+        print(f'\rSetup all agents for {self.args.alg_settings['alg_name']}.\r')
         self.setup_agents()
-        print(f"Generate the closed form global solution before update: {self.centralized_solver()}.")
+        # print(f"Generate the closed form global solution before update: {self.centralized_solver()}.")
         tmp_timeout = self.timeout_base * self.network.net_size  # timeout for synchronize comm, setup and others.
         setup_timeout = tmp_timeout if tmp_timeout > 20 else 20  # experimental value
+
         self.setup_communicators(setup_timeout=setup_timeout)
         # logging.info('Successfully setup all agents and their communicators.')
-        print('Successfully setup all agents and their communicators.')
+        # print('Successfully setup all agents and their communicators.')
 
-        with tqdm(total=self.end_iter, desc="Training Progress", unit="iter") as pbar:
+        with tqdm(total=self.end_iter, desc="Training", unit="iter") as pbar:
             while self.cur_iter < self.end_iter:
                 # iter_run is an abstract method, should be provided in the detailed algorithms.
                 self.iter_run()
 
                 self.print_runtime_info()
                 pbar.set_postfix({
-                    'Iteration': self.cur_iter,
+                    # 'Iteration': self.cur_iter,
                     'Learning Rate': f"{self.lr:.6f}"
                 })
                 pbar.update(1)
@@ -133,11 +116,11 @@ class AbstractAlgorithm(ABC):
     def iter_run(self):
         pass
 
-    def print_runtime_info(self):
+    def print_runtime_info(self):  # for debug
         if self.verbose:
             if (self.cur_iter+1) % 50 == 0:
                 print(f"Agent 0's outbox is {ray.get(self.agents[0].get_outbox.remote())}.")
-                print(f"Agent 0's paramt is {ray.get(self.agents[0].get_param.remote())}.")
+                print(f"Agent 0's param is {ray.get(self.agents[0].get_param.remote())}.")
 
     def gene_stepsize(self):
         if isinstance(self.stepsize, float):
@@ -165,8 +148,15 @@ class AbstractAlgorithm(ABC):
     def get_all_hist(self) -> Dict[int, np.ndarray]:
         """Save the history parameters among agents."""
         all_hist_params = {}
-        for agent_id in range(self.network.net_size):
-            all_hist_params[agent_id] = ray.get(self.agents[agent_id].get_hist_param.remote())
+        futures = {agent_id: self.agents[agent_id].get_hist_param.remote() for agent_id in range(self.network.net_size)}
+        tmp_timeout = self.timeout_base * self.network.net_size
+        ready_get, _ = self.wait_for_all_futures(list(futures.values()), tmp_timeout, "get_hist_param")
+        for agent_id, future in futures.items():
+            if future in ready_get:
+                all_hist_params[agent_id] = ray.get(future)
+            else:
+                raise RuntimeError("Failed to get hist params for agent {}".format(agent_id))
+
         return all_hist_params
 
     def save_all_hist(self):
@@ -178,10 +168,10 @@ class AbstractAlgorithm(ABC):
             for agent_id, all_param in all_params.items():
                 f.create_dataset(str(agent_id), data=all_param)
                 # the i-th agent's k-th iteration will be load_all_params[i][k]
-            f.create_dataset("global_solution", data=self.centralized_solver())
-            f.create_dataset("prob_a_list", data=self.prob_a_list)
-            f.create_dataset("prob_b_list", data=self.prob_b_list)
-
+            f.create_dataset(
+                "global_solution", data=centralized_solver(self.common_problems, self.network.agent_types)
+            )
+            f.create_dataset('config_file', data=os.path.basename(self.args.one))
             agent_ids = np.array(list(agent_types.keys()))
             agent_types_values = np.array(list(agent_types.values()), dtype=h5py.string_dtype())
             f.create_dataset("agent_ids", data=agent_ids)
