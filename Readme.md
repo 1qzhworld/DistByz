@@ -154,3 +154,5 @@ and see what attakcs is most attractive for comparisons.
 - add `kill` to main.py such that the agents can be free after the algorithm is finished.
 
 - Changed the `_load_yaml`, such that the configs are set as default to the folder `configs`, we only need to provide the. Now you can run it by `python main.py -a test_207_07H14M29S_new.yml`.
+
+- loss function is added to RayAgent. Previous because of the delete of _setup_problems, this is not setup and therefore, the results are uncorrect. Change it here.
