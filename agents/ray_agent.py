@@ -7,7 +7,7 @@ from typing import Any, List, Dict, Literal, Tuple, Set
 from networks.network import Network
 from problems.abstract_problem import AbstractProblem
 from problems.least_square_problem import LeastSquareProblem
-from problems.logit_regression_problem import LogitRegressionProblem
+# from problems.logit_regression_problem import LogitRegressionProblem
 from functions.quadratic_function import QuadraticFunction
 from utils.utils import check_subset
 
@@ -62,10 +62,11 @@ class RayAgent:
         self.rst_settings = rst_settings
         self.blk_indexes = blk_indexes if blk_indexes is not None else {0: list(range(self._network.net_size))}
         self.blk_num, self.blk_size = len(self.blk_indexes), len(self.blk_indexes[0])
-        if alg_settings['alg_name'] == 'BBAlgorithm':
+        self.wt_plan = wt_plan
+        if alg_settings['alg_name'] in ['BBAlgorithm', 'BCGDAlgorithm', 'FCGDAlgorithm']:  # changing when running.
             self.loc_blk_wts = {blk_num_id: np.zeros(self._network.net_size) for blk_num_id in range(self.blk_num)}
-        elif alg_settings['alg_name'] == 'DGDAlgorithm':
-            self.loc_wts = self.generate_weights(weights_plan=wt_plan)[:, agent_id]  # different from block weights.
+        elif alg_settings['alg_name'] == 'DGDAlgorithm':  # different from block weights.
+            self.loc_wts = self.generate_weights()[:, agent_id]
 
         self.end_iter = self.alg_settings['end_iter']
         self.hist_param = np.zeros((self.end_iter, self.prob.dimension))
@@ -95,7 +96,7 @@ class RayAgent:
         self.cached_out_nbr_handles = {out_nbr: ray.get_actor(f"{out_nbr}") for out_nbr in self.out_nbr_ids}
 
     def local_filter_scalar(self, dim: int) -> List[int]:
-        """return the selected agent_ids from in_nbr_ids"""
+        """return the selected agent_ids from in_nbr_ids 208_15H55M33S checkmark"""
         # Retrieve the parameters from the inbox and include the current agent's parameters.
         id_params: Dict[int, np.ndarray] = self.load_loc_params()
         # Sort the agents based on the specified dimension in their parameters.
@@ -160,7 +161,7 @@ class RayAgent:
         return the full vector with blockwise aggregation through blockwise weights.
         """
         # step 0: generate the weights (related to blocks and iterations)
-        self.loc_blk_wts = self.generate_all_block_weights(weights_plan='block_byz')  # default plan.
+        self.loc_blk_wts = self.generate_all_block_weights()  # default plan.
         tmp_param = np.zeros(self.prob.dimension)
         loc_params = self.load_loc_params()  # self included.
         # for dim in range(self.prob.dimension):
@@ -193,12 +194,12 @@ class RayAgent:
         # save to hist_param for save and plot
         self.hist_param[cur_iter] = self.param
 
-    def generate_weights(self, weights_plan: str = 'metropolis-Hastings') -> np.ndarray:
+    def generate_weights(self) -> np.ndarray:
         # bb algorithm use another ways to generate weights for each block.
-        if weights_plan == 'metropolis-Hastings':
+        if self.wt_plan == 'metropolis-Hastings':
             return self._generate_metropolis_hastings_weights()
         else:
-            raise ValueError(f"Unknown weights plan: {weights_plan}")
+            raise ValueError(f"Unknown weights plan: {self.wt_plan}")
 
     def _generate_metropolis_hastings_weights(self) -> np.ndarray:
         """
@@ -217,54 +218,59 @@ class RayAgent:
             weights[agent_id, agent_id] = 1 - np.sum(weights[:, agent_id])
         return weights
 
-    def generate_all_block_weights(self, weights_plan: str = 'block_byz') -> Dict[int, np.ndarray]:
+    def generate_all_block_weights(self) -> Dict[int, np.ndarray]:
         """ Generate weights for each block for each iteration."""
         # print("\rStep 0.0: generate_block_weights: select plan for generate the block weights.\r")
-        if weights_plan == 'block_byz':
-            return self._generate_all_block_byz_weights()
+        if self.wt_plan in ['block_byz', 'average']:
+            block_wts = {}
+            # print(f"The block_indexes information: {self.blk_indexes}")
+            # print(f"\rNotice: current params are: {self.load_loc_params()} and with self: {self.param}")
+            for blk_num_id, blk_index in self.blk_indexes.items():  # blk_id (in range(blk_num)) which block, blk_i
+                # print(f"\rStep 0.1.0: _generate_block_byz_weights: The {blk_num_id}-th block "
+                #       f"with index {blk_index} for the parameters.")
+                sel_ids = self.local_filter_block(blk_index)
+                # print(f"\rStep 0.1.1: _generate_block_byz_weights: "
+                #       f"The selected agents for {blk_num_id}-th block are {sel_ids}.")
+                # self_included = self._network.get_in_neighbors(self.agent_id)
+                # self_included.append(self.agent_id)
+                # check_subset(sel_ids, self_included)
+                # print(f"\rStep 0.1.2: _generate_block_byz_weights: generate weight for the {blk_num_id}-th block.")
+                block_wts[blk_num_id] = self._generate_one_block_byz_weight(sel_ids)  # just a row vector, not matrix.
+            return block_wts
         else:
-            raise ValueError(f"Unknown __block__ weights plan: {weights_plan}.")
-
-    def _generate_all_block_byz_weights(self) -> Dict[int, np.ndarray]:
-        # print(f"\rStep 0.1: _generate_block_byz_weights: generate the block byzantine weights with block_byz plan.\r")
-        block_wts = {}
-        # print(f"The block_indexes information: {self.blk_indexes}")
-        # print(f"\rNotice: current params are: {self.load_loc_params()} and with self: {self.param}")
-        for blk_num_id, blk_index in self.blk_indexes.items():  # blk_id (in range(blk_num)) which block, blk_i
-            # print(f"\rStep 0.1.0: _generate_block_byz_weights: The {blk_num_id}-th block "
-            #       f"with index {blk_index} for the parameters.")
-            sel_ids = self.local_filter_block(blk_index)
-            # print(f"\rStep 0.1.1: _generate_block_byz_weights: "
-            #       f"The selected agents for {blk_num_id}-th block are {sel_ids}.")
-            # self_included = self._network.get_in_neighbors(self.agent_id)
-            # self_included.append(self.agent_id)
-            # check_subset(sel_ids, self_included)
-            # print(f"\rStep 0.1.2: _generate_block_byz_weights: generate weight for the {blk_num_id}-th block.")
-            block_wts[blk_num_id] = self._generate_one_block_byz_weight(sel_ids)  # just a row vector, not matrix.
-        return block_wts
+            raise ValueError(f"Unknown __block__ weights plan: {self.wt_plan}.")
 
     def _generate_one_block_byz_weight(self, sel_ids: List[int]) -> np.ndarray:
         """sel_ids is related to iteration."""
         # print(f"\rStep 0.1.2.0: _generate_one_block_byz_weight: generate the weight.")
-        net_size = self._network.net_size
-        wx = 1/net_size  # lower bound of weight for x variable.
-        # The weight can be changed to other values such as 1/(self._network.get_out_neighbors(self.agent_id)).
-        reg_size = net_size - self.byz_size
-        gamma = 0.5*(1+1/(1-self.m/(self.M+self.m)))  # self.M+self.m should be self.M, but use the sum for safe.
-        wd = np.max([(reg_size-1-gamma)/(reg_size-2), wx])  # diagonal of weight should be positive.
-        # print(f"\rStep 0.1.2.1: _generate_one_block_byz_weight: diagonal is {wd}.")
-        # check_subset([self.agent_id], sel_ids)
-        w_others = (1-wd) / (len(sel_ids)-1) if len(sel_ids) > 1 else 1.  # sum of weights without agent_id itself.
-        loc_wt_row = np.zeros(net_size)
-        loc_wt_row[sel_ids] = w_others
-        loc_wt_row[self.agent_id] = wd  # replace the `diagonal` one with its value.
-        # print(f"\rStep 0.1.2.2: _generate_one_block_byz_weight: "
-        #       f"check the {loc_wt_row}'s sum is {np.sum(np.array(loc_wt_row))} is row stochastic.")
+        if self.wt_plan == 'block_byz':
+            net_size = self._network.net_size
+            wx = 1/net_size  # lower bound of weight for x variable.
+            # The weight can be changed to other values such as 1/(self._network.get_out_neighbors(self.agent_id)).
+            reg_size = net_size - self.byz_size
+            gamma = 0.5*(1+1/(1-self.m/(self.M+1e-4)))  # self.M+1e-4 should be self.M, but use the sum for safe.
+            wd = np.max([(reg_size-1-gamma)/(reg_size-2), wx])  # diagonal of weight should be positive.
+            # print(f"\rStep 0.1.2.1: _generate_one_block_byz_weight: diagonal is {wd}.")
+            # check_subset([self.agent_id], sel_ids)
+            w_others = (1-wd) / (len(sel_ids)-1) if len(sel_ids) > 1 else 1.  # sum of weights without agent_id itself.
+            loc_wt_row = np.zeros(net_size)
+            loc_wt_row[sel_ids] = w_others
+            loc_wt_row[self.agent_id] = wd  # replace the `diagonal` one with its value.
+            # print(f"\rStep 0.1.2.2: _generate_one_block_byz_weight: "
+            #       f"check the {loc_wt_row}'s sum is {np.sum(np.array(loc_wt_row))} is row stochastic.")
+        elif self.wt_plan == "average":
+            net_size = self._network.net_size
+            loc_wt_row = np.zeros(net_size)
+            avg_wt = 1/len(sel_ids)
+            loc_wt_row[sel_ids] = avg_wt
+        else:
+            raise ValueError(f"Unknown __block__ weights plan: {self.wt_plan}.")
         return loc_wt_row
 
     def _byz_msg_generator(self) -> Dict[int, Dict[str, np.ndarray]]:
         if self.agent_type != 'Byz':
             raise ValueError(f"Regular agent {self.agent_id} should not generate Byzantine messages.")
+
         if self.byz_plan == "rand":
             msgs = {out_nbr_id: {"param": self.byz_mag*np.random.rand(*self.param.shape)} for out_nbr_id in self.out_nbr_ids}
         elif self.byz_plan == "flip":
@@ -273,6 +279,9 @@ class RayAgent:
             msgs = {out_nbr_id: {"param": self.byz_mag*self.param} for out_nbr_id in self.out_nbr_ids}
         elif self.byz_plan == "ones":
             msgs = {out_nbr_id: {"param": self.byz_mag*np.ones_like(self.param)} for out_nbr_id in self.out_nbr_ids}
+        elif self.byz_plan == "shift":
+            np.random.shuffle(self.param)
+            msgs = {out_nbr_id: {"param": self.param} for out_nbr_id in self.out_nbr_ids}
         else:
             raise ValueError(f"Current byzantine plan: {self.byz_plan} is not supported.")
         return msgs
@@ -318,3 +327,12 @@ class RayAgent:
 
     def get_hist_param(self):
         return self.hist_param
+
+    def get_agent_id(self):
+        return self.agent_id
+
+    def get_wt_plan(self):
+        return self.wt_plan
+
+    def get_byz_plan(self):
+        return self.byz_plan

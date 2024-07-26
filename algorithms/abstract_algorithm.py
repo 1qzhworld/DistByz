@@ -44,8 +44,8 @@ class AbstractAlgorithm(ABC):
         self.agents = {}
         self.param_init = args.alg_settings.get('param_init', 0) * np.ones(args.prob_settings['dimension'])
 
-        self.prob_a_list = None  # set value in the self.centralized_solver (only regular agents)
-        self.prob_b_list = None  # set value in the self.centralized_solver
+        # self.prob_a_list = None  # set value in the self.centralized_solver (only regular agents)
+        # self.prob_b_list = None  # set value in the self.centralized_solver
 
         self.verbose = args.alg_settings['verbose']
         self.rst_settings = args.result_settings

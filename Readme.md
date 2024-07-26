@@ -172,5 +172,15 @@ Previous codes are wrong. Because the `block_byz_aggregation` in RayAgent is unc
   > ```
 
 - Add FCGD (full consensus gradient descent) to the configs when blksiz = 1.
+
 - changed the seed in LeastSquareProblem with agent_id added. Such that each agent can generate its own problem (previously, they generate the same problem, and the performance are same for different settings. That can be understood.)
-- 
+
+- Add a new attack plan named 'shift', using the following way:
+
+  > ```python
+  > elif self.byz_plan == "shift":
+  >     tmp_param = self.param
+  >     msgs = {out_nbr_id: {"param": np.random.shuffle(tmp_param)} for out_nbr_id in self.out_nbr_ids}
+  > ```
+
+  Notice, the np.random.shuffle change self.param itself. but it is for byzantine agent, we don't care about its parameter too (but I add an tmp_param...)

@@ -84,4 +84,114 @@ from utils.utils import plot_distance_to_optimal
 # "208_04H57M22S_result_208_11H45M33S_end100_ss1e2_blk1_wtBB_init10_rand9_net50_byz7_dim9_AHU100_b20_FCGDAlgorithm.h5",
 # ]
 # plot_distance_to_optimal(byzxx)
+# test = ['208_14H05M57S_result_207_07H14M29S_new_FCGDAlgorithm.h5']
+# plot_distance_to_optimal(test)
+# AHUxx = [
+# "208_14H07M38S_result_207_16H54M46S_end100_ssdim_blk2_wtBB_init10_rand9_net20_byz1_dim4_AHU1003_b20_new_BBAlgorithm.h5",
+# "208_14H07M38S_result_207_16H54M46S_end100_ssdim_blk2_wtBB_init10_rand9_net20_byz1_dim4_AHU1003_b20_new_BCGDAlgorithm.h5",
+# "208_14H07M38S_result_207_16H54M46S_end100_ssdim_blk2_wtBB_init10_rand9_net20_byz1_dim4_AHU1003_b20_new_DGDAlgorithm.h5",
+# ]
+# 
+# plot_distance_to_optimal(AHUxx)
+# blkxx = [
+# "208_14H18M53S_result_208_11H45M33S_end100_ss1e2_blk1_wtBB_init10_rand9_net50_byz1_dim9_AHU100_b20_BBAlgorithm.h5",
+# "208_14H18M53S_result_208_11H45M33S_end100_ss1e2_blk1_wtBB_init10_rand9_net50_byz1_dim9_AHU100_b20_BCGDAlgorithm.h5",
+# "208_14H18M53S_result_208_11H45M33S_end100_ss1e2_blk1_wtBB_init10_rand9_net50_byz1_dim9_AHU100_b20_DGDAlgorithm.h5",
+# "208_14H18M53S_result_208_11H45M33S_end100_ss1e2_blk1_wtBB_init10_rand9_net50_byz1_dim9_AHU100_b20_FCGDAlgorithm.h5",
+# ]  # DGD is better!
+# plot_distance_to_optimal(blkxx)
 
+# byzxx = [
+# "208_06H18M31S_result_208_11H45M33S_end100_ss1e2_blk1_wtBB_init10_rand9_net50_byz2_dim9_AHU100_b20_BBAlgorithm.h5",
+# "208_06H18M31S_result_208_11H45M33S_end100_ss1e2_blk1_wtBB_init10_rand9_net50_byz2_dim9_AHU100_b20_BCGDAlgorithm.h5",
+# # "208_06H18M31S_result_208_11H45M33S_end100_ss1e2_blk1_wtBB_init10_rand9_net50_byz2_dim9_AHU100_b20_DGDAlgorithm.h5",
+# "208_06H18M31S_result_208_11H45M33S_end100_ss1e2_blk1_wtBB_init10_rand9_net50_byz2_dim9_AHU100_b20_FCGDAlgorithm.h5",
+# "208_06H25M46S_result_208_11H45M33S_end100_ss1e2_blk1_wtBB_init10_rand9_net50_byz5_dim9_AHU100_b20_BBAlgorithm.h5",
+# "208_06H25M46S_result_208_11H45M33S_end100_ss1e2_blk1_wtBB_init10_rand9_net50_byz5_dim9_AHU100_b20_BCGDAlgorithm.h5",
+# # "208_06H25M46S_result_208_11H45M33S_end100_ss1e2_blk1_wtBB_init10_rand9_net50_byz5_dim9_AHU100_b20_DGDAlgorithm.h5",
+# "208_06H25M46S_result_208_11H45M33S_end100_ss1e2_blk1_wtBB_init10_rand9_net50_byz5_dim9_AHU100_b20_FCGDAlgorithm.h5",
+# "208_06H33M00S_result_208_11H45M33S_end100_ss1e2_blk1_wtBB_init10_rand9_net50_byz7_dim9_AHU100_b20_BBAlgorithm.h5",
+# "208_06H33M00S_result_208_11H45M33S_end100_ss1e2_blk1_wtBB_init10_rand9_net50_byz7_dim9_AHU100_b20_BCGDAlgorithm.h5",
+# # "208_06H33M00S_result_208_11H45M33S_end100_ss1e2_blk1_wtBB_init10_rand9_net50_byz7_dim9_AHU100_b20_DGDAlgorithm.h5",
+# "208_06H33M00S_result_208_11H45M33S_end100_ss1e2_blk1_wtBB_init10_rand9_net50_byz7_dim9_AHU100_b20_FCGDAlgorithm.h5",
+# ]  # DGD is better in all cases.
+# plot_distance_to_optimal(byzxx)
+
+
+# byzxx_AHU1003 = [
+# "208_06H47M09S_result_207_16H54M46S_end100_ssdim_blk2_wtBB_init10_rand9_net20_byz1_dim4_AHU1003_b20_new_BBAlgorithm.h5",
+# "208_06H47M09S_result_207_16H54M46S_end100_ssdim_blk2_wtBB_init10_rand9_net20_byz1_dim4_AHU1003_b20_new_BCGDAlgorithm.h5",
+# "208_06H47M09S_result_207_16H54M46S_end100_ssdim_blk2_wtBB_init10_rand9_net20_byz1_dim4_AHU1003_b20_new_DGDAlgorithm.h5",
+# "208_06H52M28S_result_207_16H54M46S_end100_ssdim_blk2_wtBB_init10_rand9_net20_byz3_dim4_AHU1003_b20_new_BBAlgorithm.h5",
+# "208_06H52M28S_result_207_16H54M46S_end100_ssdim_blk2_wtBB_init10_rand9_net20_byz3_dim4_AHU1003_b20_new_BCGDAlgorithm.h5",
+# "208_06H52M28S_result_207_16H54M46S_end100_ssdim_blk2_wtBB_init10_rand9_net20_byz3_dim4_AHU1003_b20_new_DGDAlgorithm.h5",
+# "208_06H57M47S_result_207_16H54M46S_end100_ssdim_blk2_wtBB_init10_rand9_net20_byz5_dim4_AHU1003_b20_new_BBAlgorithm.h5",
+# "208_06H57M47S_result_207_16H54M46S_end100_ssdim_blk2_wtBB_init10_rand9_net20_byz5_dim4_AHU1003_b20_new_BCGDAlgorithm.h5",
+# "208_06H57M47S_result_207_16H54M46S_end100_ssdim_blk2_wtBB_init10_rand9_net20_byz5_dim4_AHU1003_b20_new_DGDAlgorithm.h5",
+# "208_07H03M06S_result_207_16H54M46S_end100_ssdim_blk2_wtBB_init10_rand9_net20_byz7_dim4_AHU1003_b20_new_BBAlgorithm.h5",
+# "208_07H03M06S_result_207_16H54M46S_end100_ssdim_blk2_wtBB_init10_rand9_net20_byz7_dim4_AHU1003_b20_new_BCGDAlgorithm.h5",
+# "208_07H03M06S_result_207_16H54M46S_end100_ssdim_blk2_wtBB_init10_rand9_net20_byz7_dim4_AHU1003_b20_new_DGDAlgorithm.h5",
+#     ]  # diff can be see.
+# plot_distance_to_optimal(byzxx_AHU1003)
+
+
+# test_208_16H54M49S_end100_ss1e1_blk3_wtBB_init10_rand9_net50_byz1_dim9_AHU10_b20 = [
+# "208_08H59M02S_result_208_16H54M49S_end100_ss1e1_blk3_wtBB_init10_rand9_net50_byz1_dim9_AHU10_b20_BBAlgorithm.h5",
+# "208_08H59M02S_result_208_16H54M49S_end100_ss1e1_blk3_wtBB_init10_rand9_net50_byz1_dim9_AHU10_b20_BCGDAlgorithm.h5",
+# "208_08H59M02S_result_208_16H54M49S_end100_ss1e1_blk3_wtBB_init10_rand9_net50_byz1_dim9_AHU10_b20_DGDAlgorithm.h5",
+# "208_08H59M02S_result_208_16H54M49S_end100_ss1e1_blk3_wtBB_init10_rand9_net50_byz1_dim9_AHU10_b20_FCGDAlgorithm.h5",
+# ]   # DGD is best, others are same?
+# plot_distance_to_optimal(test_208_16H54M49S_end100_ss1e1_blk3_wtBB_init10_rand9_net50_byz1_dim9_AHU10_b20)
+
+# wtAV = [
+# # "208_17H36M18S_result_208_16H54M49S_end100_ss1e1_blk3_wtAV_init10_rand9_net50_byz1_dim9_AHU10_b20_BBAlgorithm.h5",
+# "208_17H36M18S_result_208_16H54M49S_end100_ss1e1_blk3_wtAV_init10_rand9_net50_byz1_dim9_AHU10_b20_BCGDAlgorithm.h5",
+# "208_17H36M18S_result_208_16H54M49S_end100_ss1e1_blk3_wtAV_init10_rand9_net50_byz1_dim9_AHU10_b20_DGDAlgorithm.h5",
+# # "208_17H36M18S_result_208_16H54M49S_end100_ss1e1_blk3_wtAV_init10_rand9_net50_byz1_dim9_AHU10_b20_FCGDAlgorithm.h5",
+# ]  # useful 可以用一下？ BCGD 为什么要比bb差呢？
+# plot_distance_to_optimal(wtAV)
+
+
+# atkplanxx = [
+# # # "208_09H12M35S_result_208_16H54M49S_end100_ss1e1_blk3_wtBB_init10_flip1_net50_byz1_dim9_AHU10_b20_BBAlgorithm.h5",
+# # # "208_09H12M35S_result_208_16H54M49S_end100_ss1e1_blk3_wtBB_init10_flip1_net50_byz1_dim9_AHU10_b20_BCGDAlgorithm.h5",
+# # # "208_09H12M35S_result_208_16H54M49S_end100_ss1e1_blk3_wtBB_init10_flip1_net50_byz1_dim9_AHU10_b20_DGDAlgorithm.h5",
+# # # "208_09H12M35S_result_208_16H54M49S_end100_ss1e1_blk3_wtBB_init10_flip1_net50_byz1_dim9_AHU10_b20_FCGDAlgorithm.h5",
+# # # "208_09H19M50S_result_208_16H54M49S_end100_ss1e1_blk3_wtBB_init10_flip9_net50_byz1_dim9_AHU10_b20_BBAlgorithm.h5",
+# # # "208_09H19M50S_result_208_16H54M49S_end100_ss1e1_blk3_wtBB_init10_flip9_net50_byz1_dim9_AHU10_b20_BCGDAlgorithm.h5",
+# # # "208_09H19M50S_result_208_16H54M49S_end100_ss1e1_blk3_wtBB_init10_flip9_net50_byz1_dim9_AHU10_b20_DGDAlgorithm.h5",
+# # # "208_09H19M50S_result_208_16H54M49S_end100_ss1e1_blk3_wtBB_init10_flip9_net50_byz1_dim9_AHU10_b20_FCGDAlgorithm.h5",
+# # # "208_09H27M05S_result_208_16H54M49S_end100_ss1e1_blk3_wtBB_init10_ones9_net50_byz1_dim9_AHU10_b20_BBAlgorithm.h5",
+# # # "208_09H27M05S_result_208_16H54M49S_end100_ss1e1_blk3_wtBB_init10_ones9_net50_byz1_dim9_AHU10_b20_BCGDAlgorithm.h5",
+# # # "208_09H27M05S_result_208_16H54M49S_end100_ss1e1_blk3_wtBB_init10_ones9_net50_byz1_dim9_AHU10_b20_DGDAlgorithm.h5",
+# # # "208_09H27M05S_result_208_16H54M49S_end100_ss1e1_blk3_wtBB_init10_ones9_net50_byz1_dim9_AHU10_b20_FCGDAlgorithm.h5",
+# # "208_10H10M38S_result_208_16H54M49S_end100_ss1e1_blk3_wtBB_init10_ones999_net50_byz1_dim9_AHU10_b20_BBAlgorithm.h5",
+# # "208_10H10M38S_result_208_16H54M49S_end100_ss1e1_blk3_wtBB_init10_ones999_net50_byz1_dim9_AHU10_b20_BCGDAlgorithm.h5",
+# # "208_10H10M38S_result_208_16H54M49S_end100_ss1e1_blk3_wtBB_init10_ones999_net50_byz1_dim9_AHU10_b20_DGDAlgorithm.h5",
+# # "208_10H10M38S_result_208_16H54M49S_end100_ss1e1_blk3_wtBB_init10_ones999_net50_byz1_dim9_AHU10_b20_FCGDAlgorithm.h5",
+# # "208_18H37M02S_result_208_18H33M17S_shift_BCGDAlgorithm.h5",
+# # "208_18H37M02S_result_208_18H33M17S_shift_FCGDAlgorithm.h5",
+# "208_18H40M13S_result_208_18H33M17S_shift_BCGDAlgorithm.h5",
+# "208_18H40M13S_result_208_18H33M17S_shift_FCGDAlgorithm.h5",
+# ]  #DGD is still the best??!?!?!?!?!, attack is too big, the performance is worse...
+# plot_distance_to_optimal(atkplanxx)
+
+
+
+# wtAV_atkplanxx = [
+# "208_19H05M19S_result_208_16H54M49S_end100_ss1e1_blk3_wtAV_init0_ones9_net50_byz1_dim9_AHU1003_b20_BBAlgorithm.h5",
+# "208_19H05M19S_result_208_16H54M49S_end100_ss1e1_blk3_wtAV_init0_ones9_net50_byz1_dim9_AHU1003_b20_BCGDAlgorithm.h5",
+# "208_19H05M19S_result_208_16H54M49S_end100_ss1e1_blk3_wtAV_init0_ones9_net50_byz1_dim9_AHU1003_b20_DGDAlgorithm.h5",
+# "208_19H05M19S_result_208_16H54M49S_end100_ss1e1_blk3_wtAV_init0_ones9_net50_byz1_dim9_AHU1003_b20_FCGDAlgorithm.h5",
+# ]
+# plot_distance_to_optimal(wtAV_atkplanxx)
+
+test_shift =[
+# "208_19H47M47S_result_208_18H33M17S_shift_BCGDAlgorithm.h5",
+# "208_19H47M47S_result_208_18H33M17S_shift_FCGDAlgorithm.h5",
+# "208_19H50M15S_result_208_18H33M17S_shift_BCGDAlgorithm.h5",
+# "208_19H50M15S_result_208_18H33M17S_shift_FCGDAlgorithm.h5",
+"208_19H52M47S_result_208_18H33M17S_shift_BCGDAlgorithm.h5",
+"208_19H52M47S_result_208_18H33M17S_shift_FCGDAlgorithm.h5",
+]
+plot_distance_to_optimal(test_shift)

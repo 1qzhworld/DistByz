@@ -11,7 +11,7 @@ algorithm:
 #      - "BCGDAlgorithm"
 #      - "BBAlgorithm"
 #      - "DGDAlgorithm"
-      - "FCGDAlgorithm"
+      - "FCGDAlgorithm"  # blk_size below do not influence this (specialized in __init__)
     blk_size: 3
     wt_plan: 'block_byz'  # if no information, default to be `metropolis-Hastings`.
     verbose: false  # true for mute
