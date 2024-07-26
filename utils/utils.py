@@ -223,115 +223,6 @@ def extract_parameter(filename_parts, prefix):
     return None
 
 
-# def check_configurations(config_path):
-#     config_filename = os.path.basename(config_path)
-#     filename_parts = config_filename.split('_')
-#
-#     end_iter_str = extract_parameter(filename_parts, 'end')
-#     stepsize_str = extract_parameter(filename_parts, 'ss')
-#     net_size_str = extract_parameter(filename_parts, 'net')
-#     byz_size_str = extract_parameter(filename_parts, 'byz')
-#     dimension_str = extract_parameter(filename_parts, 'dim')
-#     blk_size_str = extract_parameter(filename_parts, 'blksz')
-#     param_init_str = extract_parameter(filename_parts, 'init')
-#
-#     byz_plan_and_mag_str = extract_parameter(filename_parts, 'plan')
-#     if byz_plan_and_mag_str:
-#         # Extract plan and magnitude
-#         byz_plan_str = ''.join(filter(str.isalpha, byz_plan_and_mag_str))
-#         byz_mag_str = ''.join(filter(str.isdigit, byz_plan_and_mag_str))
-#     else:
-#         byz_plan_str = None
-#         byz_mag_str = None
-#
-#     if end_iter_str is None:
-#         warnings.warn(f"Parameter 'end' not found in the filename: {config_filename}")
-#     else:
-#         end_iter = int(end_iter_str)
-#
-#     if stepsize_str is None:
-#         warnings.warn(f"Parameter 'ss' not found in the filename: {config_filename}")
-#     else:
-#         if stepsize_str == 'dim':
-#             stepsize = 'diminishing_stepsize'
-#         else:
-#             stepsize = float(stepsize_str.replace('e', 'e-'))
-#
-#     if net_size_str is None:
-#         warnings.warn(f"Parameter 'net' not found in the filename: {config_filename}")
-#     else:
-#         net_size = int(net_size_str)
-#
-#     if byz_size_str is None:
-#         warnings.warn(f"Parameter 'byz' not found in the filename: {config_filename}")
-#     else:
-#         byz_size = int(byz_size_str)
-#
-#     if dimension_str is None:
-#         warnings.warn(f"Parameter 'dim' not found in the filename: {config_filename}")
-#     else:
-#         dimension = int(dimension_str)
-#
-#     if blk_size_str is None:
-#         if "bb" in config_filename or "bcgd" in config_filename:
-#             warnings.warn(f"Parameter 'blksz' required but not found in the filename: {config_filename}")
-#     else:
-#         blk_size = int(blk_size_str)
-#
-#     if param_init_str is None:
-#         warnings.warn(f"Parameter 'param_init' not found in the filename: {config_filename}")
-#     else:
-#         param_init = int(param_init_str)
-#
-#     with open(config_path, 'r') as file:
-#         config = yaml.safe_load(file)
-#
-#     alg_settings = config['algorithm']['alg_settings']
-#     net_settings = config['network']['net_settings']
-#     prob_settings = config['problem']['prob_settings']
-#     byz_msg = config['algorithm']['alg_settings']['byz_msg']
-#
-#     errors = []
-#
-#     if end_iter_str is not None and alg_settings['end_iter'] != end_iter:
-#         errors.append(f"end_iter: expected {end_iter}, found {alg_settings['end_iter']}")
-#
-#     if stepsize_str is not None:
-#         if stepsize == 'diminishing_stepsize':
-#             if alg_settings['stepsize'] != 'diminishing_stepsize':
-#                 errors.append(f"stepsize: expected diminishing_stepsize, found {alg_settings['stepsize']}")
-#         else:
-#             if alg_settings['stepsize'] != stepsize:
-#                 errors.append(f"stepsize: expected {stepsize}, found {alg_settings['stepsize']}")
-#
-#     if net_size_str is not None and net_settings['net_size'] != net_size:
-#         errors.append(f"net_size: expected {net_size}, found {net_settings['net_size']}")
-#
-#     if byz_size_str is not None and net_settings['byz_size'] != byz_size:
-#         errors.append(f"byz_size: expected {byz_size}, found {net_settings['byz_size']}")
-#
-#     if dimension_str is not None and prob_settings['dimension'] != dimension:
-#         errors.append(f"dimension: expected {dimension}, found {prob_settings['dimension']}")
-#
-#     if blk_size_str is not None and alg_settings.get('blk_size') is not None and alg_settings['blk_size'] != blk_size:
-#         errors.append(f"blk_size: expected {blk_size}, found {alg_settings['blk_size']}")
-#
-#     if param_init_str is not None and alg_settings.get('param_init') is not None and alg_settings[
-#         'param_init'] != param_init:
-#         errors.append(f"param_init: expected {param_init}, found {alg_settings['param_init']}")
-#
-#     if byz_plan_str is not None and byz_msg.get('byz_plan') != byz_plan_str:
-#         errors.append(f"byz_plan: expected {byz_plan_str}, found {byz_msg.get('byz_plan')}")
-#
-#     if byz_mag_str is not None:
-#         byz_mag = int(byz_mag_str)
-#         if byz_msg.get('byz_mag') != byz_mag:
-#             errors.append(f"byz_mag: expected {byz_mag}, found {byz_msg.get('byz_mag')}")
-#
-#     if errors:
-#         raise ValueError(f"Configurations in {config_filename} do not match its name:\n" + "\n".join(errors))
-
-
 def find_a_key_by_value(d, target_value):  # can be used to find the agent_id of Byz.
     for key, value in d.items():
         if value == target_value:
@@ -344,6 +235,7 @@ def centralized_solver(common_problems, agent_types) -> np.ndarray:
     sum_a = np.sum([prob.A for prob in reg_problems], axis=0)
     sum_b = np.sum([prob.b for prob in reg_problems], axis=0)
     return (-np.linalg.inv(0.5 * (sum_a.T + sum_a)) @ sum_b).flatten()
+
 
 def main():
     # parser = argparse.ArgumentParser(description="Utility script")

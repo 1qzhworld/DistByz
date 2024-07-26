@@ -206,7 +206,7 @@ class BlockInfoMixin:
         blk_num: blk_size*blk_num >= blk_dim
         return blk_num, blk_size, blk_idxes
         """
-        print(f"block size is: {self.blk_size}.")
+        # print(f"block size is: {self.blk_size}.")
         blk_size = self.blk_size if isinstance(self.blk_size, int) else self.args.prob_settings['dimension']
         if 2 * blk_size * self.byz_size + 1 > self.min_in_degrees:  # check r-robust condition.
             warnings.warn(f"The block size {blk_size} is too large for {self.byz_size} byzantine agents.")

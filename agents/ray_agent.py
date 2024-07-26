@@ -163,9 +163,10 @@ class RayAgent:
         self.loc_blk_wts = self.generate_all_block_weights(weights_plan='block_byz')  # default plan.
         tmp_param = np.zeros(self.prob.dimension)
         loc_params = self.load_loc_params()  # self included.
-        for dim in range(self.prob.dimension):
-            for blk_num_id in range(self.blk_num):
-                for agent_j in self.blk_indexes[blk_num_id]:
+        # for dim in range(self.prob.dimension):
+        for blk_num_id in range(self.blk_num):
+            for dim in self.blk_indexes[blk_num_id]:
+                for agent_j in loc_params.keys():
                     tmp_param[dim] += self.loc_blk_wts[blk_num_id][agent_j]*loc_params[agent_j][dim]
         return tmp_param
 

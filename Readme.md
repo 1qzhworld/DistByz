@@ -151,8 +151,15 @@ and see what attakcs is most attractive for comparisons.
 
 - `generate_log_path` is changed form `generate_logging_path`. This helps to generate the path (filename) of the algorithm results and the configurations.
 
-- add `kill` to main.py such that the agents can be free after the algorithm is finished.
+- add `kill` to main.py such that the agents can be free after the algorithm is finished. (removed and change init shutdown for ray.)
 
 - Changed the `_load_yaml`, such that the configs are set as default to the folder `configs`, we only need to provide the. Now you can run it by `python main.py -a test_207_07H14M29S_new.yml`.
 
 - loss function is added to RayAgent. Previous because of the delete of _setup_problems, this is not setup and therefore, the results are uncorrect. Change it here.
+
+***
+
+# V2.0 block_byz_aggregation
+
+Previous codes are wrong. Because the `block_byz_aggregation` in RayAgent is uncorrect!!!.
+

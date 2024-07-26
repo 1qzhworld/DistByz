@@ -5,7 +5,7 @@
 
 algorithm:
   alg_settings:
-    end_iter: 300
+    end_iter: 100
     stepsize: 'diminishing_stepsize' # can also set: `diminishing` to be 1/(iter+1)
     alg_name:
       - "BCGDAlgorithm"
@@ -35,7 +35,7 @@ problem:
     dimension: 4
     A:
       HessLowerBd: 1.0
-      HessUpperBd: 100.0  # AHU in config title
+      HessUpperBd: 10.0  # AHU in config title
     b: [ -20, 20 ]
     c: 0.0
 result:

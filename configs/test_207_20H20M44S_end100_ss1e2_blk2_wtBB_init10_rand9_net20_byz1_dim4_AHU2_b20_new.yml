@@ -5,8 +5,8 @@
 
 algorithm:
   alg_settings:
-    end_iter: 300
-    stepsize: 'diminishing_stepsize' # can also set: `diminishing` to be 1/(iter+1)
+    end_iter: 100
+    stepsize: 0.01 # can also set: `diminishing` to be 1/(iter+1)
     alg_name:
       - "BCGDAlgorithm"
       - "BBAlgorithm"
@@ -22,11 +22,11 @@ algorithm:
 network:
   net_settings:
     net_size: 20
-    byz_size: 7
+    byz_size: 1
     gene_plan: 'ER_graph'
     ER_p: .9
 #    gene_plan: 'reg_graph'
-#    reg_deg: 40
+#    reg_deg: 20
     conn_req: True
     directed_req: False
 problem:
@@ -35,7 +35,7 @@ problem:
     dimension: 4
     A:
       HessLowerBd: 1.0
-      HessUpperBd: 10.0  # AHU in config title
+      HessUpperBd: 2  # AHU in config title
     b: [ -20, 20 ]
     c: 0.0
 result:
