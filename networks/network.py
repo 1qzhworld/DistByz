@@ -20,6 +20,7 @@ class Network:
         self.net_size = net_settings['net_size']
         seed = net_settings.get('seed', self.net_size)
         np.random.seed(seed)
+        random.seed(seed)
         self.byz_size = net_settings['byz_size']
         self.gene_plan = net_settings['gene_plan']
 

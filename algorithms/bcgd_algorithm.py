@@ -35,13 +35,13 @@ class BCGDAlgorithm(AbstractAlgorithm, BlockInfoMixin):
         bc_futures = [agent_handle.broadcast.remote() for agent_handle in self.agents.values()]
         self.wait_for_all_futures(bc_futures, setup_timeout, "broadcast")
 
-        agg_futures = [agent_handle.block_byz_aggregation.remote() for agent_handle in self.agents.values()]
-        # if not self.verbose:
-        #     for agent_id, agent in self.agents.items():
-        #         print(f"after aggregation: weight on Agent {agent_id} is:\r")
-        #         print(f"block weights (should be row stochastic)\r {ray.get(agent.get_loc_blk_wts.remote())}")
-        #         print(ray.get(agent.get_loc_blk_wts.remote()))
-        self.wait_for_all_futures(agg_futures, setup_timeout, "blockwise byzantine aggregation")
+        # agg_futures = [agent_handle.block_byz_aggregation.remote() for agent_handle in self.agents.values()]
+        # # if not self.verbose:
+        # #     for agent_id, agent in self.agents.items():
+        # #         print(f"after aggregation: weight on Agent {agent_id} is:\r")
+        # #         print(f"block weights (should be row stochastic)\r {ray.get(agent.get_loc_blk_wts.remote())}")
+        # #         print(ray.get(agent.get_loc_blk_wts.remote()))
+        # self.wait_for_all_futures(agg_futures, setup_timeout, "blockwise byzantine aggregation")
 
         # gradient descent update
         self.lr = self.gene_stepsize()

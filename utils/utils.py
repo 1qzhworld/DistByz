@@ -37,7 +37,7 @@ def parse_args(config_filename=None):
 
     parser.add_argument(
         "-a", "--all", type=str,
-        default=config_filename or "test_208_18H33M17S_shift.yml",
+        default=config_filename or "test_208_18H33M17S_ones.yml",
         help="Path to the unified configuration file (default: None)."
     )
     # parser.add_argument(

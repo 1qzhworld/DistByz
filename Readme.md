@@ -184,3 +184,7 @@ Previous codes are wrong. Because the `block_byz_aggregation` in RayAgent is unc
   > ```
 
   Notice, the np.random.shuffle change self.param itself. but it is for byzantine agent, we don't care about its parameter too (but I add an tmp_param...)
+
+- Change remove the additional aggregation (full and block) in the corresponding `iter_run()`.
+- `random.seed(seed)` is added to the `network.py`.
+

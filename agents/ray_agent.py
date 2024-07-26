@@ -66,7 +66,7 @@ class RayAgent:
         if alg_settings['alg_name'] in ['BBAlgorithm', 'BCGDAlgorithm', 'FCGDAlgorithm']:  # changing when running.
             self.loc_blk_wts = {blk_num_id: np.zeros(self._network.net_size) for blk_num_id in range(self.blk_num)}
         elif alg_settings['alg_name'] == 'DGDAlgorithm':  # different from block weights.
-            self.loc_wts = self.generate_weights()[:, agent_id]
+            self.loc_wt = self.generate_weights()[:, agent_id]
 
         self.end_iter = self.alg_settings['end_iter']
         self.hist_param = np.zeros((self.end_iter, self.prob.dimension))
@@ -151,9 +151,9 @@ class RayAgent:
         self.send_to_nbrs(used_out_nbr_ids=self.out_nbr_ids)
 
     def full_aggregation(self) -> np.ndarray:
-        tmp_param = np.sum([self.loc_wts[in_nbr_id] * self.inbox[in_nbr_id]['param']
+        tmp_param = np.sum([self.loc_wt[in_nbr_id] * self.inbox[in_nbr_id]['param']
                             for in_nbr_id in self.in_nbr_ids], axis=0)
-        return self.loc_wts[self.agent_id] * self.param + tmp_param
+        return self.loc_wt[self.agent_id] * self.param + tmp_param
 
     def block_byz_aggregation(self) -> np.ndarray:
         """
@@ -322,6 +322,8 @@ class RayAgent:
     def get_blk_info(self) -> Tuple[int, int, Dict[int, List[int]]]:
         return self.blk_num, self.blk_size, self.blk_indexes
 
+    def get_loc_wt(self):
+        return self.loc_wt
     def get_loc_blk_wts(self):
         return self.loc_blk_wts
 

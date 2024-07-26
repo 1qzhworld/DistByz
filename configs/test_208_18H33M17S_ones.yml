@@ -8,15 +8,15 @@ algorithm:
     end_iter: 3
     stepsize: 'diminishing_stepsize' # can also set: `diminishing` to be 1/(iter+1)
     alg_name:
-      - "BCGDAlgorithm"
+#      - "BCGDAlgorithm"
 #      - "BBAlgorithm"
-#      - "DGDAlgorithm"
-      - "FCGDAlgorithm"  # blk_size below do not influence this (specialized in __init__)
+      - "DGDAlgorithm"
+#      - "FCGDAlgorithm"  # blk_size below do not influence this (specialized in __init__)
     blk_size: 1
     wt_plan: 'block_byz'  # if no information, default to be `metropolis-Hastings`.
     verbose: false  # true for mute
     timeout_base: 1.0
-    param_init: 10
+    param_init: 0
     byz_msg:
       byz_plan: 'ones'  # rand, flip, time, ones, shift
       byz_mag: 9

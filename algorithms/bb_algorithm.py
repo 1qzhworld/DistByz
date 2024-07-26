@@ -38,8 +38,8 @@ class BBAlgorithm(AbstractAlgorithm, BlockInfoMixin):
         bc_futures = [agent_handle.broadcast.remote() for agent_handle in self.agents.values()]
         self.wait_for_all_futures(bc_futures, setup_timeout, "broadcast")
 
-        agg_futures = [agent_handle.block_byz_aggregation.remote() for agent_handle in self.agents.values()]
-        self.wait_for_all_futures(agg_futures, setup_timeout, "blockwise byzantine aggregation")
+        # agg_futures = [agent_handle.block_byz_aggregation.remote() for agent_handle in self.agents.values()]
+        # self.wait_for_all_futures(agg_futures, setup_timeout, "blockwise byzantine aggregation")
 
         # gradient descent update
         self.lr = self.gene_stepsize()

@@ -27,8 +27,8 @@ class DGDAlgorithm(AbstractAlgorithm):
         bc_futures = [agent_handle.broadcast.remote() for agent_handle in self.agents.values()]
         self.wait_for_all_futures(bc_futures, setup_timeout, "broadcast")
 
-        agg_futures = [agent_handle.full_aggregation.remote() for agent_handle in self.agents.values()]
-        self.wait_for_all_futures(agg_futures, setup_timeout, "aggregation")
+        # agg_futures = [agent_handle.full_aggregation.remote() for agent_handle in self.agents.values()]
+        # self.wait_for_all_futures(agg_futures, setup_timeout, "aggregation")
 
         self.lr = self.gene_stepsize()
 
