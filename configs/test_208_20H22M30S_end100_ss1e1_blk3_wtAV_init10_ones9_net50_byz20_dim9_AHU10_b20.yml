@@ -18,12 +18,12 @@ algorithm:
     timeout_base: 1.0
     param_init: 10
     byz_msg:
-      byz_plan: 'rand'  # rand, flip, time, ones
+      byz_plan: 'ones'  # rand, flip, time, ones
       byz_mag: 9
 network:
   net_settings:
     net_size: 50
-    byz_size: 1
+    byz_size: 15
     gene_plan: 'ER_graph'
     ER_p: .9
 #    gene_plan: 'reg_graph'

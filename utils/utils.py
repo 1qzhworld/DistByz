@@ -136,7 +136,7 @@ def get_reg_params(all_params: Dict[int, np.ndarray], agent_types: Dict[int, str
     return {agent_id: all_params[agent_id] for agent_id in range(len(agent_types)) if agent_types[agent_id] == 'Reg'}
 
 
-def plot_distance_to_optimal(filenames: List[str]):
+def plot_distance_to_optimal(filenames: List[str], end_iter: int = None):
     """filenames: example: ["20240716_112329_result_all_in_one_bcgd.h5", "20240716_113756_result_all_in_one_bb.h5"]"""
     plt.figure()
 
@@ -144,13 +144,15 @@ def plot_distance_to_optimal(filenames: List[str]):
         logging_result_path = os.path.join(logs_dir, filename)
         all_params, global_solution, agent_types = load_all_hist(logging_result_path)
         reg_params = get_reg_params(all_params, agent_types)
-        num_iterations = all_params[0].shape[0]
+        num_iterations = end_iter if end_iter else all_params[0].shape[0]
 
+        print(f"{filename}: global_solution: {global_solution}")
         distances = []
         for i in range(num_iterations):
             squared_diff = 0
             for params in reg_params.values():
-                squared_diff += np.sum((params[i] - global_solution) ** 2)
+                squared_diff += np.linalg.norm(params[i] - global_solution)
+                # squared_diff += np.sum((params[i] - global_solution) ** 2)
             distances.append(squared_diff)
 
         # Extract algorithm name from filename
