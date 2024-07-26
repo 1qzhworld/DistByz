@@ -144,7 +144,7 @@ from utils.utils import plot_distance_to_optimal
 # plot_distance_to_optimal(test_208_16H54M49S_end100_ss1e1_blk3_wtBB_init10_rand9_net50_byz1_dim9_AHU10_b20)
 
 # wtAV = [
-# # "208_17H36M18S_result_208_16H54M49S_end100_ss1e1_blk3_wtAV_init10_rand9_net50_byz1_dim9_AHU10_b20_BBAlgorithm.h5",
+# "208_17H36M18S_result_208_16H54M49S_end100_ss1e1_blk3_wtAV_init10_rand9_net50_byz1_dim9_AHU10_b20_BBAlgorithm.h5",
 # "208_17H36M18S_result_208_16H54M49S_end100_ss1e1_blk3_wtAV_init10_rand9_net50_byz1_dim9_AHU10_b20_BCGDAlgorithm.h5",
 # "208_17H36M18S_result_208_16H54M49S_end100_ss1e1_blk3_wtAV_init10_rand9_net50_byz1_dim9_AHU10_b20_DGDAlgorithm.h5",
 # # "208_17H36M18S_result_208_16H54M49S_end100_ss1e1_blk3_wtAV_init10_rand9_net50_byz1_dim9_AHU10_b20_FCGDAlgorithm.h5",
@@ -179,19 +179,34 @@ from utils.utils import plot_distance_to_optimal
 
 
 # wtAV_atkplanxx = [
-# "208_19H05M19S_result_208_16H54M49S_end100_ss1e1_blk3_wtAV_init0_ones9_net50_byz1_dim9_AHU1003_b20_BBAlgorithm.h5",
-# "208_19H05M19S_result_208_16H54M49S_end100_ss1e1_blk3_wtAV_init0_ones9_net50_byz1_dim9_AHU1003_b20_BCGDAlgorithm.h5",
-# "208_19H05M19S_result_208_16H54M49S_end100_ss1e1_blk3_wtAV_init0_ones9_net50_byz1_dim9_AHU1003_b20_DGDAlgorithm.h5",
-# "208_19H05M19S_result_208_16H54M49S_end100_ss1e1_blk3_wtAV_init0_ones9_net50_byz1_dim9_AHU1003_b20_FCGDAlgorithm.h5",
+# # "208_19H05M19S_result_208_16H54M49S_end100_ss1e1_blk3_wtAV_init0_ones9_net50_byz1_dim9_AHU1003_b20_BBAlgorithm.h5",
+# # "208_19H05M19S_result_208_16H54M49S_end100_ss1e1_blk3_wtAV_init0_ones9_net50_byz1_dim9_AHU1003_b20_BCGDAlgorithm.h5",
+# # "208_19H05M19S_result_208_16H54M49S_end100_ss1e1_blk3_wtAV_init0_ones9_net50_byz1_dim9_AHU1003_b20_DGDAlgorithm.h5",
+# # "208_19H05M19S_result_208_16H54M49S_end100_ss1e1_blk3_wtAV_init0_ones9_net50_byz1_dim9_AHU1003_b20_FCGDAlgorithm.h5",
+# # "208_11H27M35S_result_208_16H54M49S_end100_ss1e1_blk3_wtAV_init0_ones9_net50_byz1_dim9_AHU1003_b20_BBAlgorithm.h5",
+# # "208_11H27M35S_result_208_16H54M49S_end100_ss1e1_blk3_wtAV_init0_ones9_net50_byz1_dim9_AHU1003_b20_BCGDAlgorithm.h5",
+# # "208_11H27M35S_result_208_16H54M49S_end100_ss1e1_blk3_wtAV_init0_ones9_net50_byz1_dim9_AHU1003_b20_DGDAlgorithm.h5",
+# # "208_11H27M35S_result_208_16H54M49S_end100_ss1e1_blk3_wtAV_init0_ones9_net50_byz1_dim9_AHU1003_b20_FCGDAlgorithm.h5",
+# # "208_11H34M50S_result_208_16H54M49S_end100_ss1e1_blk3_wtAV_init0_rand9_net50_byz1_dim9_AHU10_b20_BBAlgorithm.h5",
+# # "208_11H34M50S_result_208_16H54M49S_end100_ss1e1_blk3_wtAV_init0_rand9_net50_byz1_dim9_AHU10_b20_BCGDAlgorithm.h5",
+# # "208_11H34M50S_result_208_16H54M49S_end100_ss1e1_blk3_wtAV_init0_rand9_net50_byz1_dim9_AHU10_b20_DGDAlgorithm.h5",
+# # "208_11H34M50S_result_208_16H54M49S_end100_ss1e1_blk3_wtAV_init0_rand9_net50_byz1_dim9_AHU10_b20_FCGDAlgorithm.h5",
+# "208_11H42M04S_result_208_16H54M49S_end100_ss1e1_blk3_wtAV_init10_ones9_net50_byz1_dim9_AHU1003_b20_BBAlgorithm.h5",
+# "208_11H42M04S_result_208_16H54M49S_end100_ss1e1_blk3_wtAV_init10_ones9_net50_byz1_dim9_AHU1003_b20_BCGDAlgorithm.h5",
+# "208_11H42M04S_result_208_16H54M49S_end100_ss1e1_blk3_wtAV_init10_ones9_net50_byz1_dim9_AHU1003_b20_DGDAlgorithm.h5",
+# "208_11H42M04S_result_208_16H54M49S_end100_ss1e1_blk3_wtAV_init10_ones9_net50_byz1_dim9_AHU1003_b20_FCGDAlgorithm.h5",
 # ]
 # plot_distance_to_optimal(wtAV_atkplanxx)
 
-test_shift =[
-# "208_19H47M47S_result_208_18H33M17S_shift_BCGDAlgorithm.h5",
-# "208_19H47M47S_result_208_18H33M17S_shift_FCGDAlgorithm.h5",
-# "208_19H50M15S_result_208_18H33M17S_shift_BCGDAlgorithm.h5",
-# "208_19H50M15S_result_208_18H33M17S_shift_FCGDAlgorithm.h5",
-"208_19H52M47S_result_208_18H33M17S_shift_BCGDAlgorithm.h5",
-"208_19H52M47S_result_208_18H33M17S_shift_FCGDAlgorithm.h5",
-]
-plot_distance_to_optimal(test_shift)
+
+
+
+# test_shift =[
+# # "208_19H47M47S_result_208_18H33M17S_shift_BCGDAlgorithm.h5",
+# # "208_19H47M47S_result_208_18H33M17S_shift_FCGDAlgorithm.h5",
+# # "208_19H50M15S_result_208_18H33M17S_shift_BCGDAlgorithm.h5",
+# # "208_19H50M15S_result_208_18H33M17S_shift_FCGDAlgorithm.h5",
+# "208_19H52M47S_result_208_18H33M17S_shift_BCGDAlgorithm.h5",
+# "208_19H52M47S_result_208_18H33M17S_shift_FCGDAlgorithm.h5",
+# ]
+# plot_distance_to_optimal(test_shift)
