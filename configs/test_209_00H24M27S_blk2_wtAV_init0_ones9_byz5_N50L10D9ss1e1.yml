@@ -1,0 +1,47 @@
+# This configuration file is a combination of the split configuration files,
+#  includes the settings for the algorithm, network, problem and the results.
+# In addition, if this is provided by -o or --one,
+#  the priority is higher than the split configurations.
+
+algorithm:
+  alg_settings:
+    end_iter: 100
+    stepsize: 0.1 # can also set: `diminishing` to be 1/(iter+1)
+    alg_name:
+      - "BCGDAlgorithm"
+      - "BBAlgorithm"
+      - "FCGDAlgorithm"  # only need to run this for blk1, redundant for the other cases.
+      - "DGDAlgorithm"
+    blk_size: 2
+    wt_plan: 'average'  # if no information, default to be `metropolis-Hastings`.
+    verbose: false  # true for mute
+    timeout_base: 1.0
+    param_init: 0
+    byz_msg:
+      byz_plan: 'ones'  # rand, flip, time, ones
+      byz_mag: 9
+network:
+  net_settings:
+    net_size: 50
+    byz_size: 5
+#    gene_plan: 'ER_graph'
+#    ER_p: .9
+    gene_plan: 'reg_graph'
+    reg_deg: 20
+    conn_req: True
+    directed_req: False
+problem:
+  prob_settings:
+    problem_type: 'LeastSquareProblem'
+    dimension: 9
+    A:
+      HessLowerBd: 1.0
+      HessUpperBd: 10.0  # AHU in config title
+    b: [ -20, 20 ]
+    c: 0.0
+result:
+  result_settings:
+    save_hist: true
+    save_results: true
+
+

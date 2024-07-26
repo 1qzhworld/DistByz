@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# Config files
+CONFIG_FILES=(
+  test_209_00H24M27S_blk1_wtAV_init0_ones9_byz5_N50L10D9ss1e1.yml
+  test_209_00H24M27S_blk1_wtAV_init0_rand9_byz5_N50L10D9ss1e1.yml
+  test_209_00H24M27S_blk1_wtBB_init0_ones9_byz5_N50L10D9ss1e1.yml
+  test_209_00H24M27S_blk1_wtBB_init0_rand9_byz5_N50L10D9ss1e1.yml
+  test_209_00H24M27S_blk2_wtAV_init0_ones9_byz5_N50L10D9ss1e1.yml
+  test_209_00H24M27S_blk2_wtAV_init0_rand9_byz3_N50L10D9ss1e1.yml
+  test_209_00H24M27S_blk2_wtAV_init0_rand9_byz5_N50L10D9ss1e1.yml
+  test_209_00H24M27S_blk2_wtAV_init0_rand9_byz7_N50L10D9ss1e1.yml
+  test_209_00H24M27S_blk2_wtBB_init0_ones9_byz5_N50L10D9ss1e1.yml
+  test_209_00H24M27S_blk2_wtBB_init0_rand9_byz3_N50L10D9ss1e1.yml
+  test_209_00H24M27S_blk2_wtBB_init0_rand9_byz5_N50L10D9ss1e1.yml
+  test_209_00H24M27S_blk2_wtBB_init0_rand9_byz7_N50L10D9ss1e1.yml
+  test_209_00H24M27S_blk3_wtAV_init0_ones9_byz3_N50L10D9ss1e1.yml
+  test_209_00H24M27S_blk3_wtAV_init0_ones9_byz5_N50L10D9ss1e1.yml
+  test_209_00H24M27S_blk3_wtAV_init0_ones9_byz7_N50L10D9ss1e1.yml
+  test_209_00H24M27S_blk3_wtAV_init0_rand9_byz5_N50L10D9ss1e1.yml
+  test_209_00H24M27S_blk3_wtBB_init0_ones9_byz5_N50L10D9ss1e1.yml
+  test_209_00H24M27S_blk3_wtBB_init0_rand9_byz5_N50L10D9ss1e1.yml
+  test_209_00H24M27S_blk5_wtAV_init0_ones9_byz5_N50L10D9ss1e1.yml
+  test_209_00H24M27S_blk5_wtAV_init0_rand9_byz5_N50L10D9ss1e1.yml
+  test_209_00H24M27S_blk5_wtBB_init0_ones9_byz5_N50L10D9ss1e1.yml
+  test_209_00H24M27S_blk5_wtBB_init0_rand9_byz5_N50L10D9ss1e1.yml
+)
+
+# Loop through all config files
+for config_file in "${CONFIG_FILES[@]}"; do
+    echo "Running config file: $config_file"
+    python main.py -a "$config_file"
+done

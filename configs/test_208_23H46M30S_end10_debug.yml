@@ -18,8 +18,8 @@ algorithm:
     timeout_base: 1.0
     param_init: 0
     byz_msg:
-      byz_plan: 'rand'  # rand, flip, time, ones
-      byz_mag: 5
+      byz_plan: 'ones'  # rand, flip, time, ones
+      byz_mag: 9
 network:
   net_settings:
     net_size: 5
