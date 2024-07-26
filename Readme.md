@@ -163,3 +163,14 @@ and see what attakcs is most attractive for comparisons.
 
 Previous codes are wrong. Because the `block_byz_aggregation` in RayAgent is uncorrect!!!.
 
+## Changes before V2.1 
+
+- Changed the weight in ray_agent 257 to avoid the case when there is only agent itself:
+
+  > ```python
+  > w_others = (1-wd) / (len(sel_ids)-1) if len(sel_ids) > 1 else 1.
+  > ```
+
+- Add FCGD (full consensus gradient descent) to the configs when blksiz = 1.
+- changed the seed in LeastSquareProblem with agent_id added. Such that each agent can generate its own problem (previously, they generate the same problem, and the performance are same for different settings. That can be understood.)
+- 

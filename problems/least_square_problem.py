@@ -12,7 +12,7 @@ class LeastSquareProblem(AbstractProblem):
     """
     def __init__(self, agent_id: int, prob_settings: Dict[str, Any]) -> None:
         super().__init__(agent_id, prob_settings)
-        seed = prob_settings.get("seed", 0)
+        seed = prob_settings.get("seed", 0) + agent_id
         np.random.seed(seed)
 
         self.M, self.m = prob_settings['A']['HessUpperBd'], prob_settings['A']['HessLowerBd']
