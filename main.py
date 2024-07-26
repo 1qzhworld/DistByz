@@ -1,5 +1,5 @@
 import ray
-from ray.exceptions import RayActorError
+# from ray.exceptions import RayActorError
 
 # from configs.configs import *
 from networks.network import Network
@@ -8,11 +8,12 @@ from utils.utils import parse_args, centralized_solver
 from algorithms.bcgd_algorithm import BCGDAlgorithm
 from algorithms.bb_algorithm import BBAlgorithm
 from algorithms.dgd_algorithm import DGDAlgorithm
-
+from algorithms.fcgd_algorithm import FCGDAlgorithm
 algorithms = {
     "BBAlgorithm": BBAlgorithm,
     "BCGDAlgorithm": BCGDAlgorithm,
-    "DGDAlgorithm": DGDAlgorithm
+    "DGDAlgorithm": DGDAlgorithm,
+    "FCGDAlgorithm": FCGDAlgorithm,
 }
 
 # load the parameters

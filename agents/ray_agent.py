@@ -254,7 +254,7 @@ class RayAgent:
         wd = np.max([(reg_size-1-gamma)/(reg_size-2), wx])  # diagonal of weight should be positive.
         # print(f"\rStep 0.1.2.1: _generate_one_block_byz_weight: diagonal is {wd}.")
         # check_subset([self.agent_id], sel_ids)
-        w_others = (1-wd) / (len(sel_ids)-1)  # sum of weights without agent_id itself.
+        w_others = (1-wd) / (len(sel_ids)-1) if len(sel_ids) > 1 else 1.  # sum of weights without agent_id itself.
         loc_wt_row = np.zeros(net_size)
         loc_wt_row[sel_ids] = w_others
         loc_wt_row[self.agent_id] = wd  # replace the `diagonal` one with its value.

@@ -8,9 +8,10 @@ algorithm:
     end_iter: 50
     stepsize: 'diminishing_stepsize' # can also set: `diminishing` to be 1/(iter+1)
     alg_name:
-      - "BCGDAlgorithm"
-      - "BBAlgorithm"
-      - "DGDAlgorithm"
+#      - "BCGDAlgorithm"
+#      - "BBAlgorithm"
+#      - "DGDAlgorithm"
+      - "FCGDAlgorithm"
     blk_size: 3
     wt_plan: 'block_byz'  # if no information, default to be `metropolis-Hastings`.
     verbose: false  # true for mute
