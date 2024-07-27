@@ -3,3 +3,4 @@ __pycache__
 *.xml
 logs/
 results/2024*
+record.md

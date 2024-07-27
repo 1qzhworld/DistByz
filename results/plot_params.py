@@ -1,16 +1,42 @@
 from utils.utils import plot_distance_to_optimal
 
-initxx = [
-"209_00H59M50S_result_209_00H24M27S_blk1_wtAV_init100_ones9_byz5_N50L10D9ss1e1_BBAlgorithm.h5",
-"209_00H59M50S_result_209_00H24M27S_blk1_wtAV_init100_ones9_byz5_N50L10D9ss1e1_BCGDAlgorithm.h5",
-"209_00H59M50S_result_209_00H24M27S_blk1_wtAV_init100_ones9_byz5_N50L10D9ss1e1_DGDAlgorithm.h5",
-"209_00H59M50S_result_209_00H24M27S_blk1_wtAV_init100_ones9_byz5_N50L10D9ss1e1_FCGDAlgorithm.h5",
-# "209_01H06M59S_result_209_00H24M27S_blk1_wtAV_init10_ones9_byz5_N50L10D9ss1e1_BBAlgorithm.h5",
-# "209_01H06M59S_result_209_00H24M27S_blk1_wtAV_init10_ones9_byz5_N50L10D9ss1e1_BCGDAlgorithm.h5",
-# "209_01H06M59S_result_209_00H24M27S_blk1_wtAV_init10_ones9_byz5_N50L10D9ss1e1_DGDAlgorithm.h5",
-# "209_01H06M59S_result_209_00H24M27S_blk1_wtAV_init10_ones9_byz5_N50L10D9ss1e1_FCGDAlgorithm.h5",
-]
-plot_distance_to_optimal(initxx)
+
+
+# initxx = [
+# "209_01H45M19S_result_209_09H31M39S_blk1_wtAV_init100_ones9_byz5_N50L10D9ss1e1_BBAlgorithm.h5",
+# "209_01H45M19S_result_209_09H31M39S_blk1_wtAV_init100_ones9_byz5_N50L10D9ss1e1_BCGDAlgorithm.h5",
+# "209_01H45M19S_result_209_09H31M39S_blk1_wtAV_init100_ones9_byz5_N50L10D9ss1e1_DGDAlgorithm.h5",
+# "209_01H45M19S_result_209_09H31M39S_blk1_wtAV_init100_ones9_byz5_N50L10D9ss1e1_FCGDAlgorithm.h5",
+# "209_01H38M11S_result_209_09H31M39S_blk1_wtAV_init10_ones9_byz5_N50L10D9ss1e1_BBAlgorithm.h5",
+# "209_01H38M11S_result_209_09H31M39S_blk1_wtAV_init10_ones9_byz5_N50L10D9ss1e1_BCGDAlgorithm.h5",
+# "209_01H38M11S_result_209_09H31M39S_blk1_wtAV_init10_ones9_byz5_N50L10D9ss1e1_DGDAlgorithm.h5",
+# "209_01H38M11S_result_209_09H31M39S_blk1_wtAV_init10_ones9_byz5_N50L10D9ss1e1_FCGDAlgorithm.h5",
+# ]
+# plot_distance_to_optimal(initxx, 40)
+#
+# init10 = [
+# # "209_01H38M11S_result_209_09H31M39S_blk1_wtAV_init10_ones9_byz5_N50L10D9ss1e1_BBAlgorithm.h5",
+# # "209_01H38M11S_result_209_09H31M39S_blk1_wtAV_init10_ones9_byz5_N50L10D9ss1e1_BCGDAlgorithm.h5",
+# # "209_01H38M11S_result_209_09H31M39S_blk1_wtAV_init10_ones9_byz5_N50L10D9ss1e1_DGDAlgorithm.h5",
+# # "209_01H38M11S_result_209_09H31M39S_blk1_wtAV_init10_ones9_byz5_N50L10D9ss1e1_FCGDAlgorithm.h5",
+# "209_01H52M28S_result_209_09H31M39S_blk2_wtAV_init10_rand9_byz5_N50L10D9ss1e1_BBAlgorithm.h5",
+# "209_01H52M28S_result_209_09H31M39S_blk2_wtAV_init10_rand9_byz5_N50L10D9ss1e1_BCGDAlgorithm.h5",
+# "209_01H52M28S_result_209_09H31M39S_blk2_wtAV_init10_rand9_byz5_N50L10D9ss1e1_DGDAlgorithm.h5",
+# "209_01H52M28S_result_209_09H31M39S_blk2_wtAV_init10_rand9_byz5_N50L10D9ss1e1_FCGDAlgorithm.h5",
+# ]
+# plot_distance_to_optimal(init10)
+
+# init100 = [
+# "209_01H45M19S_result_209_09H31M39S_blk1_wtAV_init100_ones9_byz5_N50L10D9ss1e1_BBAlgorithm.h5",
+# "209_01H45M19S_result_209_09H31M39S_blk1_wtAV_init100_ones9_byz5_N50L10D9ss1e1_BCGDAlgorithm.h5",
+# "209_01H45M19S_result_209_09H31M39S_blk1_wtAV_init100_ones9_byz5_N50L10D9ss1e1_DGDAlgorithm.h5",
+# "209_01H45M19S_result_209_09H31M39S_blk1_wtAV_init100_ones9_byz5_N50L10D9ss1e1_FCGDAlgorithm.h5",
+# # "209_01H59M36S_result_209_09H31M39S_blk2_wtAV_init100_rand9_byz5_N50L10D9ss1e1_BBAlgorithm.h5",
+# # "209_01H59M36S_result_209_09H31M39S_blk2_wtAV_init100_rand9_byz5_N50L10D9ss1e1_BCGDAlgorithm.h5",
+# # "209_01H59M36S_result_209_09H31M39S_blk2_wtAV_init100_rand9_byz5_N50L10D9ss1e1_DGDAlgorithm.h5",
+# # "209_01H59M36S_result_209_09H31M39S_blk2_wtAV_init100_rand9_byz5_N50L10D9ss1e1_FCGDAlgorithm.h5",
+# ]
+# plot_distance_to_optimal(init100, 40)
 # selected_209_08H50M50S = [
 # "208_16H55M02S_result_209_00H24M27S_blk1_wtAV_init0_ones9_byz5_N50L10D9ss1e1_BBAlgorithm.h5",
 # "208_16H55M02S_result_209_00H24M27S_blk1_wtAV_init0_ones9_byz5_N50L10D9ss1e1_BCGDAlgorithm.h5",

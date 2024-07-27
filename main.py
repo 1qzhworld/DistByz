@@ -9,11 +9,13 @@ from algorithms.bcgd_algorithm import BCGDAlgorithm
 from algorithms.bb_algorithm import BBAlgorithm
 from algorithms.dgd_algorithm import DGDAlgorithm
 from algorithms.fcgd_algorithm import FCGDAlgorithm
+from algorithms.cwtm_algorithm import CWTMAlgorithm
 algorithms = {
     "BBAlgorithm": BBAlgorithm,
     "BCGDAlgorithm": BCGDAlgorithm,
     "DGDAlgorithm": DGDAlgorithm,
     "FCGDAlgorithm": FCGDAlgorithm,
+    "CWTMAlgorithm": CWTMAlgorithm,
 }
 
 # load the parameters

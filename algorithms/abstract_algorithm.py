@@ -92,7 +92,7 @@ class AbstractAlgorithm(ABC):
                 self.print_runtime_info()
                 pbar.set_postfix({
                     # 'Iteration': self.cur_iter,
-                    'Learning Rate': f"{self.lr:.6f}"
+                    'lr': f"{self.lr:.4f}"
                 })
                 pbar.update(1)
                 self.cur_iter += 1
