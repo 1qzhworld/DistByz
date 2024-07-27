@@ -188,3 +188,44 @@ Previous codes are wrong. Because the `block_byz_aggregation` in RayAgent is unc
 - Change remove the additional aggregation (full and block) in the corresponding `iter_run()`.
 - `random.seed(seed)` is added to the `network.py`.
 
+***
+
+从昨天的运行结果来看选出来的是:
+
+```
+selected_209_08H50M50S = [
+"208_16H55M02S_result_209_00H24M27S_blk1_wtAV_init0_ones9_byz5_N50L10D9ss1e1_BBAlgorithm.h5",
+"208_16H55M02S_result_209_00H24M27S_blk1_wtAV_init0_ones9_byz5_N50L10D9ss1e1_BCGDAlgorithm.h5",
+"208_16H55M02S_result_209_00H24M27S_blk1_wtAV_init0_ones9_byz5_N50L10D9ss1e1_DGDAlgorithm.h5",
+"208_16H55M02S_result_209_00H24M27S_blk1_wtAV_init0_ones9_byz5_N50L10D9ss1e1_FCGDAlgorithm.h5",
+
+
+"208_17H02M11S_result_209_00H24M27S_blk1_wtAV_init0_rand9_byz5_N50L10D9ss1e1_BBAlgorithm.h5",
+"208_17H02M11S_result_209_00H24M27S_blk1_wtAV_init0_rand9_byz5_N50L10D9ss1e1_BCGDAlgorithm.h5",
+"208_17H02M11S_result_209_00H24M27S_blk1_wtAV_init0_rand9_byz5_N50L10D9ss1e1_DGDAlgorithm.h5",
+"208_17H02M11S_result_209_00H24M27S_blk1_wtAV_init0_rand9_byz5_N50L10D9ss1e1_FCGDAlgorithm.h5",
+
+
+"208_17H23M35S_result_209_00H24M27S_blk2_wtAV_init0_ones9_byz5_N50L10D9ss1e1_BBAlgorithm.h5",
+"208_17H23M35S_result_209_00H24M27S_blk2_wtAV_init0_ones9_byz5_N50L10D9ss1e1_BCGDAlgorithm.h5",
+"208_17H23M35S_result_209_00H24M27S_blk2_wtAV_init0_ones9_byz5_N50L10D9ss1e1_DGDAlgorithm.h5",
+"208_17H23M35S_result_209_00H24M27S_blk2_wtAV_init0_ones9_byz5_N50L10D9ss1e1_FCGDAlgorithm.h5",
+
+
+"208_17H37M51S_result_209_00H24M27S_blk2_wtAV_init0_rand9_byz5_N50L10D9ss1e1_BBAlgorithm.h5",
+"208_17H37M51S_result_209_00H24M27S_blk2_wtAV_init0_rand9_byz5_N50L10D9ss1e1_BCGDAlgorithm.h5",
+"208_17H37M51S_result_209_00H24M27S_blk2_wtAV_init0_rand9_byz5_N50L10D9ss1e1_DGDAlgorithm.h5",
+"208_17H37M51S_result_209_00H24M27S_blk2_wtAV_init0_rand9_byz5_N50L10D9ss1e1_FCGDAlgorithm.h5",
+]
+plot_distance_to_optimal(selected_209_08H50M50S)
+```
+
+在这些结果之中可以看到共同点是都是byz5的时候的效果要好些，有rand和ones各一半。都是用的average得到weight，block_byz的weight作用并不大。初始值倒是都是从0开始的。然后其实各50步就够了。
+
+blk的大小一般在1，2的时候效果比较好？
+
+然后就是FCGD有些情况下竟然是不收敛的。
+
+***
+
+下面我想要尝试用不同的初始值(10,100)，对这集中进行训练看看
