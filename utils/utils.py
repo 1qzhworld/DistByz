@@ -132,7 +132,7 @@ def load_all_hist(logging_result_path):
     return load_all_params, global_solution, agent_types
 
 
-def get_reg_params(all_params: Dict[int, np.ndarray], agent_types: Dict[int, str]):
+def get_reg_params(all_params: Dict[int, np.ndarray], agent_types: Dict[int, str]) -> Dict[int, np.ndarray]:
     return {agent_id: all_params[agent_id] for agent_id in range(len(agent_types)) if agent_types[agent_id] == 'Reg'}
 
 
@@ -160,7 +160,7 @@ def plot_distance_to_optimal(filenames: List[str], end_iter: int = None):
 
         # Plotting each line on the same figure
         plt.semilogy(range(num_iterations), distances, label=f'{algorithm_name} Distance to Optimal')
-
+    plt.xlim(0, end_iter)
     plt.xlabel('Iteration')
     plt.ylabel('Squared Distance (Log Scale)')
     longest_common_substring_in_result_files = find_longest_common_substring_in_all(filenames)
