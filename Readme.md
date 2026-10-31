@@ -1,3 +1,8 @@
+## 2026-10-31
+In the paper, we stated: "In the simulation, a network with 50 agents is randomly generated, ensuring that each agent has at least 21 neighbors." This is achieved through the following two steps:
+- Initialize the Byzantine agents and generate a 21-regular graph with 50 nodes, which gives each agent exactly 21 neighbors.
+- Randomly add links (edges) to the graph and test its property until a 21-robust graph is obtained.
+
 ## 2024-07-03
 The `functions`, `networks`, and `problems` are copied from BlockBYZ__Personal2024-06-20
 The `networks` requires no change, but the algorithm is not run in parallel. Still need improvements.
